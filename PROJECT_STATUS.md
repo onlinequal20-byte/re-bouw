@@ -16,7 +16,7 @@ npm run dev                   # Start the application
 - ✅ **Next.js 15** with App Router and TypeScript
 - ✅ **Tailwind CSS** with shadcn/ui components (professional UI)
 - ✅ **Prisma ORM** with SQLite database
-- ✅ **NextAuth.js v5** authentication (login: admin@amsbouwers.nl / admin123)
+- ✅ **NextAuth.js v5** authentication (login: nader@amsbouwers.nl / Sharifi_1967)
 - ✅ **Complete database schema** with all relationships
 - ✅ **Seed script** with 10 clients, 30 prices, 5 quotations, 3 invoices
 - ✅ **Mobile responsive** layout with sidebar navigation
@@ -272,8 +272,8 @@ npm run dev
 ```
 
 Then open http://localhost:3000 and login with:
-- Email: admin@amsbouwers.nl
-- Password: admin123
+- Email: nader@amsbouwers.nl
+- Password: Sharifi_1967
 
 ## 🎯 What You Can Do RIGHT NOW
 

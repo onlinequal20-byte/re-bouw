@@ -63,8 +63,8 @@ Ga naar [http://localhost:3000](http://localhost:3000)
 
 Gebruik de volgende inloggegevens:
 
-- **Email:** admin@amsbouwers.nl
-- **Wachtwoord:** admin123
+- **Email:** nader@amsbouwers.nl
+- **Wachtwoord:** Sharifi_1967
 
 ## 📁 Project Structuur
 

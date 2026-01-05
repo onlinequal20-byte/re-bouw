@@ -329,8 +329,8 @@ Once deployed, test these:
    - Should see login page
 
 2. **Login:**
-   - Email: admin@amsbouwers.nl
-   - Password: admin123
+   - Email: nader@amsbouwers.nl
+   - Password: Sharifi_1967
    - Should redirect to dashboard
 
 3. **Test Features:**

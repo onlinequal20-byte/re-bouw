@@ -12,7 +12,7 @@ npx prisma migrate dev --name init
 npm run dev
 ```
 
-**Login:** admin@amsbouwers.nl / admin123  
+**Login:** nader@amsbouwers.nl / Sharifi_1967  
 **URL:** http://localhost:3000
 
 ---
@@ -528,7 +528,7 @@ This system is **85% complete and immediately usable** for client management and
 npm install && npx prisma migrate dev && npm run dev
 ```
 
-**Login:** admin@amsbouwers.nl / admin123
+**Login:** nader@amsbouwers.nl / Sharifi_1967
 
 **Enjoy your new system!** 🎉
 

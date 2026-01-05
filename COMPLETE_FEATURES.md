@@ -16,8 +16,8 @@ Your professional contractor management system is now **100% complete** with all
 ✅ Credentials provider
 
 **Default Login:**
-- Email: `admin@amsbouwers.nl`
-- Password: `admin123`
+- Email: `nader@amsbouwers.nl`
+- Password: `Sharifi_1967`
 
 ---
 

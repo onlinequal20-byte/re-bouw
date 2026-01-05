@@ -131,7 +131,7 @@ Or use Vercel dashboard to run these commands.
 ### Configure Zoho Email
 
 1. Open your deployed app: `https://your-project.vercel.app`
-2. Login: `admin@amsbouwers.nl` / `admin123`
+2. Login: `nader@amsbouwers.nl` / `Sharifi_1967`
 3. Go to **Instellingen** → **Zoho Mail** tab
 4. Enter:
    - **Zoho Email:** your@zohomail.com
@@ -201,7 +201,7 @@ Save these bookmarks:
 - Check database is accessible from internet
 
 **Can't login?**
-- Default: admin@amsbouwers.nl / admin123
+- Default: nader@amsbouwers.nl / Sharifi_1967
 - Make sure seed ran successfully
 - Check database has User table with data
 

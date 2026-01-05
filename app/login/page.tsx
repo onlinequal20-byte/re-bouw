@@ -76,7 +76,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@amsbouwers.nl"
+                placeholder="nader@amsbouwers.nl"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -101,7 +101,7 @@ export default function LoginPage() {
             <div className="text-sm text-center text-muted-foreground mt-4">
               <p>Standaard inloggegevens:</p>
               <p className="font-mono text-xs mt-1">
-                admin@amsbouwers.nl / admin123
+                nader@amsbouwers.nl / Sharifi_1967
               </p>
             </div>
           </form>

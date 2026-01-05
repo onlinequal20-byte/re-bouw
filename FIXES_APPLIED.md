@@ -287,7 +287,7 @@ Click each sidebar item:
 
 1. **Refresh browser:** `Cmd + Shift + R` (hard refresh)
 2. **Go to:** `http://localhost:3000`
-3. **Login:** admin@amsbouwers.nl / admin123
+3. **Login:** nader@amsbouwers.nl / Sharifi_1967
 4. **Click through every page**
 5. **Try creating an offerte**
 6. **Everything should work! ✅**

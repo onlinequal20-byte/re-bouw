@@ -122,7 +122,7 @@ Or use Vercel's dashboard:
 ## Step 5: Configure Zoho (Optional)
 
 Once deployed, go to your app:
-1. Login with: admin@amsbouwers.nl / admin123
+1. Login with: nader@amsbouwers.nl / Sharifi_1967
 2. Go to **Instellingen** → **Zoho Mail**
 3. Add your Zoho credentials
 4. Start sending emails!
@@ -158,7 +158,7 @@ After first deployment, update the admin password:
 ```sql
 UPDATE "User" 
 SET password = [bcrypt hash of new password]
-WHERE email = 'admin@amsbouwers.nl';
+WHERE email = 'nader@amsbouwers.nl';
 ```
 
 Or create a new admin user via the Prisma Studio.

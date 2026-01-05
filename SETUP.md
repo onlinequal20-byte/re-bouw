@@ -37,8 +37,8 @@ The application will start on [http://localhost:3000](http://localhost:3000)
 ## 🔐 Login Credentials
 
 ```
-Email: admin@amsbouwers.nl
-Password: admin123
+Email: nader@amsbouwers.nl
+Password: Sharifi_1967
 ```
 
 ## ✅ What's Included Out of the Box
