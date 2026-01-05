@@ -5,6 +5,7 @@ import * as bcrypt from 'bcryptjs';
 
 const authConfig: NextAuthConfig = {
   // Note: Don't use adapter with credentials provider and JWT sessions
+  trustHost: true,
   providers: [
     CredentialsProvider({
       name: 'credentials',
