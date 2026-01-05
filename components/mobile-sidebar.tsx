@@ -17,7 +17,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 
 const navigation = [
@@ -33,6 +33,13 @@ const navigation = [
 export function MobileSidebar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch("/api/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  };
 
   return (
     <>
@@ -99,7 +106,7 @@ export function MobileSidebar() {
           <Button
             variant="ghost"
             className="w-full justify-start text-gray-300 hover:bg-gray-800 hover:text-white"
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={handleLogout}
           >
             <LogOut className="mr-3 h-5 w-5" />
             Uitloggen

@@ -14,8 +14,8 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
-import { signOut } from "next-auth/react";
 import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -29,6 +29,13 @@ const navigation = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch("/api/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  };
 
   return (
     <div className="flex h-screen w-64 flex-col bg-gray-900 text-white">
@@ -69,7 +76,7 @@ export function Sidebar() {
         <Button
           variant="ghost"
           className="w-full justify-start text-gray-300 hover:bg-gray-800 hover:text-white"
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={handleLogout}
         >
           <LogOut className="mr-3 h-5 w-5" />
           Uitloggen

@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/simple-auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import {
@@ -110,7 +110,7 @@ function getStatusBadgeVariant(status: string) {
 }
 
 export default async function DashboardPage() {
-  const session = await auth();
+  const session = await getSession();
   
   if (!session) {
     redirect("/login");
