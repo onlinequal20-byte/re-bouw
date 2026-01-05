@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,27 +27,27 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-        callbackUrl: "/",
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
-      console.log("SignIn result:", result);
+      const data = await response.json();
 
-      if (result?.error) {
+      if (!response.ok) {
         toast({
           variant: "destructive",
           title: "Fout bij inloggen",
-          description: "Onjuiste email of wachtwoord.",
+          description: data.error || "Onjuiste email of wachtwoord.",
         });
-      } else if (result?.ok) {
-        // Force a hard navigation to ensure cookies are properly set
-        window.location.href = "/";
       } else {
-        router.push("/");
-        router.refresh();
+        toast({
+          title: "Succesvol ingelogd!",
+          description: "Je wordt doorgestuurd naar het dashboard.",
+        });
+        // Use window.location for hard navigation
+        window.location.href = "/";
       }
     } catch (error) {
       toast({
