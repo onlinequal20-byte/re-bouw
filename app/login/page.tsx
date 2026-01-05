@@ -32,7 +32,10 @@ export default function LoginPage() {
         email,
         password,
         redirect: false,
+        callbackUrl: "/",
       });
+
+      console.log("SignIn result:", result);
 
       if (result?.error) {
         toast({
@@ -40,6 +43,9 @@ export default function LoginPage() {
           title: "Fout bij inloggen",
           description: "Onjuiste email of wachtwoord.",
         });
+      } else if (result?.ok) {
+        // Force a hard navigation to ensure cookies are properly set
+        window.location.href = "/";
       } else {
         router.push("/");
         router.refresh();
