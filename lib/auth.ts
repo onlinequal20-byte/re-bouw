@@ -1,11 +1,10 @@
 import NextAuth, { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from './prisma';
 import * as bcrypt from 'bcryptjs';
 
 const authConfig: NextAuthConfig = {
-  adapter: PrismaAdapter(prisma),
+  // Note: Don't use adapter with credentials provider and JWT sessions
   providers: [
     CredentialsProvider({
       name: 'credentials',
