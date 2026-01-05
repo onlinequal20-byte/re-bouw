@@ -1,0 +1,320 @@
+import { prisma } from "@/lib/prisma";
+import { notFound } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { formatCurrency, formatDate } from "@/lib/utils";
+import { ArrowLeft, Download, CheckCircle2, Copy, ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { EmailButton } from "@/components/email-button";
+import Image from "next/image";
+
+function getStatusBadgeVariant(status: string) {
+  switch (status) {
+    case "Geaccepteerd":
+      return "success" as const;
+    case "Verzonden":
+      return "default" as const;
+    case "Concept":
+      return "secondary" as const;
+    case "Afgewezen":
+      return "destructive" as const;
+    default:
+      return "default" as const;
+  }
+}
+
+export default async function OfferteDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const offerte = await prisma.offerte.findUnique({
+    where: { id },
+    include: {
+      klant: true,
+      items: {
+        orderBy: { volgorde: "asc" },
+      },
+    },
+  });
+
+  if (!offerte) {
+    notFound();
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/offertes">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {offerte.offerteNummer}
+            </h1>
+            <p className="text-muted-foreground">Offerte details</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <a href={`/api/offertes/${offerte.id}/pdf`} target="_blank">
+            <Button>
+              <Download className="mr-2 h-4 w-4" />
+              Download PDF
+            </Button>
+          </a>
+          <EmailButton
+            id={offerte.id}
+            type="offerte"
+            clientEmail={offerte.klant.email}
+          />
+        </div>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Klantgegevens</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div>
+              <span className="text-sm text-muted-foreground">Naam:</span>
+              <p className="font-medium">{offerte.klant.naam}</p>
+            </div>
+            {offerte.klant.email && (
+              <div>
+                <span className="text-sm text-muted-foreground">Email:</span>
+                <p className="font-medium">{offerte.klant.email}</p>
+              </div>
+            )}
+            {offerte.klant.telefoon && (
+              <div>
+                <span className="text-sm text-muted-foreground">Telefoon:</span>
+                <p className="font-medium">{offerte.klant.telefoon}</p>
+              </div>
+            )}
+            {offerte.klant.adres && (
+              <div>
+                <span className="text-sm text-muted-foreground">Adres:</span>
+                <p className="font-medium">{offerte.klant.adres}</p>
+                {offerte.klant.postcode && offerte.klant.plaats && (
+                  <p className="font-medium">
+                    {offerte.klant.postcode} {offerte.klant.plaats}
+                  </p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Offerte Gegevens</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div>
+              <span className="text-sm text-muted-foreground">Status:</span>
+              <div className="mt-1">
+                <Badge variant={getStatusBadgeVariant(offerte.status)}>
+                  {offerte.status}
+                </Badge>
+              </div>
+            </div>
+            <div>
+              <span className="text-sm text-muted-foreground">Datum:</span>
+              <p className="font-medium">{formatDate(offerte.datum)}</p>
+            </div>
+            <div>
+              <span className="text-sm text-muted-foreground">Geldig tot:</span>
+              <p className="font-medium">{formatDate(offerte.geldigTot)}</p>
+            </div>
+            <div>
+              <span className="text-sm text-muted-foreground">Project:</span>
+              <p className="font-medium">{offerte.projectNaam}</p>
+              {offerte.projectLocatie && (
+                <p className="text-sm text-muted-foreground">
+                  {offerte.projectLocatie}
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Items</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12">#</TableHead>
+                <TableHead>Omschrijving</TableHead>
+                <TableHead className="text-right">Aantal</TableHead>
+                <TableHead>Eenheid</TableHead>
+                <TableHead className="text-right">Prijs/Eenheid</TableHead>
+                <TableHead className="text-right">Totaal</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {offerte.items.map((item, index) => (
+                <TableRow key={item.id}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{item.omschrijving}</TableCell>
+                  <TableCell className="text-right">{item.aantal}</TableCell>
+                  <TableCell>{item.eenheid}</TableCell>
+                  <TableCell className="text-right">
+                    {formatCurrency(item.prijsPerEenheid)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {formatCurrency(item.totaal)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          <div className="mt-6 space-y-2 border-t pt-4">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Subtotaal:</span>
+              <span className="font-medium">
+                {formatCurrency(offerte.subtotaal)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">
+                BTW ({offerte.btwPercentage}%):
+              </span>
+              <span className="font-medium">
+                {formatCurrency(offerte.btwBedrag)}
+              </span>
+            </div>
+            <div className="flex justify-between text-lg font-bold">
+              <span>Totaal:</span>
+              <span>{formatCurrency(offerte.totaal)}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {offerte.notities && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Notities</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="whitespace-pre-wrap">{offerte.notities}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Signature Status Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            {offerte.klantHandtekening ? (
+              <>
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+                Digitaal Ondertekend
+              </>
+            ) : (
+              "Ondertekening Status"
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {offerte.klantHandtekening ? (
+            <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <span className="text-sm text-muted-foreground">Ondertekend door:</span>
+                  <p className="font-medium">{offerte.klantNaam}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-muted-foreground">Datum:</span>
+                  <p className="font-medium">
+                    {offerte.klantGetekendOp
+                      ? new Date(offerte.klantGetekendOp).toLocaleString("nl-NL")
+                      : "-"}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <span className="text-sm text-muted-foreground block mb-2">
+                  Handtekening:
+                </span>
+                <div className="border rounded-lg p-4 bg-white inline-block">
+                  <Image
+                    src={offerte.klantHandtekening}
+                    alt="Handtekening"
+                    width={300}
+                    height={100}
+                    className="max-w-full h-auto"
+                  />
+                </div>
+              </div>
+              {offerte.algemeneVoorwaardenUrl && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  Akkoord met algemene voorwaarden
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Deze offerte is nog niet ondertekend door de klant.
+              </p>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/ondertekenen/offerte/${offerte.id}`}
+                    className="flex-1 px-3 py-2 text-sm border rounded-md bg-muted"
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/ondertekenen/offerte/${offerte.id}`
+                      );
+                    }}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+                <a
+                  href={`/ondertekenen/offerte/${offerte.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex"
+                >
+                  <Button size="sm" variant="outline">
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Onderteken Pagina Openen
+                  </Button>
+                </a>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+

@@ -1,0 +1,205 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Klant {
+  id         String     @id @default(cuid())
+  naam       String
+  email      String?
+  telefoon   String?
+  adres      String?
+  postcode   String?
+  plaats     String?
+  kvkNummer  String?
+  notities   String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  offertes   Offerte[]
+  facturen   Factuur[]
+}
+
+model Prijslijst {
+  id              String   @id @default(cuid())
+  categorie       String
+  omschrijving    String
+  prijsPerEenheid Float
+  eenheid         String
+  materiaalKosten Float    @default(0)
+  actief          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Offerte {
+  id                      String         @id @default(cuid())
+  offerteNummer           String         @unique
+  datum                   DateTime       @default(now())
+  geldigTot               DateTime
+  klantId                 String
+  klant                   Klant          @relation(fields: [klantId], references: [id], onDelete: Cascade)
+  projectNaam             String
+  projectLocatie          String?
+  items                   OfferteItem[]
+  subtotaal               Float
+  btwPercentage           Float
+  btwBedrag               Float
+  totaal                  Float
+  status                  String         @default("Concept")
+  emailVerzonden          Boolean        @default(false)
+  notities                String?
+  // Signature fields
+  klantHandtekening       String?        // Base64 signature image
+  klantNaam               String?        // Name of person who signed
+  klantGetekendOp         DateTime?      // When client signed
+  klantIpAdres            String?        // IP address of client
+  bedrijfHandtekening     String?        // Company signature
+  bedrijfNaam             String?        // Company representative name
+  bedrijfGetekendOp       DateTime?      // When company signed
+  algemeneVoorwaardenUrl  String?        // URL to AV PDF
+  algemeneVoorwaardenHash String?        // Hash of AV for verification
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
+}
+
+model OfferteItem {
+  id              String   @id @default(cuid())
+  offerteId       String
+  offerte         Offerte  @relation(fields: [offerteId], references: [id], onDelete: Cascade)
+  omschrijving    String
+  aantal          Float
+  eenheid         String
+  prijsPerEenheid Float
+  totaal          Float
+  volgorde        Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Factuur {
+  id                      String        @id @default(cuid())
+  factuurNummer           String        @unique
+  datum                   DateTime      @default(now())
+  vervaldatum             DateTime
+  klantId                 String
+  klant                   Klant         @relation(fields: [klantId], references: [id], onDelete: Cascade)
+  projectNaam             String
+  projectLocatie          String?
+  items                   FactuurItem[]
+  subtotaal               Float
+  btwPercentage           Float
+  btwBedrag               Float
+  totaal                  Float
+  status                  String        @default("Onbetaald")
+  betaaldBedrag           Float         @default(0)
+  emailVerzonden          Boolean       @default(false)
+  notities                String?
+  // Signature fields
+  klantHandtekening       String?       // Base64 signature image
+  klantNaam               String?       // Name of person who signed
+  klantGetekendOp         DateTime?     // When client signed
+  klantIpAdres            String?       // IP address of client
+  algemeneVoorwaardenUrl  String?       // URL to AV PDF
+  algemeneVoorwaardenHash String?       // Hash of AV for verification
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+}
+
+model FactuurItem {
+  id              String   @id @default(cuid())
+  factuurId       String
+  factuur         Factuur  @relation(fields: [factuurId], references: [id], onDelete: Cascade)
+  omschrijving    String
+  aantal          Float
+  eenheid         String
+  prijsPerEenheid Float
+  totaal          Float
+  volgorde        Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Settings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Email {
+  id              String   @id @default(cuid())
+  type            String   // "offerte" or "factuur"
+  documentId      String   // ID of offerte or factuur
+  documentNummer  String   // OFF-YYYY-XXX or FACT-YYYY-XXX
+  recipient       String   // Email address
+  recipientName   String   // Client name
+  subject         String
+  body            String
+  status          String   @default("verzonden") // "verzonden", "mislukt", "gepland"
+  errorMessage    String?
+  sentAt          DateTime @default(now())
+  openedAt        DateTime? // When email was opened (future feature)
+  clickedAt       DateTime? // When link was clicked (future feature)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([type])
+  @@index([documentId])
+  @@index([sentAt])
+}
+
