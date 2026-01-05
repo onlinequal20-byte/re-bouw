@@ -6,6 +6,7 @@ import * as bcrypt from 'bcryptjs';
 const authConfig: NextAuthConfig = {
   // Note: Don't use adapter with credentials provider and JWT sessions
   trustHost: true,
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -14,7 +15,10 @@ const authConfig: NextAuthConfig = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        console.log('🔐 Auth attempt for:', credentials?.email);
+        
         if (!credentials?.email || !credentials?.password) {
+          console.log('❌ Missing credentials');
           throw new Error('Email en wachtwoord zijn verplicht');
         }
 
@@ -23,6 +27,7 @@ const authConfig: NextAuthConfig = {
         });
 
         if (!user || !user.password) {
+          console.log('❌ User not found');
           throw new Error('Onjuiste inloggegevens');
         }
 
@@ -32,9 +37,11 @@ const authConfig: NextAuthConfig = {
         );
 
         if (!isPasswordValid) {
+          console.log('❌ Invalid password');
           throw new Error('Onjuiste inloggegevens');
         }
 
+        console.log('✅ Auth successful for:', user.email);
         return {
           id: user.id,
           email: user.email,
@@ -45,6 +52,7 @@ const authConfig: NextAuthConfig = {
   ],
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
     signIn: '/login',
@@ -53,6 +61,7 @@ const authConfig: NextAuthConfig = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        console.log('🎫 JWT created for user:', user.email);
       }
       return token;
     },
@@ -63,6 +72,7 @@ const authConfig: NextAuthConfig = {
       return session;
     },
   },
+  debug: process.env.NODE_ENV === 'development',
 };
 
 const nextAuth = NextAuth(authConfig);
