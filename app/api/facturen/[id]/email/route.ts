@@ -89,7 +89,7 @@ export async function POST(
       betalingsvoorwaarden: settingsMap['betalingsvoorwaarden'],
     };
 
-    const pdfBuffer = await renderToBuffer(React.createElement(InvoicePDF, { data: pdfData }));
+    const pdfBuffer = await renderToBuffer(React.createElement(InvoicePDF, { data: pdfData }) as any);
 
     // Read Algemene Voorwaarden
     const avPath = path.join(process.cwd(), 'public', 'algemene-voorwaarden.txt');

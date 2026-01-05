@@ -78,9 +78,9 @@ export async function GET(
       betalingsvoorwaarden: settingsMap['betalingsvoorwaarden'],
     };
 
-    const pdfBuffer = await renderToBuffer(React.createElement(InvoicePDF, { data: pdfData }));
+    const pdfBuffer = await renderToBuffer(React.createElement(InvoicePDF, { data: pdfData }) as any);
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(Buffer.from(pdfBuffer), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${offerte.offerteNummer}.pdf"`,
