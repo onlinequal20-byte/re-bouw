@@ -286,17 +286,6 @@ export default async function OfferteDetailPage({
                     value={`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/ondertekenen/offerte/${offerte.id}`}
                     className="flex-1 px-3 py-2 text-sm border rounded-md bg-muted"
                   />
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/ondertekenen/offerte/${offerte.id}`
-                      );
-                    }}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
                 </div>
                 <a
                   href={`/ondertekenen/offerte/${offerte.id}`}
