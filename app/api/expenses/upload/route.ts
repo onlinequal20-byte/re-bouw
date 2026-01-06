@@ -10,10 +10,13 @@ export const maxDuration = 30; // Reduced timeout since OCR is disabled
 
 export async function POST(request: Request) {
   try {
+    console.log("🚀 Upload started");
     const session = await getSession();
     if (!session) {
+      console.error("❌ No session");
       return NextResponse.json({ error: "Niet geautoriseerd. Log opnieuw in." }, { status: 401 });
     }
+    console.log("✅ Session OK");
 
     const formData = await request.formData();
     const file = formData.get("file") as File;
@@ -26,17 +29,21 @@ export async function POST(request: Request) {
     const uploadedVia = formData.get("uploadedVia") as string || "web";
 
     if (!file) {
+      console.error("❌ No file");
       return NextResponse.json({ error: "Geen bestand geselecteerd" }, { status: 400 });
     }
+    console.log("✅ File OK");
 
     // Validate file type
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "application/pdf"];
     if (!allowedTypes.includes(file.type)) {
+      console.error("❌ Invalid file type:", file.type);
       return NextResponse.json(
         { error: "Ongeldig bestandstype. Alleen JPG, PNG, WebP en PDF zijn toegestaan." },
         { status: 400 }
       );
     }
+    console.log("✅ File type OK");
 
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
@@ -88,8 +95,14 @@ export async function POST(request: Request) {
 
     if (uploadError) {
       console.error("❌ Supabase upload error:", uploadError);
+      console.error("Error details:", JSON.stringify(uploadError, null, 2));
       return NextResponse.json(
-        { error: `Upload naar opslag mislukt: ${uploadError.message}` },
+        { 
+          error: `Upload naar opslag mislukt: ${uploadError.message}`,
+          details: uploadError,
+          supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+          hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+        },
         { status: 500 }
       );
     }
@@ -158,8 +171,13 @@ export async function POST(request: Request) {
     });
   } catch (error: any) {
     console.error("❌ Upload error:", error);
+    console.error("Error stack:", error.stack);
     return NextResponse.json(
-      { error: error.message || "Upload mislukt. Probeer het opnieuw." },
+      { 
+        error: error.message || "Upload mislukt. Probeer het opnieuw.",
+        details: error.toString(),
+        stack: error.stack,
+      },
       { status: 500 }
     );
   }
