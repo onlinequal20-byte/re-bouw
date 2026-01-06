@@ -1,5 +1,5 @@
 import { createMollieClient, PaymentMethod } from '@mollie/api-client';
-import prisma from './prisma';
+import { prisma } from './prisma';
 
 export async function getMollieClient() {
   // Get Mollie API key from settings
