@@ -24,7 +24,9 @@ const nextConfig: NextConfig = {
   
   // Environment variables that should be available on the client
   env: {
-    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000',
+    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 
+                          process.env.NEXTAUTH_URL || 
+                          (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'),
   },
 };
 

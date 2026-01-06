@@ -4,19 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  Building2,
   LayoutDashboard,
   Users,
   FileText,
   Receipt,
   DollarSign,
-  Mail,
   Settings,
   LogOut,
   Camera,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -25,7 +24,7 @@ const navigation = [
   { name: "Facturen", href: "/facturen", icon: Receipt },
   { name: "Kosten", href: "/kosten", icon: Camera },
   { name: "Prijzen", href: "/prijzen", icon: DollarSign },
-  { name: "Email", href: "/email", icon: Mail },
+
   { name: "Instellingen", href: "/instellingen", icon: Settings },
 ];
 
@@ -43,11 +42,14 @@ export function Sidebar() {
     <div className="flex h-screen w-64 flex-col gradient-header text-white shadow-xl">
       {/* Logo */}
       <div className="flex h-16 items-center justify-center border-b border-white/10 bg-black/20">
-        <div className="flex items-center gap-2">
-          <Building2 className="h-8 w-8 text-primary" />
-          <span className="text-xl font-bold">
-            AMS <span className="text-primary">BOUWERS</span>
-          </span>
+        <div className="relative w-48 h-12">
+          <Image 
+            src="/images/amsbouwers.logo.png" 
+            alt="AMS Bouwers" 
+            fill
+            className="object-contain"
+            priority
+          />
         </div>
       </div>
 
@@ -85,11 +87,12 @@ export function Sidebar() {
           <LogOut className="mr-3 h-5 w-5" />
           Uitloggen
         </Button>
-        <div className="mt-4 text-center text-xs text-gray-400">
-          © {new Date().getFullYear()} AMS Bouwers B.V.
+        <div className="mt-4 px-2">
+          <p className="text-xs text-white/40 text-center">
+            &copy; {new Date().getFullYear()} AMS Bouwers
+          </p>
         </div>
       </div>
     </div>
   );
 }
-

@@ -202,6 +202,12 @@ BTW: NL123456789B01`;
 
 // Generate professional HTML email template
 function generateHTMLEmail(textBody: string, subject: string, companyName: string): string {
+  // Use the deployed URL for the logo, fallback to a placeholder or main domain if env var not set
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://amsbouwers.nl';
+  // Ensure we don't double slash
+  const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+  const logoUrl = `${cleanBaseUrl}/images/amsbouwers.logo.png`;
+
   // Convert text body to HTML with proper formatting
   const htmlContent = textBody
     .split('\n\n')
@@ -232,10 +238,8 @@ function generateHTMLEmail(textBody: string, subject: string, companyName: strin
           <!-- Header with Logo and Brand Colors -->
           <tr>
             <td style="background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); padding: 30px; text-align: center;">
-              <div style="display: inline-block; background-color: white; padding: 15px 25px; border-radius: 8px; margin-bottom: 15px;">
-                <h1 style="margin: 0; color: #1a1a1a; font-size: 24px; font-weight: bold;">
-                  AMS <span style="color: #f59e0b;">BOUWERS</span>
-                </h1>
+              <div style="background-color: white; padding: 15px 25px; border-radius: 8px; margin-bottom: 15px; display: inline-block;">
+                <img src="${logoUrl}" alt="${companyName}" style="max-width: 200px; max-height: 80px; display: block;" />
               </div>
               <p style="margin: 0; color: #ffffff; font-size: 14px; opacity: 0.9;">
                 Uw betrouwbare partner voor bouw en renovatie
@@ -289,4 +293,3 @@ function generateHTMLEmail(textBody: string, subject: string, companyName: strin
 </html>
   `.trim();
 }
-

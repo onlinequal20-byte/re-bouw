@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
 
 // Create modern styles with AMS Bouwers branding
 const styles = StyleSheet.create({
@@ -19,15 +19,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
-  companyName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  companyNameAccent: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#f59e0b',
+  logoImage: {
+    width: 200,
+    height: 'auto',
   },
   tagline: {
     fontSize: 10,
@@ -230,6 +224,7 @@ interface InvoiceData {
     iban: string;
   };
   betalingsvoorwaarden?: string;
+  logoBase64?: string;
 }
 
 export const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => {
@@ -251,8 +246,14 @@ export const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => {
         {/* Header Banner */}
         <View style={styles.headerBanner}>
           <View style={styles.logoContainer}>
-            <Text style={styles.companyName}>AMS </Text>
-            <Text style={styles.companyNameAccent}>BOUWERS</Text>
+            {data.logoBase64 ? (
+              <Image src={data.logoBase64} style={styles.logoImage} />
+            ) : (
+              // Fallback if no logo provided (should not happen with new logic)
+              <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#ffffff' }}>
+                AMS <Text style={{ color: '#f59e0b' }}>BOUWERS</Text>
+              </Text>
+            )}
           </View>
           <Text style={styles.tagline}>Uw betrouwbare partner voor bouw en renovatie</Text>
         </View>
@@ -272,7 +273,7 @@ export const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => {
             </Text>
               <View style={styles.documentTitleAccent} />
             <Text style={styles.documentNumber}>{data.nummer}</Text>
-              <Text style={{ ...styles.text, textAlign: 'right', marginTop: 10, color: '#1a1a1a' }}>
+            <Text style={{ ...styles.text, textAlign: 'right', marginTop: 10, color: '#1a1a1a' }}>
               Datum: {formatDate(data.datum)}
             </Text>
             {data.geldigTot && (
@@ -372,4 +373,3 @@ export const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => {
     </Document>
   );
 };
-

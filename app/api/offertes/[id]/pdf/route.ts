@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { InvoicePDF } from "@/lib/pdf/invoice-pdf";
 import React from "react";
+import fs from "fs";
+import path from "path";
 
 export async function GET(
   request: Request,
@@ -13,7 +15,11 @@ export async function GET(
     const { id } = await params;
     const session = await getSession();
     
-    if (!session) {
+    // Allow public access for signature pages if query param is present
+    const url = new URL(request.url);
+    const isPublic = url.searchParams.get("public") === "true";
+
+    if (!session && !isPublic) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -37,6 +43,20 @@ export async function GET(
       acc[setting.key] = setting.value;
       return acc;
     }, {} as Record<string, string>);
+
+    // Read logo file
+    let logoBase64: string | undefined = undefined;
+    try {
+      const logoPath = path.join(process.cwd(), 'public/images/amsbouwers.logo.png');
+      if (fs.existsSync(logoPath)) {
+        const logoBuffer = fs.readFileSync(logoPath);
+        logoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`;
+      } else {
+        console.warn("Logo file not found at:", logoPath);
+      }
+    } catch (error) {
+      console.error("Error reading logo file:", error);
+    }
 
     const pdfData = {
       type: 'offerte' as const,
@@ -76,6 +96,7 @@ export async function GET(
         iban: settingsMap['iban'] || 'NL91ABNA0417164300',
       },
       betalingsvoorwaarden: settingsMap['betalingsvoorwaarden'],
+      logoBase64,
     };
 
     const pdfBuffer = await renderToBuffer(React.createElement(InvoicePDF, { data: pdfData }) as any);
@@ -94,4 +115,3 @@ export async function GET(
     );
   }
 }
-

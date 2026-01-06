@@ -1,25 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  Building2,
   LayoutDashboard,
   Users,
   FileText,
   Receipt,
   DollarSign,
-  Mail,
   Settings,
-  LogOut,
   Menu,
   X,
+  LogOut,
+  Mail,
   Camera,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -28,6 +28,7 @@ const navigation = [
   { name: "Facturen", href: "/facturen", icon: Receipt },
   { name: "Kosten", href: "/kosten", icon: Camera },
   { name: "Prijzen", href: "/prijzen", icon: DollarSign },
+
   { name: "Email", href: "/email", icon: Mail },
   { name: "Instellingen", href: "/instellingen", icon: Settings },
 ];
@@ -72,14 +73,19 @@ export function MobileSidebar() {
       >
         {/* Logo */}
         <div className="flex h-16 items-center justify-center border-b border-gray-800">
-          <div className="flex items-center gap-2">
-            <Building2 className="h-8 w-8" />
-            <span className="text-xl font-bold">AMS Bouwers</span>
+          <div className="relative w-40 h-10">
+            <Image 
+              src="/images/amsbouwers.logo.png" 
+              alt="AMS Bouwers" 
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-1 px-2 py-4">
+        <nav className="flex-1 space-y-1 px-3 py-6">
           {navigation.map((item) => {
             const isActive = pathname === item.href || 
               (item.href !== "/" && pathname.startsWith(item.href));
@@ -88,13 +94,13 @@ export function MobileSidebar() {
               <Link
                 key={item.name}
                 href={item.href}
-                onClick={() => setOpen(false)}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors",
                   isActive
                     ? "bg-gray-800 text-white"
-                    : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                    : "text-gray-400 hover:bg-gray-800 hover:text-white"
                 )}
+                onClick={() => setOpen(false)}
               >
                 <item.icon className="h-5 w-5" />
                 {item.name}
@@ -104,10 +110,10 @@ export function MobileSidebar() {
         </nav>
 
         {/* Logout */}
-        <div className="absolute bottom-0 w-full border-t border-gray-800 p-4">
+        <div className="border-t border-gray-800 p-4">
           <Button
             variant="ghost"
-            className="w-full justify-start text-gray-300 hover:bg-gray-800 hover:text-white"
+            className="w-full justify-start text-gray-400 hover:bg-gray-800 hover:text-white"
             onClick={handleLogout}
           >
             <LogOut className="mr-3 h-5 w-5" />
@@ -118,4 +124,3 @@ export function MobileSidebar() {
     </>
   );
 }
-

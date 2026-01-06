@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Building2 } from "lucide-react";
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -64,8 +64,14 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-4 flex flex-col items-center">
-          <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
-            <Building2 className="w-10 h-10 text-white" />
+          <div className="relative w-64 h-24">
+            <Image 
+              src="/images/amsbouwers.logo.png" 
+              alt="AMS Bouwers Logo" 
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
           <div className="text-center">
             <CardTitle className="text-2xl font-bold">AMS Bouwers B.V.</CardTitle>
@@ -115,4 +121,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
