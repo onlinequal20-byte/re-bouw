@@ -11,11 +11,13 @@ export const dynamic = 'force-dynamic';
 function StatusContent() {
   const searchParams = useSearchParams();
   const factuurId = searchParams.get("factuurId");
+  const offerteId = searchParams.get("offerteId");
+  const type = searchParams.get("type");
   const [status, setStatus] = useState<"loading" | "success" | "failed">("loading");
-  const [factuurNummer, setFactuurNummer] = useState<string>("");
+  const [documentNummer, setDocumentNummer] = useState<string>("");
 
   useEffect(() => {
-    if (!factuurId) {
+    if (!factuurId && !offerteId) {
       setStatus("failed");
       return;
     }
@@ -23,20 +25,32 @@ function StatusContent() {
     // Check payment status
     const checkStatus = async () => {
       try {
-        const response = await fetch(`/api/facturen/${factuurId}`);
+        const isOfferte = type === "offerte" || offerteId;
+        const documentId = isOfferte ? offerteId : factuurId;
+        const endpoint = isOfferte ? "offertes" : "facturen";
+        
+        const response = await fetch(`/api/${endpoint}/${documentId}?public=true`);
         if (response.ok) {
           const data = await response.json();
-          setFactuurNummer(data.factuurNummer);
+          setDocumentNummer(isOfferte ? data.offerteNummer : data.factuurNummer);
           
-          if (data.status === "Betaald") {
+          const isPaid = isOfferte 
+            ? data.vooruitbetaald === true
+            : data.status === "Betaald";
+          
+          if (isPaid) {
             setStatus("success");
           } else {
             // Wait a bit and check again (payment might still be processing)
             setTimeout(async () => {
-              const retryResponse = await fetch(`/api/facturen/${factuurId}`);
+              const retryResponse = await fetch(`/api/${endpoint}/${documentId}?public=true`);
               if (retryResponse.ok) {
                 const retryData = await retryResponse.json();
-                if (retryData.status === "Betaald") {
+                const retryPaid = isOfferte
+                  ? retryData.vooruitbetaald === true
+                  : retryData.status === "Betaald";
+                
+                if (retryPaid) {
                   setStatus("success");
                 } else {
                   setStatus("failed");
@@ -56,7 +70,7 @@ function StatusContent() {
     };
 
     checkStatus();
-  }, [factuurId]);
+  }, [factuurId, offerteId, type]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -80,9 +94,9 @@ function StatusContent() {
             <p className="text-gray-600 mb-2">
               Uw betaling is succesvol verwerkt.
             </p>
-            {factuurNummer && (
+            {documentNummer && (
               <p className="text-sm text-gray-500 mb-6">
-                Factuurnummer: {factuurNummer}
+                {type === "offerte" ? "Offertenummer" : "Factuurnummer"}: {documentNummer}
               </p>
             )}
             <p className="text-sm text-gray-600 mb-6">
@@ -90,7 +104,7 @@ function StatusContent() {
             </p>
             <div className="space-y-2">
               <Button asChild className="w-full">
-                <Link href="/">Terug naar dashboard</Link>
+                <Link href="/">Terug naar de website</Link>
               </Button>
             </div>
           </>
@@ -112,11 +126,13 @@ function StatusContent() {
             </ul>
             <div className="space-y-2">
               <Button asChild className="w-full">
-                <Link href="/">Terug naar dashboard</Link>
+                <Link href="/">Terug naar de website</Link>
               </Button>
-              {factuurId && (
+              {(factuurId || offerteId) && (
                 <Button asChild variant="outline" className="w-full">
-                  <Link href={`/facturen/${factuurId}`}>Probeer opnieuw</Link>
+                  <Link href={factuurId ? `/facturen/${factuurId}` : `/offertes/${offerteId}`}>
+                    Probeer opnieuw
+                  </Link>
                 </Button>
               )}
             </div>

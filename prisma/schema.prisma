@@ -102,6 +102,7 @@ model Offerte {
   totaal                  Float
   status                  String         @default("Concept")
   emailVerzonden          Boolean        @default(false)
+  vooruitbetaald          Boolean        @default(false) // 30% prepayment received
   notities                String?
   // Signature fields
   klantHandtekening       String?        // Base64 signature image

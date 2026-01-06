@@ -70,6 +70,10 @@ export async function sendEmail(data: EmailData) {
 export function generateOfferteEmail(offerte: any, baseUrl: string) {
   const subject = `Offerte ${offerte.offerteNummer} - ${offerte.projectNaam}`;
   const signUrl = `${baseUrl}/ondertekenen/offerte/${offerte.id}`;
+  const paymentUrl = `${baseUrl}/betalen/offerte/${offerte.id}`;
+  
+  // Calculate prepayment amount (30% of total)
+  const prepaymentAmount = offerte.totaal * 0.3;
   
   const body = `Beste ${offerte.klant.naam},
 
@@ -77,6 +81,7 @@ Hierbij ontvangt u de offerte voor ${offerte.projectNaam}.
 
 Offerte nummer: ${offerte.offerteNummer}
 Totaalbedrag: € ${offerte.totaal.toFixed(2).replace('.', ',')}
+Vooruitbetaling (30%): € ${prepaymentAmount.toFixed(2).replace('.', ',')}
 Geldig tot: ${new Date(offerte.geldigTot).toLocaleDateString('nl-NL')}
 
 De offerte en algemene voorwaarden zijn als PDF bijgevoegd bij deze email.
@@ -89,6 +94,23 @@ U kunt deze offerte eenvoudig digitaal ondertekenen via:
 ${signUrl}
 
 Door te ondertekenen gaat u automatisch akkoord met onze algemene voorwaarden.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💳 VOORUITBETALING MET iDEAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Na ondertekening kunt u direct 30% vooruitbetalen met iDEAL:
+${paymentUrl}
+
+✓ Snel en veilig betalen met uw eigen bank
+✓ Directe bevestiging na betaling
+✓ Geen extra kosten
+✓ Project kan direct starten na vooruitbetaling
+
+OF betaal de vooruitbetaling via bankoverschrijving naar:
+IBAN: NL91ABNA0417164300
+t.n.v. AMS Bouwers B.V.
+onder vermelding van: ${offerte.offerteNummer} - Vooruitbetaling
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
