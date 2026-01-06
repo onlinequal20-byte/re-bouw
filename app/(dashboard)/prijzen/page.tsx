@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
+import { PriceDialog } from "@/components/price-dialog";
 
 async function getPrijslijst() {
   return prisma.prijslijst.findMany({
@@ -47,10 +48,7 @@ export default async function PrijzenPage() {
             Beheer uw standaard prijzen per categorie
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Nieuwe Prijs
-        </Button>
+        <PriceDialog />
       </div>
 
       <div className="space-y-6">
@@ -94,9 +92,14 @@ export default async function PrijzenPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                          </Button>
+                          <PriceDialog
+                            price={item}
+                            trigger={
+                              <Button variant="ghost" size="icon">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            }
+                          />
                         </div>
                       </TableCell>
                     </TableRow>
