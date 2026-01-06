@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   try {
     const session = await getSession();
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Niet geautoriseerd. Log opnieuw in." }, { status: 401 });
     }
 
     const formData = await request.formData();
@@ -24,14 +24,14 @@ export async function POST(request: Request) {
     const uploadedVia = formData.get("uploadedVia") as string || "web";
 
     if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+      return NextResponse.json({ error: "Geen bestand geselecteerd" }, { status: 400 });
     }
 
     // Validate file type
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "application/pdf"];
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: "Invalid file type. Only JPG, PNG, WebP and PDF are allowed" },
+        { error: "Ongeldig bestandstype. Alleen JPG, PNG, WebP en PDF zijn toegestaan." },
         { status: 400 }
       );
     }
@@ -39,10 +39,12 @@ export async function POST(request: Request) {
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json(
-        { error: "File too large. Maximum size is 10MB" },
+        { error: "Bestand te groot. Maximum grootte is 10MB." },
         { status: 400 }
       );
     }
+
+    console.log("📁 File received:", file.name, file.type, `${(file.size / 1024).toFixed(2)} KB`);
 
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
@@ -53,20 +55,38 @@ export async function POST(request: Request) {
     let contentType = file.type;
 
     if (file.type.startsWith("image/")) {
-      processedBuffer = await sharp(buffer as any)
-        .resize(1920, 1920, { fit: "inside", withoutEnlargement: true })
-        .jpeg({ quality: 85 })
-        .toBuffer();
-      contentType = "image/jpeg";
+      try {
+        console.log("🖼️  Optimizing image...");
+        processedBuffer = await sharp(buffer as any)
+          .resize(1920, 1920, { fit: "inside", withoutEnlargement: true })
+          .jpeg({ quality: 85 })
+          .toBuffer();
+        contentType = "image/jpeg";
+        console.log("✅ Image optimized");
+      } catch (sharpError) {
+        console.error("⚠️  Sharp optimization failed, using original:", sharpError);
+        // Continue with original buffer if optimization fails
+      }
     }
 
     // Upload to Supabase Storage
     const timestamp = Date.now();
     const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
     const filename = `${timestamp}-${originalName}`;
-    const filePath = `receipts/${filename}`;
+    const filePath = `${filename}`;
 
-    const { error: uploadError } = await supabase.storage
+    console.log("☁️  Uploading to Supabase Storage...");
+    
+    // Check if Supabase is configured
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error("❌ Supabase not configured");
+      return NextResponse.json(
+        { error: "Supabase opslag is niet geconfigureerd. Neem contact op met de beheerder." },
+        { status: 500 }
+      );
+    }
+
+    const { error: uploadError, data: uploadData } = await supabase.storage
       .from("receipts")
       .upload(filePath, processedBuffer, {
         contentType,
@@ -74,17 +94,30 @@ export async function POST(request: Request) {
       });
 
     if (uploadError) {
-      console.error("Supabase upload error:", uploadError);
+      console.error("❌ Supabase upload error:", uploadError);
+      
+      // Check if bucket exists
+      if (uploadError.message?.includes("Bucket not found") || uploadError.message?.includes("bucket")) {
+        return NextResponse.json(
+          { error: "Supabase bucket 'receipts' bestaat niet. Maak deze aan in Supabase dashboard." },
+          { status: 500 }
+        );
+      }
+      
       return NextResponse.json(
-        { error: "Failed to upload file to storage" },
+        { error: `Upload naar opslag mislukt: ${uploadError.message}` },
         { status: 500 }
       );
     }
+
+    console.log("✅ Upload successful:", uploadData);
 
     // Get public URL
     const { data: { publicUrl } } = supabase.storage
       .from("receipts")
       .getPublicUrl(filePath);
+
+    console.log("🔗 Public URL:", publicUrl);
 
     // Perform OCR (only for images)
     let ocrText = null;
@@ -94,11 +127,13 @@ export async function POST(request: Request) {
 
     if (file.type.startsWith("image/")) {
       try {
+        console.log("🔍 Starting OCR...");
         const worker = await createWorker("nld+eng"); // Dutch + English
         const { data: { text } } = await worker.recognize(processedBuffer);
         await worker.terminate();
 
         ocrText = text;
+        console.log("✅ OCR completed, text length:", text.length);
 
         // Extract amount (look for patterns like €12.34, 12,34, EUR 12.34)
         const amountRegex = /(?:€|EUR)?\s*(\d+)[.,](\d{2})/g;
@@ -113,6 +148,7 @@ export async function POST(request: Request) {
         // Use the largest amount found (usually the total)
         if (amounts.length > 0) {
           ocrBedrag = Math.max(...amounts);
+          console.log("💰 OCR detected amount:", ocrBedrag);
         }
 
         // Extract date (DD-MM-YYYY, DD/MM/YYYY, etc.)
@@ -124,15 +160,17 @@ export async function POST(request: Request) {
           let year = parseInt(dateMatch[3]);
           if (year < 100) year += 2000;
           ocrDatum = new Date(year, month, day);
+          console.log("📅 OCR detected date:", ocrDatum);
         }
 
         // Extract store name (first line usually)
         const lines = text.split("\n").filter((line) => line.trim().length > 0);
         if (lines.length > 0) {
           ocrWinkel = lines[0].trim().substring(0, 100);
+          console.log("🏪 OCR detected store:", ocrWinkel);
         }
       } catch (ocrError) {
-        console.error("OCR error:", ocrError);
+        console.error("⚠️  OCR error (continuing without OCR data):", ocrError);
         // Continue without OCR data
       }
     }
@@ -141,6 +179,8 @@ export async function POST(request: Request) {
     const bedrag = ocrBedrag || 0;
     const btw = bedrag * 0.21; // 21% BTW
     const totaalBedrag = bedrag + btw;
+
+    console.log("💾 Saving to database...");
 
     // Create expense record
     const expense = await prisma.expense.create({
@@ -172,15 +212,17 @@ export async function POST(request: Request) {
       },
     });
 
+    console.log("✅ Expense created:", expense.id);
+
     return NextResponse.json({
       success: true,
       expense,
       message: "Bonnetje succesvol geüpload en verwerkt",
     });
   } catch (error: any) {
-    console.error("Upload error:", error);
+    console.error("❌ Upload error:", error);
     return NextResponse.json(
-      { error: error.message || "Upload failed" },
+      { error: error.message || "Upload mislukt. Probeer het opnieuw." },
       { status: 500 }
     );
   }
