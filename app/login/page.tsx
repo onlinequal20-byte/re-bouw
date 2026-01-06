@@ -109,12 +109,6 @@ export default function LoginPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Inloggen..." : "Inloggen"}
             </Button>
-            <div className="text-sm text-center text-muted-foreground mt-4">
-              <p>Standaard inloggegevens:</p>
-              <p className="font-mono text-xs mt-1">
-                nader@amsbouwers.nl / Sharifi_1967
-              </p>
-            </div>
           </form>
         </CardContent>
       </Card>
