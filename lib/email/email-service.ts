@@ -112,6 +112,9 @@ BTW: NL123456789B01`;
 export function generateFactuurEmail(factuur: any, baseUrl: string) {
   const subject = `Factuur ${factuur.factuurNummer} - ${factuur.projectNaam}`;
   const signUrl = `${baseUrl}/ondertekenen/factuur/${factuur.id}`;
+  const paymentUrl = `${baseUrl}/betalen/factuur/${factuur.id}`;
+  const remainingAmount = factuur.totaal - (factuur.betaaldBedrag || 0);
+  const isPaid = factuur.status === 'Betaald' || remainingAmount <= 0;
   
   const body = `Beste ${factuur.klant.naam},
 
@@ -119,17 +122,34 @@ Hierbij ontvangt u de factuur voor ${factuur.projectNaam}.
 
 Factuur nummer: ${factuur.factuurNummer}
 Totaalbedrag: € ${factuur.totaal.toFixed(2).replace('.', ',')}
+${factuur.betaaldBedrag > 0 ? `Reeds betaald: € ${factuur.betaaldBedrag.toFixed(2).replace('.', ',')}` : ''}
+${!isPaid ? `Openstaand bedrag: € ${remainingAmount.toFixed(2).replace('.', ',')}` : ''}
 Vervaldatum: ${new Date(factuur.vervaldatum).toLocaleDateString('nl-NL')}
+${isPaid ? '\n✅ STATUS: BETAALD' : ''}
 
-Gelieve het bedrag voor de vervaldatum over te maken naar:
+De factuur en algemene voorwaarden zijn als PDF bijgevoegd bij deze email.
+
+${!isPaid ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💳 DIRECT ONLINE BETALEN MET iDEAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+U kunt deze factuur eenvoudig en veilig online betalen met iDEAL:
+${paymentUrl}
+
+✓ Snel en veilig betalen met uw eigen bank
+✓ Directe bevestiging na betaling
+✓ Geen extra kosten
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OF betaal via bankoverschrijving naar:
 IBAN: NL91ABNA0417164300
 t.n.v. AMS Bouwers B.V.
 onder vermelding van: ${factuur.factuurNummer}
 
-De factuur en algemene voorwaarden zijn als PDF bijgevoegd bij deze email.
-
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📝 DIGITAAL ONDERTEKENEN (OPTIONEEL)
+` : `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`}📝 DIGITAAL ONDERTEKENEN (OPTIONEEL)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 U kunt deze factuur desgewenst digitaal ondertekenen via:
