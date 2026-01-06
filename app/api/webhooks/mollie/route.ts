@@ -15,7 +15,8 @@ export async function POST(request: Request) {
     const payment = await getPayment(paymentId);
 
     // Get invoice from metadata
-    const factuurId = payment.metadata?.factuurId as string;
+    const metadata = payment.metadata as { factuurId?: string } | null | undefined;
+    const factuurId = metadata?.factuurId;
 
     if (!factuurId) {
       console.error("No factuurId in payment metadata");
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
     }
 
     // Update invoice based on payment status
-    if (payment.isPaid()) {
+    if (payment.status === 'paid') {
       const paidAmount = parseFloat(payment.amount.value);
 
       await prisma.factuur.update({
@@ -48,7 +49,7 @@ export async function POST(request: Request) {
       });
 
       console.log(`Invoice ${factuur.factuurNummer} marked as paid`);
-    } else if (payment.isFailed() || payment.isExpired() || payment.isCanceled()) {
+    } else if (payment.status === 'failed' || payment.status === 'expired' || payment.status === 'canceled') {
       await prisma.factuur.update({
         where: { id: factuurId },
         data: {

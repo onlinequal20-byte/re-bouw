@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export default function BetalingStatusPage() {
+export const dynamic = 'force-dynamic';
+
+function StatusContent() {
   const searchParams = useSearchParams();
   const factuurId = searchParams.get("factuurId");
   const [status, setStatus] = useState<"loading" | "success" | "failed">("loading");
@@ -125,3 +127,17 @@ export default function BetalingStatusPage() {
   );
 }
 
+export default function BetalingStatusPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+          <Loader2 className="h-16 w-16 text-blue-500 mx-auto mb-4 animate-spin" />
+          <h1 className="text-2xl font-bold mb-2">Laden...</h1>
+        </div>
+      </div>
+    }>
+      <StatusContent />
+    </Suspense>
+  );
+}
