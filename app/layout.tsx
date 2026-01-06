@@ -8,6 +8,16 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "AMS Bouwers B.V. - Dashboard",
   description: "Offerte en Factuur Beheer Systeem",
+  icons: {
+    icon: [
+      { url: '/icon.png' },
+      { url: '/icon.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-icon.png' },
+    ],
+  },
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
@@ -24,4 +34,3 @@ export default function RootLayout({
     </html>
   );
 }
-
