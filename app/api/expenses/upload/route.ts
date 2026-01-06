@@ -69,55 +69,12 @@ export async function POST(request: Request) {
       }
     }
 
-    // Upload to Supabase Storage
+    // Convert to base64 data URL for storage in database
     const timestamp = Date.now();
-    const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-    const filename = `${timestamp}-${originalName}`;
-    const filePath = `${filename}`;
-
-    console.log("☁️  Uploading to Supabase Storage...");
+    const base64Data = processedBuffer.toString('base64');
+    const dataUrl = `data:${contentType};base64,${base64Data}`;
     
-    // Check if Supabase is configured
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error("❌ Supabase not configured");
-      return NextResponse.json(
-        { error: "Supabase opslag is niet geconfigureerd. Neem contact op met de beheerder." },
-        { status: 500 }
-      );
-    }
-
-    const { error: uploadError, data: uploadData } = await supabase.storage
-      .from("receipts")
-      .upload(filePath, processedBuffer, {
-        contentType,
-        upsert: false,
-      });
-
-    if (uploadError) {
-      console.error("❌ Supabase upload error:", uploadError);
-      
-      // Check if bucket exists
-      if (uploadError.message?.includes("Bucket not found") || uploadError.message?.includes("bucket")) {
-        return NextResponse.json(
-          { error: "Supabase bucket 'receipts' bestaat niet. Maak deze aan in Supabase dashboard." },
-          { status: 500 }
-        );
-      }
-      
-      return NextResponse.json(
-        { error: `Upload naar opslag mislukt: ${uploadError.message}` },
-        { status: 500 }
-      );
-    }
-
-    console.log("✅ Upload successful:", uploadData);
-
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from("receipts")
-      .getPublicUrl(filePath);
-
-    console.log("🔗 Public URL:", publicUrl);
+    console.log("✅ Image converted to base64, size:", (base64Data.length / 1024).toFixed(2), "KB");
 
     // Perform OCR (only for images)
     let ocrText = null;
@@ -194,7 +151,7 @@ export async function POST(request: Request) {
         bedrag,
         btw,
         totaalBedrag,
-        imageUrl: publicUrl,
+        imageUrl: dataUrl,
         imageName: file.name,
         imageSize: file.size,
         ocrText,
