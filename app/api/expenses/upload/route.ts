@@ -69,12 +69,37 @@ export async function POST(request: Request) {
       }
     }
 
-    // Convert to base64 data URL for storage in database
+    // Upload to Supabase Storage
     const timestamp = Date.now();
-    const base64Data = processedBuffer.toString('base64');
-    const dataUrl = `data:${contentType};base64,${base64Data}`;
-    
-    console.log("✅ Image converted to base64, size:", (base64Data.length / 1024).toFixed(2), "KB");
+    const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const filename = `${timestamp}-${originalName}`;
+    const filePath = `${filename}`;
+
+    console.log("☁️  Uploading to Supabase Storage...");
+
+    const { error: uploadError, data: uploadData } = await supabase.storage
+      .from("receipts")
+      .upload(filePath, processedBuffer, {
+        contentType,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error("❌ Supabase upload error:", uploadError);
+      return NextResponse.json(
+        { error: `Upload naar opslag mislukt: ${uploadError.message}` },
+        { status: 500 }
+      );
+    }
+
+    console.log("✅ Upload successful:", uploadData);
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from("receipts")
+      .getPublicUrl(filePath);
+
+    console.log("🔗 Public URL:", publicUrl);
 
     // Perform OCR (only for images)
     let ocrText = null;
@@ -151,7 +176,7 @@ export async function POST(request: Request) {
         bedrag,
         btw,
         totaalBedrag,
-        imageUrl: dataUrl,
+        imageUrl: publicUrl,
         imageName: file.name,
         imageSize: file.size,
         ocrText,
