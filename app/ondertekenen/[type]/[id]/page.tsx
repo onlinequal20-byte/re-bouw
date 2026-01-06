@@ -33,7 +33,7 @@ export default function SignaturePage() {
   const loadDocument = async () => {
     try {
       const endpoint = type === "offerte" ? "offertes" : "facturen";
-      const res = await fetch(`/api/${endpoint}/${id}`);
+      const res = await fetch(`/api/${endpoint}/${id}?public=true`);
       
       if (!res.ok) {
         throw new Error("Document niet gevonden");

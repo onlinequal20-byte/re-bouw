@@ -8,10 +8,16 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const session = await getSession();
     
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Check if this is a public request (for signing page)
+    const url = new URL(request.url);
+    const isPublic = url.searchParams.get('public') === 'true';
+    
+    if (!isPublic) {
+      const session = await getSession();
+      if (!session) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
     }
 
     const factuur = await prisma.factuur.findUnique({
