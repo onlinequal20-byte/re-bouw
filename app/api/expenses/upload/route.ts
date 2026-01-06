@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/simple-auth";
 import { prisma } from "@/lib/prisma";
-import { writeFile } from "fs/promises";
-import { join } from "path";
 import sharp from "sharp";
 import { createWorker } from "tesseract.js";
+import { supabase } from "@/lib/supabase";
+
+export const maxDuration = 60; // Max duration for Vercel serverless function (60 seconds)
 
 export async function POST(request: Request) {
   try {
@@ -27,10 +28,10 @@ export async function POST(request: Request) {
     }
 
     // Validate file type
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "application/pdf"];
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: "Invalid file type. Only JPG, PNG, and WebP are allowed" },
+        { error: "Invalid file type. Only JPG, PNG, WebP and PDF are allowed" },
         { status: 400 }
       );
     }
@@ -45,69 +46,95 @@ export async function POST(request: Request) {
 
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const buffer = Buffer.from(new Uint8Array(bytes));
 
-    // Generate unique filename
+    // Optimize image if it's an image
+    let processedBuffer: Buffer = buffer as unknown as Buffer;
+    let contentType = file.type;
+
+    if (file.type.startsWith("image/")) {
+      processedBuffer = await sharp(buffer as any)
+        .resize(1920, 1920, { fit: "inside", withoutEnlargement: true })
+        .jpeg({ quality: 85 })
+        .toBuffer();
+      contentType = "image/jpeg";
+    }
+
+    // Upload to Supabase Storage
     const timestamp = Date.now();
     const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
     const filename = `${timestamp}-${originalName}`;
-    const filepath = join(process.cwd(), "public", "uploads", "receipts", filename);
+    const filePath = `receipts/${filename}`;
 
-    // Optimize and save image
-    await sharp(buffer)
-      .resize(1920, 1920, { fit: "inside", withoutEnlargement: true })
-      .jpeg({ quality: 85 })
-      .toFile(filepath);
+    const { error: uploadError } = await supabase.storage
+      .from("receipts")
+      .upload(filePath, processedBuffer, {
+        contentType,
+        upsert: false,
+      });
 
-    const imageUrl = `/uploads/receipts/${filename}`;
+    if (uploadError) {
+      console.error("Supabase upload error:", uploadError);
+      return NextResponse.json(
+        { error: "Failed to upload file to storage" },
+        { status: 500 }
+      );
+    }
 
-    // Perform OCR
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from("receipts")
+      .getPublicUrl(filePath);
+
+    // Perform OCR (only for images)
     let ocrText = null;
     let ocrBedrag = null;
     let ocrDatum = null;
     let ocrWinkel = null;
 
-    try {
-      const worker = await createWorker("nld+eng"); // Dutch + English
-      const { data: { text } } = await worker.recognize(buffer);
-      await worker.terminate();
+    if (file.type.startsWith("image/")) {
+      try {
+        const worker = await createWorker("nld+eng"); // Dutch + English
+        const { data: { text } } = await worker.recognize(processedBuffer);
+        await worker.terminate();
 
-      ocrText = text;
+        ocrText = text;
 
-      // Extract amount (look for patterns like €12.34, 12,34, EUR 12.34)
-      const amountRegex = /(?:€|EUR)?\s*(\d+)[.,](\d{2})/g;
-      const amounts: number[] = [];
-      let match;
-      while ((match = amountRegex.exec(text)) !== null) {
-        const amount = parseFloat(`${match[1]}.${match[2]}`);
-        if (amount > 0 && amount < 100000) {
-          amounts.push(amount);
+        // Extract amount (look for patterns like €12.34, 12,34, EUR 12.34)
+        const amountRegex = /(?:€|EUR)?\s*(\d+)[.,](\d{2})/g;
+        const amounts: number[] = [];
+        let match;
+        while ((match = amountRegex.exec(text)) !== null) {
+          const amount = parseFloat(`${match[1]}.${match[2]}`);
+          if (amount > 0 && amount < 100000) {
+            amounts.push(amount);
+          }
         }
-      }
-      // Use the largest amount found (usually the total)
-      if (amounts.length > 0) {
-        ocrBedrag = Math.max(...amounts);
-      }
+        // Use the largest amount found (usually the total)
+        if (amounts.length > 0) {
+          ocrBedrag = Math.max(...amounts);
+        }
 
-      // Extract date (DD-MM-YYYY, DD/MM/YYYY, etc.)
-      const dateRegex = /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/;
-      const dateMatch = text.match(dateRegex);
-      if (dateMatch) {
-        const day = parseInt(dateMatch[1]);
-        const month = parseInt(dateMatch[2]) - 1;
-        let year = parseInt(dateMatch[3]);
-        if (year < 100) year += 2000;
-        ocrDatum = new Date(year, month, day);
-      }
+        // Extract date (DD-MM-YYYY, DD/MM/YYYY, etc.)
+        const dateRegex = /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/;
+        const dateMatch = text.match(dateRegex);
+        if (dateMatch) {
+          const day = parseInt(dateMatch[1]);
+          const month = parseInt(dateMatch[2]) - 1;
+          let year = parseInt(dateMatch[3]);
+          if (year < 100) year += 2000;
+          ocrDatum = new Date(year, month, day);
+        }
 
-      // Extract store name (first line usually)
-      const lines = text.split("\n").filter((line) => line.trim().length > 0);
-      if (lines.length > 0) {
-        ocrWinkel = lines[0].trim().substring(0, 100);
+        // Extract store name (first line usually)
+        const lines = text.split("\n").filter((line) => line.trim().length > 0);
+        if (lines.length > 0) {
+          ocrWinkel = lines[0].trim().substring(0, 100);
+        }
+      } catch (ocrError) {
+        console.error("OCR error:", ocrError);
+        // Continue without OCR data
       }
-    } catch (ocrError) {
-      console.error("OCR error:", ocrError);
-      // Continue without OCR data
     }
 
     // Calculate totals
@@ -127,7 +154,7 @@ export async function POST(request: Request) {
         bedrag,
         btw,
         totaalBedrag,
-        imageUrl,
+        imageUrl: publicUrl,
         imageName: file.name,
         imageSize: file.size,
         ocrText,
@@ -158,4 +185,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

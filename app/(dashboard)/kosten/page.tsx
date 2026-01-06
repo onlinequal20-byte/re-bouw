@@ -8,11 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Camera, FileText, Trash2, Check, X, Eye } from "lucide-react";
+import { Upload, Camera, FileText, Trash2, Check, X, Eye, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import Image from "next/image";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import Link from "next/link";
 
 interface Expense {
   id: string;
@@ -34,6 +35,11 @@ interface Expense {
   factuur?: { id: string; factuurNummer: string; projectNaam: string };
 }
 
+interface Client {
+  id: string;
+  naam: string;
+}
+
 const CATEGORIES = [
   "Materialen",
   "Transport",
@@ -44,6 +50,7 @@ const CATEGORIES = [
 
 export default function KostenPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [totals, setTotals] = useState({ count: 0, totalBedrag: 0, totalBtw: 0, totalAmount: 0 });
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -55,10 +62,22 @@ export default function KostenPage() {
   const [preview, setPreview] = useState<string | null>(null);
   const [categorie, setCategorie] = useState("Materialen");
   const [omschrijving, setOmschrijving] = useState("");
+  const [selectedClientId, setSelectedClientId] = useState<string>("none");
 
   useEffect(() => {
     fetchExpenses();
+    fetchClients();
   }, []);
+
+  const fetchClients = async () => {
+    try {
+      const response = await fetch("/api/klanten");
+      const data = await response.json();
+      setClients(data);
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+    }
+  };
 
   const fetchExpenses = async () => {
     try {
@@ -107,17 +126,22 @@ export default function KostenPage() {
       formData.append("categorie", categorie);
       formData.append("omschrijving", omschrijving);
       formData.append("uploadedVia", "web");
+      
+      if (selectedClientId && selectedClientId !== "none") {
+        formData.append("klantId", selectedClientId);
+      }
 
       const response = await fetch("/api/expenses/upload", {
         method: "POST",
         body: formData,
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error("Upload failed");
+        throw new Error(data.error || "Upload failed");
       }
 
-      const data = await response.json();
       toast({
         title: "✅ Bonnetje geüpload!",
         description: `Bedrag: ${formatCurrency(data.expense.totaalBedrag)}`,
@@ -127,13 +151,14 @@ export default function KostenPage() {
       setFile(null);
       setPreview(null);
       setOmschrijving("");
+      setSelectedClientId("none");
       fetchExpenses();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Upload error:", error);
       toast({
         variant: "destructive",
         title: "Upload mislukt",
-        description: "Er is een fout opgetreden bij het uploaden",
+        description: error.message || "Er is een fout opgetreden bij het uploaden",
       });
     } finally {
       setUploading(false);
@@ -284,13 +309,13 @@ export default function KostenPage() {
               <Input
                 id="file"
                 type="file"
-                accept="image/*"
+                accept="image/*,application/pdf"
                 capture="environment"
                 onChange={handleFileChange}
                 className="cursor-pointer"
               />
               {preview && (
-                <div className="relative w-full h-48 border rounded-lg overflow-hidden">
+                <div className="relative w-full h-48 border rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
                   <Image
                     src={preview}
                     alt="Preview"
@@ -312,6 +337,23 @@ export default function KostenPage() {
                     {CATEGORIES.map((cat) => (
                       <SelectItem key={cat} value={cat}>
                         {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="client">Klant (Optioneel)</Label>
+                <Select value={selectedClientId} onValueChange={setSelectedClientId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecteer een klant" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Geen klant koppelen</SelectItem>
+                    {clients.map((client) => (
+                      <SelectItem key={client.id} value={client.id}>
+                        {client.naam}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -361,9 +403,9 @@ export default function KostenPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Datum</TableHead>
+                <TableHead>Klant</TableHead>
                 <TableHead>Categorie</TableHead>
                 <TableHead>Omschrijving</TableHead>
-                <TableHead>Winkel (OCR)</TableHead>
                 <TableHead className="text-right">Bedrag</TableHead>
                 <TableHead className="text-right">BTW</TableHead>
                 <TableHead className="text-right">Totaal</TableHead>
@@ -376,11 +418,27 @@ export default function KostenPage() {
                 <TableRow key={expense.id}>
                   <TableCell>{formatDate(new Date(expense.datum))}</TableCell>
                   <TableCell>
+                    {expense.klant ? (
+                      <Link href={`/klanten/${expense.klant.id}`} className="hover:underline text-blue-600 flex items-center gap-1">
+                        <User className="h-3 w-3" />
+                        {expense.klant.naam}
+                      </Link>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
                     <Badge variant="outline">{expense.categorie}</Badge>
                   </TableCell>
-                  <TableCell>{expense.omschrijving}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {expense.ocrWinkel || "-"}
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span>{expense.omschrijving}</span>
+                      {expense.ocrWinkel && expense.ocrWinkel !== expense.omschrijving && (
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Eye className="h-3 w-3" /> {expense.ocrWinkel}
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="text-right">
                     {formatCurrency(expense.bedrag)}
@@ -421,6 +479,13 @@ export default function KostenPage() {
                   </TableCell>
                 </TableRow>
               ))}
+              {expenses.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                    Geen bonnetjes gevonden. Upload er een hierboven!
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -428,17 +493,18 @@ export default function KostenPage() {
 
       {/* Image Preview Dialog */}
       <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-4xl h-[80vh]">
           <DialogHeader>
             <DialogTitle>Bonnetje Voorbeeld</DialogTitle>
           </DialogHeader>
           {selectedImage && (
-            <div className="relative w-full h-[600px]">
+            <div className="relative w-full h-full min-h-[400px]">
               <Image
                 src={selectedImage}
                 alt="Receipt"
                 fill
                 className="object-contain"
+                unoptimized
               />
             </div>
           )}
@@ -447,4 +513,3 @@ export default function KostenPage() {
     </div>
   );
 }
-

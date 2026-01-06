@@ -15,8 +15,8 @@ export async function GET(
     
     if (!isPublic) {
       const session = await getSession();
-      if (!session) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
     }
 
