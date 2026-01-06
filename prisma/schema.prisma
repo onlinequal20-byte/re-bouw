@@ -115,6 +115,10 @@ model Offerte {
   algemeneVoorwaardenHash String?        // Hash of AV for verification
   createdAt               DateTime       @default(now())
   updatedAt               DateTime       @updatedAt
+  
+  @@index([datum])
+  @@index([status])
+  @@index([klantId])
 }
 
 model OfferteItem {
@@ -158,6 +162,11 @@ model Factuur {
   algemeneVoorwaardenHash String?       // Hash of AV for verification
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @updatedAt
+  
+  @@index([datum])
+  @@index([status])
+  @@index([klantId])
+  @@index([vervaldatum])
 }
 
 model FactuurItem {

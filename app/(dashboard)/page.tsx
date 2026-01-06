@@ -30,55 +30,86 @@ async function getDashboardData() {
   const nextMonth = new Date(currentMonth);
   nextMonth.setMonth(nextMonth.getMonth() + 1);
 
-  // Get revenue this month
-  const facturen = await prisma.factuur.findMany({
-    where: {
-      datum: {
-        gte: currentMonth,
-        lt: nextMonth,
+  // Parallel fetch all data for maximum speed
+  const [
+    facturenDezeMaand,
+    openstaandeFacturen,
+    offerteCount,
+    klantenCount,
+    recentOffertes,
+    recentFacturen,
+  ] = await Promise.all([
+    // Get revenue this month - only select needed fields
+    prisma.factuur.findMany({
+      where: {
+        datum: {
+          gte: currentMonth,
+          lt: nextMonth,
+        },
       },
-    },
-  });
-
-  const omzetDezeMaand = facturen.reduce((sum, f) => sum + f.totaal, 0);
-
-  // Get outstanding invoices
-  const openstaandeFacturen = await prisma.factuur.findMany({
-    where: {
-      status: {
-        in: ["Onbetaald", "Achterstallig", "Gedeeltelijk betaald"],
+      select: {
+        totaal: true,
       },
-    },
-  });
+    }),
+    // Get outstanding invoices - only select needed fields
+    prisma.factuur.findMany({
+      where: {
+        status: {
+          in: ["Onbetaald", "Achterstallig", "Gedeeltelijk betaald"],
+        },
+      },
+      select: {
+        totaal: true,
+        betaaldBedrag: true,
+      },
+    }),
+    // Get sent quotations count
+    prisma.offerte.count({
+      where: {
+        status: "Verzonden",
+      },
+    }),
+    // Get client count
+    prisma.klant.count(),
+    // Get recent quotations - only select needed fields
+    prisma.offerte.findMany({
+      take: 5,
+      orderBy: { datum: "desc" },
+      select: {
+        id: true,
+        offerteNummer: true,
+        totaal: true,
+        status: true,
+        klant: {
+          select: {
+            naam: true,
+          },
+        },
+      },
+    }),
+    // Get recent invoices - only select needed fields
+    prisma.factuur.findMany({
+      take: 5,
+      orderBy: { datum: "desc" },
+      select: {
+        id: true,
+        factuurNummer: true,
+        totaal: true,
+        status: true,
+        klant: {
+          select: {
+            naam: true,
+          },
+        },
+      },
+    }),
+  ]);
 
+  const omzetDezeMaand = facturenDezeMaand.reduce((sum, f) => sum + f.totaal, 0);
   const openstaandBedrag = openstaandeFacturen.reduce(
     (sum, f) => sum + (f.totaal - f.betaaldBedrag),
     0
   );
-
-  // Get sent quotations
-  const offerteCount = await prisma.offerte.count({
-    where: {
-      status: "Verzonden",
-    },
-  });
-
-  // Get client count
-  const klantenCount = await prisma.klant.count();
-
-  // Get recent quotations
-  const recentOffertes = await prisma.offerte.findMany({
-    take: 5,
-    orderBy: { datum: "desc" },
-    include: { klant: true },
-  });
-
-  // Get recent invoices
-  const recentFacturen = await prisma.factuur.findMany({
-    take: 5,
-    orderBy: { datum: "desc" },
-    include: { klant: true },
-  });
 
   return {
     omzetDezeMaand,
@@ -108,6 +139,9 @@ function getStatusBadgeVariant(status: string) {
       return "default" as const;
   }
 }
+
+// Enable Next.js caching for 60 seconds
+export const revalidate = 60;
 
 export default async function DashboardPage() {
   const session = await getSession();
