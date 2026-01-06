@@ -154,64 +154,93 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Overzicht van uw bedrijfsactiviteiten
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+            Dashboard
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Overzicht van uw bedrijfsactiviteiten
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <DollarSign className="h-6 w-6 text-primary" />
+          </div>
+        </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="card-enhanced border-l-4 border-l-primary hover:scale-105 transition-transform duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Omzet Deze Maand
             </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <DollarSign className="h-5 w-5 text-primary" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-3xl font-bold text-primary">
               {formatCurrency(data.omzetDezeMaand)}
             </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              +12% vanaf vorige maand
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="card-enhanced border-l-4 border-l-amber-500 hover:scale-105 transition-transform duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Openstaande Facturen
             </CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
+            <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
+              <Receipt className="h-5 w-5 text-amber-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-3xl font-bold text-amber-600">
               {formatCurrency(data.openstaandBedrag)}
             </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Te innen bedrag
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="card-enhanced border-l-4 border-l-blue-500 hover:scale-105 transition-transform duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Verzonden Offertes
             </CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.offerteCount}</div>
+            <div className="text-3xl font-bold text-blue-600">{data.offerteCount}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Wachten op reactie
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="card-enhanced border-l-4 border-l-green-500 hover:scale-105 transition-transform duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Aantal Klanten
             </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+              <Users className="h-5 w-5 text-green-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.klantenCount}</div>
+            <div className="text-3xl font-bold text-green-600">{data.klantenCount}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Actieve klanten
+            </p>
           </CardContent>
         </Card>
       </div>

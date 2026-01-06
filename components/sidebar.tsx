@@ -38,17 +38,19 @@ export function Sidebar() {
   };
 
   return (
-    <div className="flex h-screen w-64 flex-col bg-gray-900 text-white">
+    <div className="flex h-screen w-64 flex-col gradient-header text-white shadow-xl">
       {/* Logo */}
-      <div className="flex h-16 items-center justify-center border-b border-gray-800">
+      <div className="flex h-16 items-center justify-center border-b border-white/10 bg-black/20">
         <div className="flex items-center gap-2">
-          <Building2 className="h-8 w-8" />
-          <span className="text-xl font-bold">AMS Bouwers</span>
+          <Building2 className="h-8 w-8 text-primary" />
+          <span className="text-xl font-bold">
+            AMS <span className="text-primary">BOUWERS</span>
+          </span>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-2 py-4">
+      <nav className="flex-1 space-y-1 px-3 py-6">
         {navigation.map((item) => {
           const isActive = pathname === item.href || 
             (item.href !== "/" && pathname.startsWith(item.href));
@@ -58,10 +60,10 @@ export function Sidebar() {
               key={item.name}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-gray-800 text-white"
-                  : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                  ? "bg-primary text-white shadow-lg scale-105"
+                  : "text-gray-300 hover:bg-white/10 hover:text-white hover:scale-102"
               )}
             >
               <item.icon className="h-5 w-5" />
@@ -72,15 +74,18 @@ export function Sidebar() {
       </nav>
 
       {/* Logout */}
-      <div className="border-t border-gray-800 p-4">
+      <div className="border-t border-white/10 p-4 bg-black/20">
         <Button
           variant="ghost"
-          className="w-full justify-start text-gray-300 hover:bg-gray-800 hover:text-white"
+          className="w-full justify-start text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-200"
           onClick={handleLogout}
         >
           <LogOut className="mr-3 h-5 w-5" />
           Uitloggen
         </Button>
+        <div className="mt-4 text-center text-xs text-gray-400">
+          © {new Date().getFullYear()} AMS Bouwers B.V.
+        </div>
       </div>
     </div>
   );

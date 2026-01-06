@@ -1,70 +1,128 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 
-// Create styles
+// Create modern styles with AMS Bouwers branding
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
-    padding: 40,
+    padding: 0,
     fontSize: 10,
   },
+  headerBanner: {
+    backgroundColor: '#1a1a1a',
+    padding: 25,
+    marginBottom: 30,
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  companyName: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  companyNameAccent: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#f59e0b',
+  },
+  tagline: {
+    fontSize: 10,
+    color: '#ffffff',
+    opacity: 0.8,
+  },
+  contentContainer: {
+    padding: 40,
+    paddingTop: 0,
+  },
   header: {
-    marginBottom: 20,
+    marginBottom: 25,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   companyInfo: {
     fontSize: 9,
-    lineHeight: 1.5,
+    lineHeight: 1.6,
+    color: '#4b5563',
   },
   documentTitle: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#1e40af',
+    color: '#1a1a1a',
     textAlign: 'right',
+    marginBottom: 5,
+  },
+  documentTitleAccent: {
+    width: 60,
+    height: 4,
+    backgroundColor: '#f59e0b',
+    marginLeft: 'auto',
+    marginBottom: 10,
   },
   documentNumber: {
-    fontSize: 12,
-    color: '#64748b',
+    fontSize: 14,
+    color: '#f59e0b',
     textAlign: 'right',
+    fontWeight: 'bold',
     marginTop: 5,
   },
   clientSection: {
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: 25,
+    marginBottom: 30,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 20,
   },
   clientBox: {
-    width: '45%',
+    width: '48%',
+    backgroundColor: '#f9fafb',
+    padding: 15,
+    borderRadius: 8,
+    borderLeft: 3,
+    borderLeftColor: '#f59e0b',
   },
   sectionTitle: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#1e40af',
+    marginBottom: 8,
+    color: '#1a1a1a',
+    letterSpacing: 0.5,
   },
   text: {
     fontSize: 9,
-    marginBottom: 3,
+    marginBottom: 4,
+    color: '#4b5563',
+    lineHeight: 1.5,
   },
   table: {
-    marginTop: 20,
+    marginTop: 25,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 8,
+    overflow: 'hidden',
   },
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#f1f5f9',
-    padding: 8,
+    backgroundColor: '#1a1a1a',
+    padding: 10,
     fontWeight: 'bold',
     fontSize: 9,
+    color: '#ffffff',
   },
   tableRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
-    padding: 8,
+    borderBottomColor: '#e5e7eb',
+    padding: 10,
     fontSize: 9,
+    backgroundColor: '#ffffff',
+  },
+  tableRowAlt: {
+    backgroundColor: '#f9fafb',
   },
   col1: { width: '5%' },
   col2: { width: '40%' },
@@ -73,15 +131,19 @@ const styles = StyleSheet.create({
   col5: { width: '15%', textAlign: 'right' },
   col6: { width: '15%', textAlign: 'right' },
   totalsSection: {
-    marginTop: 20,
+    marginTop: 25,
     marginLeft: 'auto',
-    width: '40%',
+    width: '45%',
+    backgroundColor: '#f9fafb',
+    padding: 15,
+    borderRadius: 8,
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 5,
-    fontSize: 9,
+    marginBottom: 8,
+    fontSize: 10,
+    color: '#4b5563',
   },
   totalLabel: {
     fontWeight: 'bold',
@@ -89,28 +151,41 @@ const styles = StyleSheet.create({
   grandTotal: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
-    paddingTop: 10,
+    marginTop: 12,
+    paddingTop: 12,
     borderTopWidth: 2,
-    borderTopColor: '#1e40af',
-    fontSize: 12,
+    borderTopColor: '#f59e0b',
+    fontSize: 14,
     fontWeight: 'bold',
+    color: '#1a1a1a',
+  },
+  notesSection: {
+    marginTop: 25,
+    padding: 15,
+    backgroundColor: '#fef3c7',
+    borderRadius: 8,
+    borderLeft: 3,
+    borderLeftColor: '#f59e0b',
   },
   footer: {
     position: 'absolute',
-    bottom: 40,
-    left: 40,
-    right: 40,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#1a1a1a',
+    padding: 20,
     fontSize: 8,
-    color: '#64748b',
-    borderTopWidth: 1,
-    borderTopColor: '#e2e8f0',
-    paddingTop: 10,
+    color: '#ffffff',
   },
   footerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 3,
+    marginBottom: 5,
+  },
+  footerText: {
+    fontSize: 8,
+    color: '#ffffff',
+    opacity: 0.9,
   },
 });
 
@@ -173,37 +248,45 @@ export const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View>
-            <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#1e40af', marginBottom: 5 }}>
-              {data.companyInfo.naam}
-            </Text>
-            <Text style={styles.companyInfo}>{data.companyInfo.adres}</Text>
-            <Text style={styles.companyInfo}>Tel: {data.companyInfo.telefoon}</Text>
-            <Text style={styles.companyInfo}>Email: {data.companyInfo.email}</Text>
-            <Text style={styles.companyInfo}>Web: {data.companyInfo.website}</Text>
+        {/* Header Banner */}
+        <View style={styles.headerBanner}>
+          <View style={styles.logoContainer}>
+            <Text style={styles.companyName}>AMS </Text>
+            <Text style={styles.companyNameAccent}>BOUWERS</Text>
           </View>
-          <View>
-            <Text style={styles.documentTitle}>
-              {data.type === 'offerte' ? 'OFFERTE' : 'FACTUUR'}
-            </Text>
-            <Text style={styles.documentNumber}>{data.nummer}</Text>
-            <Text style={{ ...styles.text, textAlign: 'right', marginTop: 10 }}>
-              Datum: {formatDate(data.datum)}
-            </Text>
-            {data.geldigTot && (
-              <Text style={{ ...styles.text, textAlign: 'right' }}>
-                Geldig tot: {formatDate(data.geldigTot)}
-              </Text>
-            )}
-            {data.vervaldatum && (
-              <Text style={{ ...styles.text, textAlign: 'right' }}>
-                Vervaldatum: {formatDate(data.vervaldatum)}
-              </Text>
-            )}
-          </View>
+          <Text style={styles.tagline}>Uw betrouwbare partner voor bouw en renovatie</Text>
         </View>
+
+        <View style={styles.contentContainer}>
+          {/* Document Info Header */}
+          <View style={styles.header}>
+            <View>
+              <Text style={styles.companyInfo}>{data.companyInfo.adres}</Text>
+              <Text style={styles.companyInfo}>Tel: {data.companyInfo.telefoon}</Text>
+              <Text style={styles.companyInfo}>Email: {data.companyInfo.email}</Text>
+              <Text style={styles.companyInfo}>Web: {data.companyInfo.website}</Text>
+            </View>
+            <View>
+              <Text style={styles.documentTitle}>
+                {data.type === 'offerte' ? 'OFFERTE' : 'FACTUUR'}
+              </Text>
+              <View style={styles.documentTitleAccent} />
+              <Text style={styles.documentNumber}>{data.nummer}</Text>
+              <Text style={{ ...styles.text, textAlign: 'right', marginTop: 10, color: '#1a1a1a' }}>
+                Datum: {formatDate(data.datum)}
+              </Text>
+              {data.geldigTot && (
+                <Text style={{ ...styles.text, textAlign: 'right', color: '#1a1a1a' }}>
+                  Geldig tot: {formatDate(data.geldigTot)}
+                </Text>
+              )}
+              {data.vervaldatum && (
+                <Text style={{ ...styles.text, textAlign: 'right', color: '#1a1a1a' }}>
+                  Vervaldatum: {formatDate(data.vervaldatum)}
+                </Text>
+              )}
+            </View>
+          </View>
 
         {/* Client and Project Info */}
         <View style={styles.clientSection}>
@@ -224,62 +307,66 @@ export const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => {
           </View>
         </View>
 
-        {/* Items Table */}
-        <View style={styles.table}>
-          <View style={styles.tableHeader}>
-            <Text style={styles.col1}>#</Text>
-            <Text style={styles.col2}>Omschrijving</Text>
-            <Text style={styles.col3}>Aantal</Text>
-            <Text style={styles.col4}>Eenheid</Text>
-            <Text style={styles.col5}>Prijs/Eenheid</Text>
-            <Text style={styles.col6}>Totaal</Text>
-          </View>
-          {data.items.map((item, index) => (
-            <View key={index} style={styles.tableRow}>
-              <Text style={styles.col1}>{index + 1}</Text>
-              <Text style={styles.col2}>{item.omschrijving}</Text>
-              <Text style={styles.col3}>{item.aantal}</Text>
-              <Text style={styles.col4}>{item.eenheid}</Text>
-              <Text style={styles.col5}>{formatCurrency(item.prijsPerEenheid)}</Text>
-              <Text style={styles.col6}>{formatCurrency(item.totaal)}</Text>
+          {/* Items Table */}
+          <View style={styles.table}>
+            <View style={styles.tableHeader}>
+              <Text style={styles.col1}>#</Text>
+              <Text style={styles.col2}>Omschrijving</Text>
+              <Text style={styles.col3}>Aantal</Text>
+              <Text style={styles.col4}>Eenheid</Text>
+              <Text style={styles.col5}>Prijs/Eenheid</Text>
+              <Text style={styles.col6}>Totaal</Text>
             </View>
-          ))}
-        </View>
+            {data.items.map((item, index) => (
+              <View key={index} style={index % 2 === 1 ? [styles.tableRow, styles.tableRowAlt] : styles.tableRow}>
+                <Text style={styles.col1}>{index + 1}</Text>
+                <Text style={styles.col2}>{item.omschrijving}</Text>
+                <Text style={styles.col3}>{item.aantal}</Text>
+                <Text style={styles.col4}>{item.eenheid}</Text>
+                <Text style={styles.col5}>{formatCurrency(item.prijsPerEenheid)}</Text>
+                <Text style={styles.col6}>{formatCurrency(item.totaal)}</Text>
+              </View>
+            ))}
+          </View>
 
-        {/* Totals */}
-        <View style={styles.totalsSection}>
-          <View style={styles.totalRow}>
-            <Text>Subtotaal:</Text>
-            <Text>{formatCurrency(data.subtotaal)}</Text>
+          {/* Totals */}
+          <View style={styles.totalsSection}>
+            <View style={styles.totalRow}>
+              <Text>Subtotaal:</Text>
+              <Text>{formatCurrency(data.subtotaal)}</Text>
+            </View>
+            <View style={styles.totalRow}>
+              <Text>BTW ({data.btwPercentage}%):</Text>
+              <Text>{formatCurrency(data.btwBedrag)}</Text>
+            </View>
+            <View style={styles.grandTotal}>
+              <Text>TOTAAL:</Text>
+              <Text>{formatCurrency(data.totaal)}</Text>
+            </View>
           </View>
-          <View style={styles.totalRow}>
-            <Text>BTW ({data.btwPercentage}%):</Text>
-            <Text>{formatCurrency(data.btwBedrag)}</Text>
-          </View>
-          <View style={styles.grandTotal}>
-            <Text>TOTAAL:</Text>
-            <Text>{formatCurrency(data.totaal)}</Text>
-          </View>
-        </View>
 
-        {/* Notes */}
-        {data.notities && (
-          <View style={{ marginTop: 20 }}>
-            <Text style={styles.sectionTitle}>OPMERKINGEN</Text>
-            <Text style={styles.text}>{data.notities}</Text>
-          </View>
-        )}
+          {/* Notes */}
+          {data.notities && (
+            <View style={styles.notesSection}>
+              <Text style={styles.sectionTitle}>OPMERKINGEN</Text>
+              <Text style={styles.text}>{data.notities}</Text>
+            </View>
+          )}
+        </View>
 
         {/* Footer */}
         <View style={styles.footer}>
           {data.betalingsvoorwaarden && (
-            <Text style={{ marginBottom: 8 }}>{data.betalingsvoorwaarden}</Text>
+            <Text style={[styles.footerText, { marginBottom: 10 }]}>{data.betalingsvoorwaarden}</Text>
           )}
           <View style={styles.footerRow}>
-            <Text>IBAN: {data.companyInfo.iban}</Text>
-            <Text>KVK: {data.companyInfo.kvk}</Text>
-            <Text>BTW: {data.companyInfo.btw}</Text>
+            <Text style={styles.footerText}>IBAN: {data.companyInfo.iban}</Text>
+            <Text style={styles.footerText}>KVK: {data.companyInfo.kvk}</Text>
+            <Text style={styles.footerText}>BTW: {data.companyInfo.btw}</Text>
           </View>
+          <Text style={[styles.footerText, { textAlign: 'center', marginTop: 10, fontSize: 7 }]}>
+            © {new Date().getFullYear()} {data.companyInfo.naam} - Alle rechten voorbehouden
+          </Text>
         </View>
       </Page>
     </Document>
