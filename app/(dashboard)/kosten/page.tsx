@@ -62,6 +62,7 @@ export default function KostenPage() {
   const [preview, setPreview] = useState<string | null>(null);
   const [categorie, setCategorie] = useState("Materialen");
   const [omschrijving, setOmschrijving] = useState("");
+  const [bedrag, setBedrag] = useState("");
   const [selectedClientId, setSelectedClientId] = useState<string>("none");
 
   useEffect(() => {
@@ -125,6 +126,7 @@ export default function KostenPage() {
       formData.append("file", file);
       formData.append("categorie", categorie);
       formData.append("omschrijving", omschrijving);
+      formData.append("bedrag", bedrag || "0");
       formData.append("uploadedVia", "web");
       
       if (selectedClientId && selectedClientId !== "none") {
@@ -151,6 +153,7 @@ export default function KostenPage() {
       setFile(null);
       setPreview(null);
       setOmschrijving("");
+      setBedrag("");
       setSelectedClientId("none");
       fetchExpenses();
     } catch (error: any) {
@@ -299,7 +302,7 @@ export default function KostenPage() {
             Nieuw Bonnetje Uploaden
           </CardTitle>
           <CardDescription>
-            Maak een foto of upload een scan van je bonnetje. OCR detecteert automatisch het bedrag.
+            Maak een foto of upload een scan van je bonnetje en vul het bedrag in.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -361,18 +364,32 @@ export default function KostenPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="omschrijving">Omschrijving (optioneel)</Label>
+                <Label htmlFor="omschrijving">Omschrijving</Label>
                 <Input
                   id="omschrijving"
                   value={omschrijving}
                   onChange={(e) => setOmschrijving(e.target.value)}
                   placeholder="Bijv. Bouwmaterialen Praxis"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bedrag">Bedrag (excl. BTW)</Label>
+                <Input
+                  id="bedrag"
+                  type="number"
+                  step="0.01"
+                  value={bedrag}
+                  onChange={(e) => setBedrag(e.target.value)}
+                  placeholder="0.00"
+                  required
                 />
               </div>
 
               <Button
                 onClick={handleUpload}
-                disabled={!file || uploading}
+                disabled={!file || !omschrijving || !bedrag || uploading}
                 className="w-full"
                 size="lg"
               >

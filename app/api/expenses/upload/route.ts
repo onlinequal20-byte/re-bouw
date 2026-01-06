@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/simple-auth";
 import { prisma } from "@/lib/prisma";
 import sharp from "sharp";
-import { createWorker } from "tesseract.js";
+// OCR disabled for Vercel compatibility
+// import { createWorker } from "tesseract.js";
 import { supabase } from "@/lib/supabase";
 
-export const maxDuration = 60; // Max duration for Vercel serverless function (60 seconds)
+export const maxDuration = 30; // Reduced timeout since OCR is disabled
 
 export async function POST(request: Request) {
   try {
@@ -21,6 +22,7 @@ export async function POST(request: Request) {
     const factuurId = formData.get("factuurId") as string | null;
     const categorie = formData.get("categorie") as string;
     const omschrijving = formData.get("omschrijving") as string;
+    const bedragInput = formData.get("bedrag") as string;
     const uploadedVia = formData.get("uploadedVia") as string || "web";
 
     if (!file) {
@@ -101,64 +103,17 @@ export async function POST(request: Request) {
 
     console.log("🔗 Public URL:", publicUrl);
 
-    // Perform OCR (only for images)
+    // OCR is disabled for Vercel compatibility (60s timeout issue)
+    // Users can manually enter the amount and description
     let ocrText = null;
     let ocrBedrag = null;
     let ocrDatum = null;
     let ocrWinkel = null;
+    
+    console.log("ℹ️  OCR skipped - manual entry required");
 
-    if (file.type.startsWith("image/")) {
-      try {
-        console.log("🔍 Starting OCR...");
-        const worker = await createWorker("nld+eng"); // Dutch + English
-        const { data: { text } } = await worker.recognize(processedBuffer);
-        await worker.terminate();
-
-        ocrText = text;
-        console.log("✅ OCR completed, text length:", text.length);
-
-        // Extract amount (look for patterns like €12.34, 12,34, EUR 12.34)
-        const amountRegex = /(?:€|EUR)?\s*(\d+)[.,](\d{2})/g;
-        const amounts: number[] = [];
-        let match;
-        while ((match = amountRegex.exec(text)) !== null) {
-          const amount = parseFloat(`${match[1]}.${match[2]}`);
-          if (amount > 0 && amount < 100000) {
-            amounts.push(amount);
-          }
-        }
-        // Use the largest amount found (usually the total)
-        if (amounts.length > 0) {
-          ocrBedrag = Math.max(...amounts);
-          console.log("💰 OCR detected amount:", ocrBedrag);
-        }
-
-        // Extract date (DD-MM-YYYY, DD/MM/YYYY, etc.)
-        const dateRegex = /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/;
-        const dateMatch = text.match(dateRegex);
-        if (dateMatch) {
-          const day = parseInt(dateMatch[1]);
-          const month = parseInt(dateMatch[2]) - 1;
-          let year = parseInt(dateMatch[3]);
-          if (year < 100) year += 2000;
-          ocrDatum = new Date(year, month, day);
-          console.log("📅 OCR detected date:", ocrDatum);
-        }
-
-        // Extract store name (first line usually)
-        const lines = text.split("\n").filter((line) => line.trim().length > 0);
-        if (lines.length > 0) {
-          ocrWinkel = lines[0].trim().substring(0, 100);
-          console.log("🏪 OCR detected store:", ocrWinkel);
-        }
-      } catch (ocrError) {
-        console.error("⚠️  OCR error (continuing without OCR data):", ocrError);
-        // Continue without OCR data
-      }
-    }
-
-    // Calculate totals
-    const bedrag = ocrBedrag || 0;
+    // Calculate totals from user input
+    const bedrag = parseFloat(bedragInput) || 0;
     const btw = bedrag * 0.21; // 21% BTW
     const totaalBedrag = bedrag + btw;
 
