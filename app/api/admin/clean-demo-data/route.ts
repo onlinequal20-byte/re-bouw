@@ -32,8 +32,8 @@ export async function POST(request: Request) {
     const klanten = await prisma.klant.deleteMany({});
     console.log(`✅ Deleted ${klanten.count} klanten`);
 
-    const prijslijst = await prisma.prijslijst.deleteMany({});
-    console.log(`✅ Deleted ${prijslijst.count} prijslijst items`);
+    // Keep prijslijst - don't delete it
+    console.log('✅ Prijslijst behouden (niet verwijderd)');
 
     console.log('✨ Cleanup complete!');
 
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
         offertes: offertes.count,
         facturen: facturen.count,
         expenses: expenses.count,
-        prijslijst: prijslijst.count,
+        prijslijst: "behouden",
       }
     });
 

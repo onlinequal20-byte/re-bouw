@@ -32,9 +32,8 @@ async function cleanDemoData() {
     const klanten = await prisma.klant.deleteMany({});
     console.log(`   ✅ Deleted ${klanten.count} klanten\n`);
 
-    console.log('🗑️  Deleting prijslijst items...');
-    const prijslijst = await prisma.prijslijst.deleteMany({});
-    console.log(`   ✅ Deleted ${prijslijst.count} prijslijst items\n`);
+    // Keep prijslijst - don't delete it
+    console.log('✅ Prijslijst behouden (niet verwijderd)\n');
 
     console.log('✨ Cleanup complete! Your dashboard is ready to use.\n');
     console.log('📊 Summary:');
@@ -42,7 +41,7 @@ async function cleanDemoData() {
     console.log(`   - ${offertes.count} offertes verwijderd`);
     console.log(`   - ${facturen.count} facturen verwijderd`);
     console.log(`   - ${expenses.count} bonnetjes verwijderd`);
-    console.log(`   - ${prijslijst.count} prijslijst items verwijderd`);
+    console.log(`   - Prijslijst behouden ✅`);
     console.log('\n🎉 Je kunt nu beginnen met je eigen data!\n');
 
   } catch (error) {
