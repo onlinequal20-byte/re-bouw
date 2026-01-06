@@ -6,7 +6,12 @@ const nextConfig: NextConfig = {
   
   // Image optimization
   images: {
-    domains: [],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+      },
+    ],
     unoptimized: false,
   },
   
@@ -24,4 +29,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
