@@ -28,7 +28,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, Mail, Settings } from "lucide-react";
+import { Building2, Mail, Settings, CreditCard } from "lucide-react";
 
 export default function InstellingenPage() {
   const { toast } = useToast();
@@ -48,6 +48,7 @@ export default function InstellingenPage() {
       betalingsvoorwaarden: "",
       zoho_email: "",
       zoho_password: "",
+      mollie_api_key: "",
     },
   });
 
@@ -120,6 +121,10 @@ export default function InstellingenPage() {
               <TabsTrigger value="zoho">
                 <Mail className="mr-2 h-4 w-4" />
                 Zoho Mail
+              </TabsTrigger>
+              <TabsTrigger value="mollie">
+                <CreditCard className="mr-2 h-4 w-4" />
+                Mollie Betalingen
               </TabsTrigger>
               <TabsTrigger value="systeem">
                 <Settings className="mr-2 h-4 w-4" />
@@ -306,6 +311,66 @@ export default function InstellingenPage() {
                       <li>Vul je email en wachtwoord/app-password hierboven in</li>
                       <li>Klik op "Opslaan" onderaan de pagina</li>
                     </ol>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="mollie">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Mollie Betalingen</CardTitle>
+                  <CardDescription>
+                    Configureer Mollie voor iDEAL betalingen op facturen
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="mollie_api_key"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Mollie API Key</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="password" placeholder="live_..." />
+                        </FormControl>
+                        <FormDescription>
+                          Je Mollie Live API key (begint met "live_") of Test API key (begint met "test_")
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="rounded-lg bg-blue-50 p-4 text-sm">
+                    <h4 className="font-medium mb-2">ℹ️ Hoe configureer je Mollie?</h4>
+                    <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                      <li>Maak een account aan op <a href="https://www.mollie.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">mollie.com</a></li>
+                      <li>Ga naar Developers → API keys in je Mollie dashboard</li>
+                      <li>Kopieer je Live API key (voor productie) of Test API key (voor testen)</li>
+                      <li>Plak de API key hierboven</li>
+                      <li>Sla de instellingen op</li>
+                    </ol>
+                  </div>
+
+                  <div className="rounded-lg bg-green-50 p-4 text-sm">
+                    <h4 className="font-medium mb-2">✅ Wat kun je met Mollie?</h4>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                      <li>Klanten kunnen facturen online betalen met iDEAL</li>
+                      <li>Automatische betalingsbevestiging</li>
+                      <li>Factuurstatus wordt automatisch bijgewerkt naar "Betaald"</li>
+                      <li>Veilige betalingsverwerking via Mollie</li>
+                    </ul>
+                  </div>
+
+                  <div className="rounded-lg bg-yellow-50 p-4 text-sm">
+                    <h4 className="font-medium mb-2">⚠️ Let op</h4>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                      <li>Test API key werkt alleen in testmodus</li>
+                      <li>Live API key is nodig voor echte betalingen</li>
+                      <li>Mollie rekent transactiekosten per betaling</li>
+                      <li>Zorg dat je webhook URL correct is ingesteld in Mollie</li>
+                    </ul>
                   </div>
                 </CardContent>
               </Card>

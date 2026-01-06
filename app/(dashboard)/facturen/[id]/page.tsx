@@ -15,6 +15,7 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
 import { EmailButton } from "@/components/email-button";
+import { PaymentButton } from "@/components/payment-button";
 
 function getStatusBadgeVariant(status: string) {
   switch (status) {
@@ -68,6 +69,12 @@ export default async function FactuurDetailPage({
           </div>
         </div>
         <div className="flex gap-2">
+          <PaymentButton
+            factuurId={factuur.id}
+            factuurNummer={factuur.factuurNummer}
+            remainingAmount={factuur.totaal - factuur.betaaldBedrag}
+            status={factuur.status}
+          />
           <a href={`/api/facturen/${factuur.id}/pdf`} target="_blank">
             <Button>
               <Download className="mr-2 h-4 w-4" />
