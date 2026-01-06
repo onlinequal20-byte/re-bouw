@@ -72,13 +72,13 @@ export function MobileSidebar() {
         )}
       >
         {/* Logo */}
-        <div className="flex h-16 items-center justify-center border-b border-gray-800">
-          <div className="relative w-40 h-10">
+        <div className="flex h-16 items-center justify-center border-b border-gray-800 px-4">
+          <div className="relative w-40 h-10 bg-white rounded-lg px-2 py-1">
             <Image 
               src="/images/amsbouwers.logo.png" 
               alt="AMS Bouwers" 
               fill
-              className="object-contain"
+              className="object-contain p-0.5"
               priority
             />
           </div>

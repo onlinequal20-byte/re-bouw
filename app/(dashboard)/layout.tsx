@@ -1,6 +1,6 @@
 import { Sidebar } from "@/components/sidebar";
 import { MobileSidebar } from "@/components/mobile-sidebar";
-import { Building2 } from "lucide-react";
+import Image from "next/image";
 
 export default function DashboardLayout({
   children,
@@ -19,11 +19,14 @@ export default function DashboardLayout({
         {/* Mobile Header */}
         <div className="flex h-16 items-center gap-4 border-b gradient-header px-4 md:hidden shadow-md">
           <MobileSidebar />
-          <div className="flex items-center gap-2">
-            <Building2 className="h-6 w-6 text-primary" />
-            <span className="text-lg font-bold text-white">
-              AMS <span className="text-primary">BOUWERS</span>
-            </span>
+          <div className="relative w-32 h-8 bg-white/10 rounded px-2 py-1">
+            <Image 
+              src="/images/amsbouwers.logo.png" 
+              alt="AMS Bouwers" 
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
         </div>
 
@@ -37,4 +40,3 @@ export default function DashboardLayout({
     </div>
   );
 }
-

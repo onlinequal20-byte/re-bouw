@@ -41,13 +41,13 @@ export function Sidebar() {
   return (
     <div className="flex h-screen w-64 flex-col gradient-header text-white shadow-xl">
       {/* Logo */}
-      <div className="flex h-16 items-center justify-center border-b border-white/10 bg-black/20">
-        <div className="relative w-48 h-12">
+      <div className="flex h-16 items-center justify-center border-b border-white/10 bg-black/20 px-4">
+        <div className="relative w-48 h-12 bg-white rounded-lg px-3 py-2">
           <Image 
             src="/images/amsbouwers.logo.png" 
             alt="AMS Bouwers" 
             fill
-            className="object-contain"
+            className="object-contain p-1"
             priority
           />
         </div>
