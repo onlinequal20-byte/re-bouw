@@ -16,6 +16,7 @@ import {
   LogOut,
   Menu,
   X,
+  Camera,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
@@ -25,6 +26,7 @@ const navigation = [
   { name: "Klanten", href: "/klanten", icon: Users },
   { name: "Offertes", href: "/offertes", icon: FileText },
   { name: "Facturen", href: "/facturen", icon: Receipt },
+  { name: "Kosten", href: "/kosten", icon: Camera },
   { name: "Prijzen", href: "/prijzen", icon: DollarSign },
   { name: "Email", href: "/email", icon: Mail },
   { name: "Instellingen", href: "/instellingen", icon: Settings },

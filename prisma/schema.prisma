@@ -72,6 +72,7 @@ model Klant {
   updatedAt  DateTime   @updatedAt
   offertes   Offerte[]
   facturen   Factuur[]
+  expenses   Expense[]
 }
 
 model Prijslijst {
@@ -114,6 +115,7 @@ model Offerte {
   bedrijfGetekendOp       DateTime?      // When company signed
   algemeneVoorwaardenUrl  String?        // URL to AV PDF
   algemeneVoorwaardenHash String?        // Hash of AV for verification
+  expenses                Expense[]
   createdAt               DateTime       @default(now())
   updatedAt               DateTime       @updatedAt
   
@@ -161,6 +163,7 @@ model Factuur {
   klantIpAdres            String?       // IP address of client
   algemeneVoorwaardenUrl  String?       // URL to AV PDF
   algemeneVoorwaardenHash String?       // Hash of AV for verification
+  expenses                Expense[]
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @updatedAt
   
@@ -212,5 +215,48 @@ model Email {
   @@index([type])
   @@index([documentId])
   @@index([sentAt])
+}
+
+model Expense {
+  id                String    @id @default(cuid())
+  klantId           String?
+  klant             Klant?    @relation(fields: [klantId], references: [id], onDelete: SetNull)
+  offerteId         String?
+  offerte           Offerte?  @relation(fields: [offerteId], references: [id], onDelete: SetNull)
+  factuurId         String?
+  factuur           Factuur?  @relation(fields: [factuurId], references: [id], onDelete: SetNull)
+  
+  // Receipt/Expense details
+  datum             DateTime  @default(now())
+  categorie         String    // "Materialen", "Transport", "Gereedschap", "Overig"
+  omschrijving      String
+  bedrag            Float
+  btw               Float     @default(0)
+  totaalBedrag      Float
+  
+  // Receipt image
+  imageUrl          String    // Path to uploaded image
+  imageName         String    // Original filename
+  imageSize         Int       // File size in bytes
+  
+  // OCR extracted data
+  ocrText           String?   // Full extracted text
+  ocrBedrag         Float?    // Auto-detected amount
+  ocrDatum          DateTime? // Auto-detected date
+  ocrWinkel         String?   // Auto-detected store name
+  ocrVerified       Boolean   @default(false) // Manual verification
+  
+  // Metadata
+  uploadedVia       String    @default("web") // "web", "mobile"
+  notities          String?
+  status            String    @default("pending") // "pending", "approved", "rejected"
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([klantId])
+  @@index([datum])
+  @@index([categorie])
+  @@index([status])
 }
 
