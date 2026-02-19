@@ -50,7 +50,7 @@ export async function sendEmail(data: EmailData) {
 
     // Send email with professional HTML template
     const htmlBody = generateHTMLEmail(data.body, data.subject, fromName);
-    
+
     const info = await transporter.sendMail({
       from: `"${fromName}" <${zohoEmail}>`,
       to: data.to,
@@ -73,62 +73,45 @@ export function generateOfferteEmail(offerte: any, baseUrl: string) {
   const subject = `Offerte ${offerte.offerteNummer} - ${offerte.projectNaam}`;
   const signUrl = `${baseUrl}/ondertekenen/offerte/${offerte.id}`;
   const paymentUrl = `${baseUrl}/betalen/offerte/${offerte.id}`;
-  
+
   // Calculate prepayment amount (30% of total) — values are in cents
   const prepaymentCents = Math.round(offerte.totaal * 0.3);
 
   const body = `Beste ${offerte.klant.naam},
 
-Hierbij ontvangt u de offerte voor ${offerte.projectNaam}.
+Naar aanleiding van ons bezoek en de opname ter plaatse hebben wij het genoegen u bijgaand onze offerte aan te bieden voor de werkzaamheden aan uw woning.
 
-Offerte nummer: ${offerte.offerteNummer}
-Totaalbedrag: € ${(offerte.totaal / 100).toFixed(2).replace('.', ',')}
-Vooruitbetaling (30%): € ${(prepaymentCents / 100).toFixed(2).replace('.', ',')}
+{{INFO_BLOCK}}
+Offerte: ${offerte.offerteNummer}
+Project: ${offerte.projectNaam}
+Totaalbedrag: \u20AC ${(offerte.totaal / 100).toFixed(2).replace('.', ',')}
+Vooruitbetaling (30%): \u20AC ${(prepaymentCents / 100).toFixed(2).replace('.', ',')}
 Geldig tot: ${new Date(offerte.geldigTot).toLocaleDateString('nl-NL')}
+{{/INFO_BLOCK}}
 
 De offerte en algemene voorwaarden zijn als PDF bijgevoegd bij deze email.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📝 DIGITAAL ONDERTEKENEN
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{{SECTION}}Digitaal ondertekenen{{/SECTION}}
 
-U kunt deze offerte eenvoudig digitaal ondertekenen via:
-${signUrl}
+U kunt deze offerte eenvoudig digitaal ondertekenen. Door te ondertekenen gaat u automatisch akkoord met onze algemene voorwaarden.
 
-Door te ondertekenen gaat u automatisch akkoord met onze algemene voorwaarden.
+{{CTA}}${signUrl}|Offerte ondertekenen{{/CTA}}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💳 VOORUITBETALING MET iDEAL
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{{SECTION}}Vooruitbetaling met iDEAL{{/SECTION}}
 
-Na ondertekening kunt u direct 30% vooruitbetalen met iDEAL:
-${paymentUrl}
+Na ondertekening kunt u direct 30% vooruitbetalen met iDEAL. Snel, veilig en zonder extra kosten. Na betaling kan het project direct starten.
 
-✓ Snel en veilig betalen met uw eigen bank
-✓ Directe bevestiging na betaling
-✓ Geen extra kosten
-✓ Project kan direct starten na vooruitbetaling
+{{CTA}}${paymentUrl}|Direct betalen{{/CTA}}
 
-OF betaal de vooruitbetaling via bankoverschrijving naar:
+U kunt ook betalen via bankoverschrijving:
 IBAN: NL91ABNA0417164300
 t.n.v. AMS Bouwers B.V.
-onder vermelding van: ${offerte.offerteNummer} - Vooruitbetaling
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Onder vermelding van: ${offerte.offerteNummer} - Vooruitbetaling
 
 Mocht u vragen hebben of meer informatie wensen, neem dan gerust contact met ons op.
 
 Met vriendelijke groet,
-
-AMS Bouwers B.V.
-Sloterweg 1160
-1066 CV Amsterdam
-Tel: 0642959565
-Email: info@amsbouwers.nl
-Web: amsbouwers.nl
-
-KVK: 80195466
-BTW: NL123456789B01`;
+AMS Bouwers B.V.`;
 
   return { subject, body };
 }
@@ -139,31 +122,20 @@ export function generateOfferteReminderEmail(offerte: any, baseUrl: string) {
 
   const body = `Beste ${offerte.klant.naam},
 
-Wij willen u er graag aan herinneren dat u nog een openstaande offerte heeft voor ${offerte.projectNaam}.
+Graag herinneren wij u aan de offerte die wij u hebben toegestuurd voor ${offerte.projectNaam}. Wij horen graag of u nog vragen heeft of dat wij de werkzaamheden voor u mogen inplannen.
 
-Offerte nummer: ${offerte.offerteNummer}
-Totaalbedrag: € ${(offerte.totaal / 100).toFixed(2).replace('.', ',')}
+{{INFO_BLOCK}}
+Offerte: ${offerte.offerteNummer}
+Totaalbedrag: \u20AC ${(offerte.totaal / 100).toFixed(2).replace('.', ',')}
 Geldig tot: ${new Date(offerte.geldigTot).toLocaleDateString('nl-NL')}
+{{/INFO_BLOCK}}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📝 DIGITAAL ONDERTEKENEN
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-U kunt deze offerte eenvoudig digitaal ondertekenen via:
-${signUrl}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{{CTA}}${signUrl}|Offerte bekijken & ondertekenen{{/CTA}}
 
 Mocht u vragen hebben of meer informatie wensen, neem dan gerust contact met ons op.
 
 Met vriendelijke groet,
-
-AMS Bouwers B.V.
-Sloterweg 1160
-1066 CV Amsterdam
-Tel: 0642959565
-Email: info@amsbouwers.nl
-Web: amsbouwers.nl`;
+AMS Bouwers B.V.`;
 
   return { subject, body };
 }
@@ -174,63 +146,41 @@ export function generateFactuurEmail(factuur: any, baseUrl: string) {
   const paymentUrl = `${baseUrl}/betalen/factuur/${factuur.id}`;
   const remainingAmount = factuur.totaal - (factuur.betaaldBedrag || 0);
   const isPaid = factuur.status === 'Betaald' || remainingAmount <= 0;
-  
+
   const body = `Beste ${factuur.klant.naam},
 
-Hierbij ontvangt u de factuur voor ${factuur.projectNaam}.
+Hierbij ontvangt u de factuur voor de uitgevoerde werkzaamheden aan ${factuur.projectNaam}. De factuur en algemene voorwaarden zijn als PDF bijgevoegd.
 
-Factuur nummer: ${factuur.factuurNummer}
-Totaalbedrag: € ${(factuur.totaal / 100).toFixed(2).replace('.', ',')}
-${factuur.betaaldBedrag > 0 ? `Reeds betaald: € ${(factuur.betaaldBedrag / 100).toFixed(2).replace('.', ',')}` : ''}
-${!isPaid ? `Openstaand bedrag: € ${(remainingAmount / 100).toFixed(2).replace('.', ',')}` : ''}
-Vervaldatum: ${new Date(factuur.vervaldatum).toLocaleDateString('nl-NL')}
-${isPaid ? '\n✅ STATUS: BETAALD' : ''}
+{{INFO_BLOCK}}
+Factuur: ${factuur.factuurNummer}
+Totaalbedrag: \u20AC ${(factuur.totaal / 100).toFixed(2).replace('.', ',')}${factuur.betaaldBedrag > 0 ? `
+Reeds betaald: \u20AC ${(factuur.betaaldBedrag / 100).toFixed(2).replace('.', ',')}` : ''}${!isPaid ? `
+Openstaand: \u20AC ${(remainingAmount / 100).toFixed(2).replace('.', ',')}` : ''}
+Vervaldatum: ${new Date(factuur.vervaldatum).toLocaleDateString('nl-NL')}${isPaid ? `
+Status: BETAALD` : ''}
+{{/INFO_BLOCK}}
 
-De factuur en algemene voorwaarden zijn als PDF bijgevoegd bij deze email.
+${!isPaid ? `{{SECTION}}Online betalen met iDEAL{{/SECTION}}
 
-${!isPaid ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💳 DIRECT ONLINE BETALEN MET iDEAL
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+U kunt deze factuur eenvoudig en veilig online betalen. Directe bevestiging, geen extra kosten.
 
-U kunt deze factuur eenvoudig en veilig online betalen met iDEAL:
-${paymentUrl}
+{{CTA}}${paymentUrl}|Factuur betalen{{/CTA}}
 
-✓ Snel en veilig betalen met uw eigen bank
-✓ Directe bevestiging na betaling
-✓ Geen extra kosten
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-OF betaal via bankoverschrijving naar:
+U kunt ook betalen via bankoverschrijving:
 IBAN: NL91ABNA0417164300
 t.n.v. AMS Bouwers B.V.
-onder vermelding van: ${factuur.factuurNummer}
+Onder vermelding van: ${factuur.factuurNummer}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-` : `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-`}📝 DIGITAAL ONDERTEKENEN (OPTIONEEL)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+` : ''}{{SECTION}}Digitaal ondertekenen (optioneel){{/SECTION}}
 
-U kunt deze factuur desgewenst digitaal ondertekenen via:
-${signUrl}
+U kunt deze factuur desgewenst digitaal ondertekenen ter bevestiging.
 
-Door te ondertekenen bevestigt u akkoord te zijn met de factuur en onze algemene voorwaarden.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{{CTA}}${signUrl}|Factuur ondertekenen{{/CTA}}
 
 Mocht u vragen hebben, neem dan gerust contact met ons op.
 
 Met vriendelijke groet,
-
-AMS Bouwers B.V.
-Sloterweg 1160
-1066 CV Amsterdam
-Tel: 0642959565
-Email: info@amsbouwers.nl
-Web: amsbouwers.nl
-
-KVK: 80195466
-BTW: NL123456789B01`;
+AMS Bouwers B.V.`;
 
   return { subject, body };
 }
@@ -251,34 +201,24 @@ export function generateFactuurReminderEmail(
 
 Wij willen u er vriendelijk aan herinneren dat de betaling van onderstaande factuur nog openstaat.
 
-Factuur nummer: ${factuur.factuurNummer}
+{{INFO_BLOCK}}
+Factuur: ${factuur.factuurNummer}
 Totaalbedrag: \u20AC ${bedrag}
-Openstaand bedrag: \u20AC ${openstaand}
+Openstaand: \u20AC ${openstaand}
 Vervaldatum: ${vervaldatum}
+{{/INFO_BLOCK}}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💳 DIRECT ONLINE BETALEN
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{{CTA}}${paymentUrl}|Direct betalen{{/CTA}}
 
-U kunt eenvoudig en veilig online betalen via:
-${paymentUrl}
-
-OF betaal via bankoverschrijving naar:
+U kunt ook betalen via bankoverschrijving:
 IBAN: NL91ABNA0417164300
 t.n.v. AMS Bouwers B.V.
-onder vermelding van: ${factuur.factuurNummer}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Onder vermelding van: ${factuur.factuurNummer}
 
 Mocht de betaling reeds onderweg zijn, dan kunt u deze herinnering als niet verzonden beschouwen.
 
 Met vriendelijke groet,
-
-AMS Bouwers B.V.
-Sloterweg 1160
-1066 CV Amsterdam
-Tel: 0642959565
-Email: info@amsbouwers.nl`;
+AMS Bouwers B.V.`;
 
     return { subject, body };
   }
@@ -289,36 +229,26 @@ Email: info@amsbouwers.nl`;
 
 Ondanks onze eerdere herinnering hebben wij nog geen betaling ontvangen voor onderstaande factuur. De vervaldatum is inmiddels verstreken.
 
-Factuur nummer: ${factuur.factuurNummer}
+{{INFO_BLOCK}}
+Factuur: ${factuur.factuurNummer}
 Totaalbedrag: \u20AC ${bedrag}
-Openstaand bedrag: \u20AC ${openstaand}
+Openstaand: \u20AC ${openstaand}
 Vervaldatum: ${vervaldatum}
+{{/INFO_BLOCK}}
 
-Wij verzoeken u vriendelijk doch dringend het openstaande bedrag binnen 7 dagen te voldoen.
+Wij verzoeken u het openstaande bedrag binnen 7 dagen te voldoen.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💳 DIRECT ONLINE BETALEN
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{{CTA}}${paymentUrl}|Direct betalen{{/CTA}}
 
-U kunt eenvoudig en veilig online betalen via:
-${paymentUrl}
-
-OF betaal via bankoverschrijving naar:
+U kunt ook betalen via bankoverschrijving:
 IBAN: NL91ABNA0417164300
 t.n.v. AMS Bouwers B.V.
-onder vermelding van: ${factuur.factuurNummer}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Onder vermelding van: ${factuur.factuurNummer}
 
 Mocht u vragen hebben over deze factuur, neem dan zo spoedig mogelijk contact met ons op.
 
 Met vriendelijke groet,
-
-AMS Bouwers B.V.
-Sloterweg 1160
-1066 CV Amsterdam
-Tel: 0642959565
-Email: info@amsbouwers.nl`;
+AMS Bouwers B.V.`;
 
     return { subject, body };
   }
@@ -329,62 +259,72 @@ Email: info@amsbouwers.nl`;
 
 Dit is onze laatste aanmaning betreffende de openstaande factuur hieronder. Ondanks eerdere herinneringen hebben wij tot op heden geen betaling ontvangen.
 
-Factuur nummer: ${factuur.factuurNummer}
+{{INFO_BLOCK}}
+Factuur: ${factuur.factuurNummer}
 Totaalbedrag: \u20AC ${bedrag}
-Openstaand bedrag: \u20AC ${openstaand}
+Openstaand: \u20AC ${openstaand}
 Oorspronkelijke vervaldatum: ${vervaldatum}
+{{/INFO_BLOCK}}
 
-⚠️ DRINGEND: Wij verzoeken u het openstaande bedrag binnen 5 werkdagen te voldoen.
+Wij verzoeken u dringend het openstaande bedrag binnen 5 werkdagen te voldoen. Indien wij binnen deze termijn geen betaling ontvangen, zijn wij genoodzaakt de vordering uit handen te geven aan een incassobureau. De bijkomende kosten hiervan komen voor uw rekening.
 
-Indien wij binnen deze termijn geen betaling ontvangen, zijn wij genoodzaakt de vordering uit handen te geven aan een incassobureau. De bijkomende kosten hiervan komen voor uw rekening.
+{{CTA}}${paymentUrl}|Direct betalen{{/CTA}}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💳 DIRECT ONLINE BETALEN
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-U kunt eenvoudig en veilig online betalen via:
-${paymentUrl}
-
-OF betaal via bankoverschrijving naar:
+U kunt ook betalen via bankoverschrijving:
 IBAN: NL91ABNA0417164300
 t.n.v. AMS Bouwers B.V.
-onder vermelding van: ${factuur.factuurNummer}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Onder vermelding van: ${factuur.factuurNummer}
 
 Voor vragen kunt u contact opnemen via onderstaande gegevens.
 
 Met vriendelijke groet,
-
-AMS Bouwers B.V.
-Sloterweg 1160
-1066 CV Amsterdam
-Tel: 0642959565
-Email: info@amsbouwers.nl
-
-KVK: 80195466
-BTW: NL123456789B01`;
+AMS Bouwers B.V.`;
 
   return { subject, body };
 }
 
 // Generate professional HTML email template
 function generateHTMLEmail(textBody: string, subject: string, companyName: string): string {
-  // Use the deployed URL for the logo, fallback to a placeholder or main domain if env var not set
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://amsbouwers.nl';
-  // Ensure we don't double slash
   const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
   const logoUrl = `${cleanBaseUrl}/images/amsbouwers.logo.png`;
 
-  // Convert text body to HTML with proper formatting
-  const htmlContent = textBody
+  // Process special template tags into HTML
+  let htmlContent = textBody;
+
+  // Process {{INFO_BLOCK}}...{{/INFO_BLOCK}} into styled info blocks
+  htmlContent = htmlContent.replace(/\{\{INFO_BLOCK\}\}\n([\s\S]*?)\{\{\/INFO_BLOCK\}\}/g, (_match, content) => {
+    const lines = content.trim().split('\n').map((line: string) => {
+      const parts = line.split(':');
+      if (parts.length >= 2) {
+        const label = parts[0].trim();
+        const value = parts.slice(1).join(':').trim();
+        return `<tr><td style="padding: 6px 12px; color: #6b7280; font-size: 14px; white-space: nowrap;">${label}</td><td style="padding: 6px 12px; color: #1a1a1a; font-weight: 600; font-size: 14px;">${value}</td></tr>`;
+      }
+      return `<tr><td colspan="2" style="padding: 6px 12px; color: #1a1a1a; font-size: 14px;">${line.trim()}</td></tr>`;
+    }).join('');
+    return `<table style="background-color: #f9fafb; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0; width: 100%;">${lines}</table>`;
+  });
+
+  // Process {{CTA}}url|label{{/CTA}} into styled buttons
+  htmlContent = htmlContent.replace(/\{\{CTA\}\}(.+?)\|(.+?)\{\{\/CTA\}\}/g, (_match, url, label) => {
+    return `<div style="text-align: center; margin: 24px 0;"><a href="${url}" style="display: inline-block; background-color: #f59e0b; color: #1a1a1a; font-weight: 700; font-size: 16px; padding: 14px 32px; border-radius: 8px; text-decoration: none; letter-spacing: 0.3px;">${label}</a></div>`;
+  });
+
+  // Process {{SECTION}}title{{/SECTION}} into styled section headers
+  htmlContent = htmlContent.replace(/\{\{SECTION\}\}(.+?)\{\{\/SECTION\}\}/g, (_match, title) => {
+    return `<div style="margin: 28px 0 12px 0; padding-bottom: 8px; border-bottom: 2px solid #f59e0b;"><h3 style="margin: 0; color: #1a1a1a; font-size: 16px; font-weight: 700;">${title}</h3></div>`;
+  });
+
+  // Convert remaining text to HTML paragraphs
+  htmlContent = htmlContent
     .split('\n\n')
     .map(paragraph => {
-      // Check if it's a section header (starts with emoji or special chars)
-      if (paragraph.match(/^[━─═]+/) || paragraph.match(/^[📝💳✅⚠️]/)) {
-        return `<div style="margin: 24px 0;">${paragraph.replace(/\n/g, '<br>')}</div>`;
+      // Skip if already contains HTML tags (processed above)
+      if (paragraph.includes('<table') || paragraph.includes('<div') || paragraph.includes('<a href')) {
+        return paragraph;
       }
-      return `<p style="margin: 12px 0; line-height: 1.6;">${paragraph.replace(/\n/g, '<br>')}</p>`;
+      return `<p style="margin: 12px 0; line-height: 1.7; color: #374151;">${paragraph.replace(/\n/g, '<br>')}</p>`;
     })
     .join('');
 
@@ -402,8 +342,8 @@ function generateHTMLEmail(textBody: string, subject: string, companyName: strin
       <td align="center">
         <!-- Main Container -->
         <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-          
-          <!-- Header with Logo and Brand Colors -->
+
+          <!-- Header with Logo -->
           <tr>
             <td style="background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); padding: 30px; text-align: center;">
               <div style="background-color: white; padding: 15px 25px; border-radius: 8px; margin-bottom: 15px; display: inline-block;">
@@ -435,17 +375,17 @@ function generateHTMLEmail(textBody: string, subject: string, companyName: strin
                 </tr>
                 <tr>
                   <td style="text-align: center; color: #666666; font-size: 13px; line-height: 1.6;">
-                    <p style="margin: 5px 0;">📍 Sloterweg 1160, 1066 CV Amsterdam</p>
-                    <p style="margin: 5px 0;">📞 <a href="tel:0642959565" style="color: #f59e0b; text-decoration: none;">0642959565</a></p>
-                    <p style="margin: 5px 0;">📧 <a href="mailto:info@amsbouwers.nl" style="color: #f59e0b; text-decoration: none;">info@amsbouwers.nl</a></p>
-                    <p style="margin: 5px 0;">🌐 <a href="https://amsbouwers.nl" style="color: #f59e0b; text-decoration: none;">amsbouwers.nl</a></p>
+                    <p style="margin: 5px 0;">Sloterweg 1160, 1066 CV Amsterdam</p>
+                    <p style="margin: 5px 0;"><a href="tel:0642959565" style="color: #f59e0b; text-decoration: none;">0642959565</a></p>
+                    <p style="margin: 5px 0;"><a href="mailto:info@amsbouwers.nl" style="color: #f59e0b; text-decoration: none;">info@amsbouwers.nl</a></p>
+                    <p style="margin: 5px 0;"><a href="https://amsbouwers.nl" style="color: #f59e0b; text-decoration: none;">amsbouwers.nl</a></p>
                   </td>
                 </tr>
                 <tr>
                   <td style="text-align: center; padding-top: 20px; border-top: 1px solid #e0e0e0; margin-top: 20px;">
                     <p style="margin: 5px 0; color: #999999; font-size: 12px;">KVK: 80195466 | BTW: NL123456789B01</p>
                     <p style="margin: 10px 0 0 0; color: #999999; font-size: 11px;">
-                      © ${new Date().getFullYear()} AMS Bouwers B.V. Alle rechten voorbehouden.
+                      &copy; ${new Date().getFullYear()} AMS Bouwers B.V. Alle rechten voorbehouden.
                     </p>
                   </td>
                 </tr>

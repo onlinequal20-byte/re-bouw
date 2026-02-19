@@ -27,7 +27,7 @@ interface FactuurItemType {
   prijsPerEenheid: number; // cents
   totaal: number; // cents
   btwTarief: string;
-  notitie?: string;
+  beschrijving?: string;
 }
 
 interface FactuurEditorProps {
@@ -167,7 +167,7 @@ export default function FactuurEditor({ initialData }: FactuurEditorProps) {
         eenheid: string;
         prijsPerEenheid: number;
         btwTarief: string;
-        notitie: string;
+        beschrijving: string;
       }>
     ) => {
       if (selectedItemIndex === null) return;
@@ -235,7 +235,7 @@ export default function FactuurEditor({ initialData }: FactuurEditorProps) {
             prijsPerEenheid: item.prijsPerEenheid / 100,
             totaal: item.totaal / 100,
             btwTarief: item.btwTarief,
-            notitie: item.notitie,
+            beschrijving: item.beschrijving,
           })),
         }),
       });
@@ -312,7 +312,7 @@ export default function FactuurEditor({ initialData }: FactuurEditorProps) {
             prijsPerEenheid: item.prijsPerEenheid / 100,
             totaal: item.totaal / 100,
             btwTarief: item.btwTarief,
-            notitie: item.notitie,
+            beschrijving: item.beschrijving,
           })),
         }),
       });

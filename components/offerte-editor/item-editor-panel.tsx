@@ -21,7 +21,7 @@ interface ItemEditorPanelProps {
     prijsPerEenheid: number;
     totaal: number;
     btwTarief: string;
-    notitie?: string;
+    beschrijving?: string;
   } | null;
   onUpdate: (
     updates: Partial<{
@@ -30,7 +30,7 @@ interface ItemEditorPanelProps {
       eenheid: string;
       prijsPerEenheid: number;
       btwTarief: string;
-      notitie: string;
+      beschrijving: string;
     }>
   ) => void;
   onDelete: () => void;
@@ -179,14 +179,14 @@ export default function ItemEditorPanel({
 
       <div className="flex flex-col gap-1.5">
         <label className="text-white/70 text-sm font-medium">
-          Extra notitie
+          Beschrijving / Details
         </label>
         <Textarea
           rows={2}
-          value={item.notitie ?? ""}
-          onChange={(e) => onUpdate({ notitie: e.target.value })}
+          value={item.beschrijving ?? ""}
+          onChange={(e) => onUpdate({ beschrijving: e.target.value })}
           className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:ring-amber-500/50"
-          placeholder="Eventuele extra toelichting"
+          placeholder="Bijv. inclusief materiaal, afvoer oud sanitair..."
         />
       </div>
 

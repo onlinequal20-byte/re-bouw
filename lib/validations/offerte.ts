@@ -8,6 +8,7 @@ export const offerteItemSchema = z.object({
   totaal: z.number(),
   volgorde: z.number().int().optional(),
   btwTarief: z.string().optional().default("HOOG_21"),
+  beschrijving: z.string().optional(),
 });
 
 export const offerteCreateSchema = z.object({

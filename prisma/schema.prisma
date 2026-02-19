@@ -160,6 +160,7 @@ model OfferteItem {
   eenheid         String
   prijsPerEenheid Int
   totaal          Int
+  beschrijving    String?
   btwTarief       String   @default("HOOG_21")
   btwBedrag       Int      @default(0)
   volgorde        Int
@@ -221,6 +222,7 @@ model FactuurItem {
   eenheid         String
   prijsPerEenheid Int
   totaal          Int
+  beschrijving    String?
   btwTarief       String   @default("HOOG_21")
   btwBedrag       Int      @default(0)
   volgorde        Int

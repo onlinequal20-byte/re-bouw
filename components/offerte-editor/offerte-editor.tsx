@@ -27,7 +27,7 @@ interface OfferteItemType {
   prijsPerEenheid: number; // cents
   totaal: number; // cents
   btwTarief: string;
-  notitie?: string;
+  beschrijving?: string;
 }
 
 export default function OfferteEditor() {
@@ -111,7 +111,7 @@ export default function OfferteEditor() {
         eenheid: string;
         prijsPerEenheid: number;
         btwTarief: string;
-        notitie: string;
+        beschrijving: string;
       }>
     ) => {
       if (selectedItemIndex === null) return;
@@ -175,7 +175,7 @@ export default function OfferteEditor() {
             prijsPerEenheid: item.prijsPerEenheid / 100,
             totaal: item.totaal / 100,
             btwTarief: item.btwTarief,
-            notitie: item.notitie,
+            beschrijving: item.beschrijving,
           })),
         }),
       });
@@ -236,7 +236,7 @@ export default function OfferteEditor() {
             prijsPerEenheid: item.prijsPerEenheid / 100,
             totaal: item.totaal / 100,
             btwTarief: item.btwTarief,
-            notitie: item.notitie,
+            beschrijving: item.beschrijving,
           })),
         }),
       });

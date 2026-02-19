@@ -75,6 +75,7 @@ export async function GET(
       projectLocatie: offerte.projectLocatie || undefined,
       items: offerte.items.map(item => ({
         omschrijving: item.omschrijving,
+        beschrijving: item.beschrijving || undefined,
         aantal: item.aantal,
         eenheid: item.eenheid,
         prijsPerEenheid: item.prijsPerEenheid,

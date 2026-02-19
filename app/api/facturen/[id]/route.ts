@@ -101,6 +101,7 @@ export async function PUT(
         items: {
           create: itemsWithBtw.map((item, index: number) => ({
             omschrijving: item.omschrijving,
+            beschrijving: item.beschrijving || null,
             aantal: item.aantal,
             eenheid: item.eenheid,
             prijsPerEenheid: Math.round(item.prijsPerEenheid * 100),

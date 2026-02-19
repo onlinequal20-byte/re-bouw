@@ -185,6 +185,7 @@ const styles = StyleSheet.create({
 
 interface InvoiceItem {
   omschrijving: string;
+  beschrijving?: string;
   aantal: number;
   eenheid: string;
   prijsPerEenheid: number;
@@ -310,6 +311,18 @@ export const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => {
           </View>
         </View>
 
+        {/* Intro text for offertes */}
+        {data.type === 'offerte' && (
+          <View style={{ marginBottom: 20 }}>
+            <Text style={{ fontSize: 10, color: '#4b5563', lineHeight: 1.6 }}>
+              Geachte {data.klant.naam},
+            </Text>
+            <Text style={{ fontSize: 10, color: '#4b5563', lineHeight: 1.6, marginTop: 8 }}>
+              Naar aanleiding van ons bezoek en de opname ter plaatse hebben wij het genoegen u de volgende offerte aan te bieden voor de werkzaamheden aan uw woning.
+            </Text>
+          </View>
+        )}
+
         {/* Items Table */}
         <View style={styles.table}>
           <View style={styles.tableHeader}>
@@ -323,7 +336,12 @@ export const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => {
           {data.items.map((item, index) => (
               <View key={index} style={index % 2 === 1 ? [styles.tableRow, styles.tableRowAlt] : styles.tableRow}>
               <Text style={styles.col1}>{index + 1}</Text>
-              <Text style={styles.col2}>{item.omschrijving}</Text>
+              <View style={styles.col2}>
+                <Text>{item.omschrijving}</Text>
+                {item.beschrijving && (
+                  <Text style={{ fontSize: 7.5, color: '#6b7280', marginTop: 2 }}>{item.beschrijving}</Text>
+                )}
+              </View>
               <Text style={styles.col3}>{item.aantal}</Text>
               <Text style={styles.col4}>{item.eenheid}</Text>
               <Text style={styles.col5}>{formatCurrency(item.prijsPerEenheid)}</Text>

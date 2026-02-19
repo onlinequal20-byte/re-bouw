@@ -67,6 +67,7 @@ export async function POST(
         items: {
           create: offerte.items.map((item, index) => ({
             omschrijving: item.omschrijving,
+            beschrijving: item.beschrijving || null,
             aantal: item.aantal,
             eenheid: item.eenheid,
             prijsPerEenheid: item.prijsPerEenheid,
