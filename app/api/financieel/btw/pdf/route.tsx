@@ -449,7 +449,7 @@ export async function GET(request: Request) {
   const pdfData: BtwPDFData = { jaar, quarters, companyInfo };
 
   const buffer = await renderToBuffer(
-    React.createElement(BtwPDF, { data: pdfData })
+    BtwPDF({ data: pdfData })
   );
 
   return new Response(buffer, {
