@@ -43,7 +43,7 @@ export async function GET(request: Request) {
 
     return Response.json(items);
   } catch (error) {
-    return handleApiError(error);
+    return handleApiError(error, "planning");
   }
 }
 
@@ -84,6 +84,6 @@ export async function POST(request: Request) {
 
     return Response.json(item, { status: 201 });
   } catch (error) {
-    return handleApiError(error);
+    return handleApiError(error, "planning");
   }
 }

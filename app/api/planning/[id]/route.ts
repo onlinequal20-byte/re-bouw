@@ -37,7 +37,7 @@ export async function PUT(
 
     return Response.json(item);
   } catch (error) {
-    return handleApiError(error);
+    return handleApiError(error, "planning");
   }
 }
 
@@ -57,6 +57,6 @@ export async function DELETE(
 
     return Response.json({ success: true });
   } catch (error) {
-    return handleApiError(error);
+    return handleApiError(error, "planning");
   }
 }
