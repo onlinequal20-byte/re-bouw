@@ -108,7 +108,7 @@ export async function POST(
     const avPath = path.join(process.cwd(), "public", "algemene-voorwaarden.txt");
     const avContent = fs.readFileSync(avPath);
 
-    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://dashboard.amsbouwers.nl";
 
     // Generate reminder email
     const { subject, body: emailBody } = generateFactuurReminderEmail(factuur, type, baseUrl);

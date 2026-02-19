@@ -97,7 +97,7 @@ export async function POST(
     const avContent = fs.readFileSync(avPath);
 
     // Get base URL for signature link
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://dashboard.amsbouwers.nl';
 
     // Generate email content
     const { subject, body } = generateFactuurEmail(factuur, baseUrl);
