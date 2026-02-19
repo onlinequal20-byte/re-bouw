@@ -276,11 +276,12 @@ const BtwPDF: React.FC<{ data: BtwPDFData }> = ({ data }) => {
 
             {/* Rows */}
             {rows.map((row, idx) => {
-              const rowStyles: object[] = [styles.tableRow];
-              if (idx % 2 === 1) rowStyles.push(styles.tableRowAlt);
-              if (row.accent) rowStyles.push(styles.tableRowTotal);
               return (
-                <View key={row.label} style={rowStyles}>
+                <View key={row.label} style={[
+                  styles.tableRow,
+                  idx % 2 === 1 ? styles.tableRowAlt : {},
+                  row.accent ? styles.tableRowTotal : {},
+                ]}>
                   <Text
                     style={[
                       styles.colLabel,
