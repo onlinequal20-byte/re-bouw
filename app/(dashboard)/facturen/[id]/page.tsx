@@ -237,6 +237,14 @@ export default async function FactuurDetailPage({
                 {formatCurrency(factuur.btwBedrag)}
               </span>
             </div>
+            {factuur.kortingBedrag && factuur.kortingBedrag > 0 && (
+              <div className="flex justify-between text-red-500">
+                <span>
+                  Korting{factuur.kortingType === "percentage" && factuur.kortingWaarde ? ` (${factuur.kortingWaarde}%)` : ""}:
+                </span>
+                <span className="font-medium">- {formatCurrency(factuur.kortingBedrag)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-lg font-bold">
               <span>Totaal:</span>
               <span>{formatCurrency(factuur.totaal)}</span>

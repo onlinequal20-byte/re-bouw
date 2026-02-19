@@ -34,6 +34,8 @@ interface FactuurPreviewPanelProps {
   notities: string;
   onSelectItem: (index: number) => void;
   selectedItemIndex: number | null;
+  kortingType?: "percentage" | "bedrag";
+  kortingWaarde?: number;
 }
 
 function formatMoney(cents: number): string {
@@ -71,6 +73,8 @@ export default function FactuurPreviewPanel({
   notities,
   onSelectItem,
   selectedItemIndex,
+  kortingType = "percentage",
+  kortingWaarde = 0,
 }: FactuurPreviewPanelProps) {
   // Calculate totals
   const subtotaal = items.reduce((sum, item) => sum + item.totaal, 0);
@@ -90,7 +94,15 @@ export default function FactuurPreviewPanel({
     (sum, b) => sum + b.bedrag,
     0
   );
-  const totaal = subtotaal + totaalBtw;
+
+  // Calculate discount - simple deduction from total
+  const totalBeforeDiscount = subtotaal + totaalBtw;
+  const kortingBedrag = kortingWaarde > 0
+    ? kortingType === "percentage"
+      ? Math.round(totalBeforeDiscount * (kortingWaarde / 100))
+      : Math.round(kortingWaarde * 100)
+    : 0;
+  const totaal = totalBeforeDiscount - kortingBedrag;
 
   return (
     <div className="flex h-full flex-col backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
@@ -219,6 +231,15 @@ export default function FactuurPreviewPanel({
                       <span>{formatMoney(bedrag)}</span>
                     </div>
                   ))}
+                  {kortingBedrag > 0 && (
+                    <div className="flex justify-between text-red-500">
+                      <span>
+                        Korting{" "}
+                        {kortingType === "percentage" ? `(${kortingWaarde}%)` : ""}
+                      </span>
+                      <span>- {formatMoney(kortingBedrag)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-bold text-base border-t border-gray-200 pt-1">
                     <span>Totaal</span>
                     <span>{formatMoney(totaal)}</span>

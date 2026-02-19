@@ -110,6 +110,10 @@ export default function FactuurEditor({ initialData }: FactuurEditorProps) {
     null
   );
 
+  // Discount
+  const [kortingType, setKortingType] = useState<"percentage" | "bedrag">("percentage");
+  const [kortingWaarde, setKortingWaarde] = useState<number>(0);
+
   // UI
   const [headerExpanded, setHeaderExpanded] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -222,6 +226,8 @@ export default function FactuurEditor({ initialData }: FactuurEditorProps) {
           status,
           notities,
           offerteId: offerteId || undefined,
+          kortingType: kortingWaarde > 0 ? kortingType : undefined,
+          kortingWaarde: kortingWaarde > 0 ? kortingWaarde : undefined,
           items: items.map((item) => ({
             omschrijving: item.omschrijving,
             aantal: item.aantal,
@@ -251,7 +257,7 @@ export default function FactuurEditor({ initialData }: FactuurEditorProps) {
     } finally {
       setSaving(false);
     }
-  }, [klantId, projectId, projectNaam, projectLocatie, datum, vervaldatum, status, notities, offerteId, items, toast, router]);
+  }, [klantId, projectId, projectNaam, projectLocatie, datum, vervaldatum, status, notities, offerteId, items, kortingType, kortingWaarde, toast, router]);
 
   // Save & send email
   const handleSaveAndSend = useCallback(async () => {
@@ -297,6 +303,8 @@ export default function FactuurEditor({ initialData }: FactuurEditorProps) {
           status,
           notities,
           offerteId: offerteId || undefined,
+          kortingType: kortingWaarde > 0 ? kortingType : undefined,
+          kortingWaarde: kortingWaarde > 0 ? kortingWaarde : undefined,
           items: items.map((item) => ({
             omschrijving: item.omschrijving,
             aantal: item.aantal,
@@ -345,7 +353,7 @@ export default function FactuurEditor({ initialData }: FactuurEditorProps) {
     } finally {
       setSending(false);
     }
-  }, [klantId, klanten, projectId, projectNaam, projectLocatie, datum, vervaldatum, status, notities, offerteId, items, toast, router]);
+  }, [klantId, klanten, projectId, projectNaam, projectLocatie, datum, vervaldatum, status, notities, offerteId, items, kortingType, kortingWaarde, toast, router]);
 
   return (
     <div className="fixed inset-0 md:left-64 top-0 md:top-0 flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 z-10">
@@ -405,7 +413,7 @@ export default function FactuurEditor({ initialData }: FactuurEditorProps) {
         </div>
 
         {headerExpanded && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 mt-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mt-4">
             <div className="flex flex-col gap-1">
               <label className="text-white/70 text-xs font-medium">
                 Klant *
@@ -507,6 +515,32 @@ export default function FactuurEditor({ initialData }: FactuurEditorProps) {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-white/70 text-xs font-medium">
+                Korting
+              </label>
+              <div className="flex gap-1">
+                <Input
+                  type="number"
+                  min={0}
+                  step={kortingType === "percentage" ? 1 : 0.01}
+                  value={kortingWaarde || ""}
+                  onChange={(e) => setKortingWaarde(parseFloat(e.target.value) || 0)}
+                  placeholder="0"
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:ring-amber-500/50 flex-1"
+                />
+                <Select value={kortingType} onValueChange={(v) => setKortingType(v as "percentage" | "bedrag")}>
+                  <SelectTrigger className="bg-white/10 border-white/20 text-white focus:ring-amber-500/50 w-16">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="percentage">%</SelectItem>
+                    <SelectItem value="bedrag">€</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -530,6 +564,8 @@ export default function FactuurEditor({ initialData }: FactuurEditorProps) {
             notities={notities}
             onSelectItem={setSelectedItemIndex}
             selectedItemIndex={selectedItemIndex}
+            kortingType={kortingType}
+            kortingWaarde={kortingWaarde}
           />
         </div>
         <div className="w-1/4 overflow-hidden">

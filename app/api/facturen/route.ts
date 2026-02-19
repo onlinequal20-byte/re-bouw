@@ -61,7 +61,16 @@ export async function POST(request: Request) {
 
     const subtotaalCents = itemsWithBtw.reduce((sum, item) => sum + item.subtotalCents, 0);
     const btwBedragCents = itemsWithBtw.reduce((sum, item) => sum + item.btwBedrag, 0);
-    const totaalCents = subtotaalCents + btwBedragCents;
+    const totalBeforeDiscount = subtotaalCents + btwBedragCents;
+
+    // Calculate discount - simple deduction from total
+    let kortingBedragCents = 0;
+    if (data.kortingWaarde && data.kortingWaarde > 0) {
+      kortingBedragCents = data.kortingType === "percentage"
+        ? Math.round(totalBeforeDiscount * (data.kortingWaarde / 100))
+        : Math.round(data.kortingWaarde * 100);
+    }
+    const totaalCents = totalBeforeDiscount - kortingBedragCents;
 
     const factuur = await prisma.factuur.create({
       data: {
@@ -73,6 +82,9 @@ export async function POST(request: Request) {
         projectNaam: data.projectNaam,
         projectLocatie: data.projectLocatie || null,
         subtotaal: subtotaalCents,
+        kortingType: data.kortingWaarde && data.kortingWaarde > 0 ? (data.kortingType || null) : null,
+        kortingWaarde: data.kortingWaarde && data.kortingWaarde > 0 ? data.kortingWaarde : null,
+        kortingBedrag: kortingBedragCents > 0 ? kortingBedragCents : null,
         btwPercentage: data.btwPercentage ?? 21,
         btwBedrag: btwBedragCents,
         totaal: totaalCents,

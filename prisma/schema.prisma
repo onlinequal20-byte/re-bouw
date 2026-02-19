@@ -185,6 +185,9 @@ model Factuur {
   totaal                  Int
   status                  String        @default("Concept")
   herinneringen           FactuurHerinnering[]
+  kortingType             String?       // "percentage" or "bedrag"
+  kortingWaarde           Float?        // discount value (percentage or euros)
+  kortingBedrag           Int?          // calculated discount in cents
   betaaldBedrag           Int           @default(0)
   offerteId               String?       // Source offerte if generated from quote
   offerte                 Offerte?      @relation(fields: [offerteId], references: [id], onDelete: SetNull)

@@ -22,6 +22,8 @@ export const factuurCreateSchema = z.object({
   btwPercentage: z.number().min(0).max(100).optional().default(21),
   status: z.enum(["Concept", "Verzonden", "Te laat", "Deels betaald", "Betaald"]).optional().default("Concept"),
   betaaldBedrag: z.number().min(0).optional(),
+  kortingType: z.enum(["percentage", "bedrag"]).optional(),
+  kortingWaarde: z.number().min(0).optional(),
 });
 
 export const factuurUpdateSchema = factuurCreateSchema.partial();

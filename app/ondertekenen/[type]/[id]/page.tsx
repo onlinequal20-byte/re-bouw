@@ -115,6 +115,11 @@ export default function SignaturePage() {
         description: `${type === "offerte" ? "Offerte" : "Factuur"} is succesvol ondertekend`,
       });
 
+      setDocument((prev: any) => ({
+        ...prev,
+        klantNaam: naam,
+        klantGetekendOp: new Date().toISOString(),
+      }));
       setSigned(true);
     } catch (error) {
       toast({
