@@ -30,9 +30,13 @@ async function getDashboardData() {
   const nextMonth = new Date(currentMonth);
   nextMonth.setMonth(nextMonth.getMonth() + 1);
 
+  const previousMonth = new Date(currentMonth);
+  previousMonth.setMonth(previousMonth.getMonth() - 1);
+
   // Parallel fetch all data for maximum speed
   const [
     facturenDezeMaand,
+    facturenVorigeMaand,
     openstaandeFacturen,
     offerteCount,
     klantenCount,
@@ -45,6 +49,18 @@ async function getDashboardData() {
         datum: {
           gte: currentMonth,
           lt: nextMonth,
+        },
+      },
+      select: {
+        totaal: true,
+      },
+    }),
+    // Get revenue previous month
+    prisma.factuur.findMany({
+      where: {
+        datum: {
+          gte: previousMonth,
+          lt: currentMonth,
         },
       },
       select: {
@@ -106,6 +122,10 @@ async function getDashboardData() {
   ]);
 
   const omzetDezeMaand = facturenDezeMaand.reduce((sum, f) => sum + f.totaal, 0);
+  const omzetVorigeMaand = facturenVorigeMaand.reduce((sum, f) => sum + f.totaal, 0);
+  const omzetGroeiPercentage = omzetVorigeMaand > 0
+    ? Math.round(((omzetDezeMaand - omzetVorigeMaand) / omzetVorigeMaand) * 100)
+    : null;
   const openstaandBedrag = openstaandeFacturen.reduce(
     (sum, f) => sum + (f.totaal - f.betaaldBedrag),
     0
@@ -113,6 +133,7 @@ async function getDashboardData() {
 
   return {
     omzetDezeMaand,
+    omzetGroeiPercentage,
     openstaandBedrag,
     offerteCount,
     klantenCount,
@@ -185,9 +206,15 @@ export default async function DashboardPage() {
             <div className="text-3xl font-bold text-primary">
               {formatCurrency(data.omzetDezeMaand)}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              +12% vanaf vorige maand
-            </p>
+            {data.omzetGroeiPercentage !== null ? (
+              <p className={`text-xs mt-1 ${data.omzetGroeiPercentage >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                {data.omzetGroeiPercentage >= 0 ? '+' : ''}{data.omzetGroeiPercentage}% vanaf vorige maand
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground mt-1">
+                Eerste maand
+              </p>
+            )}
           </CardContent>
         </Card>
 

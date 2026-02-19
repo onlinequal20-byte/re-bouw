@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -9,7 +9,15 @@ import { Trash2, AlertTriangle } from "lucide-react";
 export default function AdminCleanupPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [prijslijstCount, setPrijslijstCount] = useState<number | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetch("/api/prijslijst")
+      .then(res => res.json())
+      .then(data => setPrijslijstCount(Array.isArray(data) ? data.length : 0))
+      .catch(() => setPrijslijstCount(0));
+  }, []);
 
   const handleCleanup = async () => {
     if (!confirm("⚠️ WAARSCHUWING!\n\nDit verwijdert ALLE demo data:\n- Alle klanten\n- Alle offertes\n- Alle facturen\n- Alle bonnetjes\n\n✅ Prijslijst blijft behouden\n\nWeet je het zeker?")) {
@@ -99,7 +107,7 @@ export default function AdminCleanupPage() {
             <ul className="space-y-1 text-sm">
               <li className="flex items-center gap-2">
                 <span className="text-green-600">✅</span>
-                <span>Prijslijst (79 items)</span>
+                <span>Prijslijst ({prijslijstCount !== null ? `${prijslijstCount} items` : '...'})</span>
               </li>
               <li className="flex items-center gap-2">
                 <span className="text-green-600">✅</span>
