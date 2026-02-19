@@ -41,11 +41,11 @@ export default async function KlantenPage() {
   const klanten = await getKlanten();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 md:space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Klanten</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl md:text-3xl font-bold tracking-tight">Klanten</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
             Beheer uw klanten en contactgegevens
           </p>
         </div>

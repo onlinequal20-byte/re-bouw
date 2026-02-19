@@ -18,9 +18,9 @@ export default function DashboardLayout({
       {/* Main Content */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Mobile Header */}
-        <div className="flex h-16 items-center gap-4 bg-white/80 backdrop-blur-2xl border-b border-gray-200/60 px-4 md:hidden shadow-sm">
+        <div className="flex h-14 items-center gap-3 bg-white border-b border-gray-200 px-3 md:hidden shadow-sm">
           <MobileSidebar />
-          <div className="relative w-32 h-8 rounded px-2 py-1">
+          <div className="relative w-28 h-7">
             <Image
               src="/images/amsbouwers.logo.png"
               alt="AMS Bouwers"
@@ -32,7 +32,7 @@ export default function DashboardLayout({
         </div>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto bg-gradient-to-br from-gray-50/80 via-white to-gray-100/50 p-4 pb-20 md:p-8 md:pb-8">
+        <main className="flex-1 overflow-y-auto bg-gradient-to-br from-gray-50/80 via-white to-gray-100/50 p-3 pb-20 md:p-8 md:pb-8">
           <div className="mx-auto max-w-7xl">
           {children}
           </div>

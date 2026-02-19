@@ -56,7 +56,7 @@ export function MobileSidebar() {
       <Button
         variant="ghost"
         size="icon"
-        className="md:hidden text-gray-700"
+        className="md:hidden text-gray-900 -ml-1"
         onClick={() => setOpen(!open)}
       >
         {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -116,7 +116,7 @@ export function MobileSidebar() {
         </nav>
 
         {/* Logout */}
-        <div className="border-t border-white/10 p-4">
+        <div className="border-t border-white/10 p-4 pb-20">
           <Button
             variant="ghost"
             className="w-full justify-start text-gray-400 hover:bg-white/8 hover:text-gray-200"

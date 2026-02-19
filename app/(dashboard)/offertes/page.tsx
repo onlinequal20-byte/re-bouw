@@ -73,11 +73,11 @@ export default async function OffertesPage() {
   const offertes = await getOffertes();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 md:space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Offertes</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl md:text-3xl font-bold tracking-tight">Offertes</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
             Beheer al uw offertes en prijsopgaven
           </p>
         </div>
@@ -109,10 +109,10 @@ export default async function OffertesPage() {
 
             return (
               <Card key={status} className={bg}>
-                <CardContent className="p-3 md:p-4">
-                  <p className={`text-xs md:text-sm font-medium ${color}`}>{label}</p>
-                  <p className="text-xl md:text-2xl font-bold">{count}</p>
-                  <p className="text-xs text-muted-foreground truncate">
+                <CardContent className="!p-2 md:!p-4">
+                  <p className={`text-[10px] md:text-sm font-medium ${color}`}>{label}</p>
+                  <p className="text-base md:text-2xl font-bold">{count}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">
                     {formatCurrency(total)}
                   </p>
                 </CardContent>

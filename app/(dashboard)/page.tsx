@@ -167,13 +167,13 @@ export default async function DashboardPage() {
   const data = await getDashboardData();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 md:space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-xl md:text-4xl font-bold tracking-tight text-gray-900">
             Dashboard
           </h1>
-          <p className="text-muted-foreground mt-1 md:mt-2">
+          <p className="text-muted-foreground text-sm md:text-base mt-0.5 md:mt-2">
             Overzicht van uw bedrijfsactiviteiten
           </p>
         </div>
@@ -185,10 +185,10 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
-        <Card className="card-enhanced border-l-4 border-l-primary hover:scale-105 transition-transform duration-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+      <div className="grid grid-cols-2 gap-2 md:gap-6 lg:grid-cols-4">
+        <Card className="card-enhanced border-l-4 border-l-primary md:hover:scale-105 transition-transform duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2">
+            <CardTitle className="text-[11px] md:text-sm font-medium text-muted-foreground">
               Omzet Deze Maand
             </CardTitle>
             <div className="hidden md:flex h-10 w-10 rounded-full bg-primary/10 items-center justify-center">
@@ -196,7 +196,7 @@ export default async function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-xl md:text-3xl font-bold text-primary">
+            <div className="text-lg md:text-3xl font-bold text-primary">
               {formatCurrency(data.omzetDezeMaand)}
             </div>
             {data.omzetGroeiPercentage !== null ? (
@@ -211,9 +211,9 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="card-enhanced border-l-4 border-l-orange-400 hover:scale-105 transition-transform duration-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+        <Card className="card-enhanced border-l-4 border-l-orange-400 md:hover:scale-105 transition-transform duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2">
+            <CardTitle className="text-[11px] md:text-sm font-medium text-muted-foreground">
               Openstaand
             </CardTitle>
             <div className="hidden md:flex h-10 w-10 rounded-full bg-orange-50 items-center justify-center">
@@ -221,7 +221,7 @@ export default async function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-xl md:text-3xl font-bold text-orange-500">
+            <div className="text-lg md:text-3xl font-bold text-orange-500">
               {formatCurrency(data.openstaandBedrag)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -230,9 +230,9 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="card-enhanced border-l-4 border-l-blue-500 hover:scale-105 transition-transform duration-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+        <Card className="card-enhanced border-l-4 border-l-blue-500 md:hover:scale-105 transition-transform duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2">
+            <CardTitle className="text-[11px] md:text-sm font-medium text-muted-foreground">
               Verzonden Offertes
             </CardTitle>
             <div className="hidden md:flex h-10 w-10 rounded-full bg-blue-100 items-center justify-center">
@@ -240,16 +240,16 @@ export default async function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-xl md:text-3xl font-bold text-blue-600">{data.offerteCount}</div>
+            <div className="text-lg md:text-3xl font-bold text-blue-600">{data.offerteCount}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Wachten op reactie
             </p>
           </CardContent>
         </Card>
 
-        <Card className="card-enhanced border-l-4 border-l-green-500 hover:scale-105 transition-transform duration-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+        <Card className="card-enhanced border-l-4 border-l-green-500 md:hover:scale-105 transition-transform duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2">
+            <CardTitle className="text-[11px] md:text-sm font-medium text-muted-foreground">
               Aantal Klanten
             </CardTitle>
             <div className="hidden md:flex h-10 w-10 rounded-full bg-green-100 items-center justify-center">
@@ -257,7 +257,7 @@ export default async function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-xl md:text-3xl font-bold text-green-600">{data.klantenCount}</div>
+            <div className="text-lg md:text-3xl font-bold text-green-600">{data.klantenCount}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Actieve klanten
             </p>

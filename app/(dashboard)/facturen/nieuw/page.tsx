@@ -125,8 +125,8 @@ function NieuweFactuurContent() {
   }
 
   // View 3: Editor
-  if (view === "editor" && initialData) {
-    return <FactuurEditor initialData={initialData} />;
+  if (view === "editor") {
+    return <FactuurEditor initialData={initialData ?? undefined} />;
   }
 
   // View 2: Offerte Picker

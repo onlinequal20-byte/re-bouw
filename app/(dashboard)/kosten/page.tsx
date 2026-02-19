@@ -276,15 +276,15 @@ export default function KostenPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 md:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Kosten</h1>
-        <p className="text-muted-foreground mt-1">Beheer al uw bedrijfskosten</p>
+        <h1 className="text-xl md:text-3xl font-bold tracking-tight">Kosten</h1>
+        <p className="text-muted-foreground text-sm md:text-base mt-0.5">Beheer al uw bedrijfskosten</p>
       </div>
 
       {/* Summary cards - 2x2 on mobile, 4 cols on desktop */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 md:gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">

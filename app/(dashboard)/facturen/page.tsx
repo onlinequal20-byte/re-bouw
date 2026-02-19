@@ -90,11 +90,11 @@ export default async function FacturenPage({
     : facturen;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 md:space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Facturen</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl md:text-3xl font-bold tracking-tight">Facturen</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
             Beheer al uw facturen en betalingen
           </p>
         </div>
@@ -125,9 +125,9 @@ export default async function FacturenPage({
 
             return (
               <Card key={status} className={bg}>
-                <CardContent className="p-3 md:p-4">
-                  <p className={`text-xs md:text-sm font-medium ${color}`}>{label}</p>
-                  <p className="text-xl md:text-2xl font-bold">{count}</p>
+                <CardContent className="!p-2 md:!p-4">
+                  <p className={`text-[10px] md:text-sm font-medium ${color}`}>{label}</p>
+                  <p className="text-base md:text-2xl font-bold">{count}</p>
                   <p className="text-xs text-muted-foreground">
                     {formatCurrency(total)}
                   </p>

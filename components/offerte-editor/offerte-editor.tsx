@@ -62,6 +62,7 @@ export default function OfferteEditor() {
   const [headerExpanded, setHeaderExpanded] = useState(true);
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"prijslijst" | "preview" | "item">("preview");
 
   // Derived
   const selectedKlant = klanten.find((k) => k.id === klantId) || null;
@@ -275,20 +276,20 @@ export default function OfferteEditor() {
   return (
     <div className="fixed inset-0 md:left-64 top-0 md:top-0 flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 z-10">
       {/* Collapsible Header */}
-      <div className="backdrop-blur-xl bg-white/10 border-b border-white/20 px-4 py-3">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+      <div className="backdrop-blur-xl bg-white/10 border-b border-white/20 px-3 md:px-4 py-2 md:py-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Link
               href="/offertes"
               className="text-white/70 hover:text-white transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <h1 className="text-white font-semibold text-lg">Nieuwe Offerte</h1>
+            <h1 className="text-white font-semibold text-base md:text-lg">Nieuwe Offerte</h1>
           </div>
 
           {!headerExpanded && selectedKlant && (
-            <div className="flex items-center gap-3 text-white/70 text-sm">
+            <div className="hidden md:flex items-center gap-3 text-white/70 text-sm">
               <span>{selectedKlant.naam}</span>
               {projectNaam && (
                 <>
@@ -299,22 +300,24 @@ export default function OfferteEditor() {
             </div>
           )}
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 md:gap-2">
             <Button
               onClick={handleSave}
               disabled={saving || sending}
-              className="bg-amber-500 hover:bg-amber-600 text-black font-medium"
+              size="sm"
+              className="bg-amber-500 hover:bg-amber-600 text-black font-medium text-xs md:text-sm"
             >
-              <Save className="h-4 w-4 mr-2" />
-              {saving ? "Opslaan..." : "Opslaan"}
+              <Save className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">{saving ? "Opslaan..." : "Opslaan"}</span>
             </Button>
             <Button
               onClick={handleSaveAndSend}
               disabled={saving || sending}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium"
+              size="sm"
+              className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-xs md:text-sm"
             >
-              <Send className="h-4 w-4 mr-2" />
-              {sending ? "Versturen..." : "Opslaan & Versturen"}
+              <Send className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">{sending ? "Versturen..." : "Opslaan & Versturen"}</span>
             </Button>
             <button
               onClick={() => setHeaderExpanded((v) => !v)}
@@ -330,7 +333,7 @@ export default function OfferteEditor() {
         </div>
 
         {headerExpanded && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mt-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-3 mt-3 md:mt-4">
             <div className="flex flex-col gap-1">
               <label className="text-white/70 text-xs font-medium">
                 Klant *
@@ -418,8 +421,64 @@ export default function OfferteEditor() {
         )}
       </div>
 
-      {/* 3-Panel Layout */}
-      <div className="flex-1 flex gap-3 p-3 overflow-hidden">
+      {/* Mobile Tab Bar */}
+      <div className="flex md:hidden border-b border-white/20 bg-white/5">
+        {(["prijslijst", "preview", "item"] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setMobileTab(tab)}
+            className={`flex-1 py-2.5 text-xs font-medium transition-colors ${
+              mobileTab === tab
+                ? "text-white border-b-2 border-amber-400"
+                : "text-white/50"
+            }`}
+          >
+            {tab === "prijslijst" ? "Prijslijst" : tab === "preview" ? "Preview" : "Item"}
+          </button>
+        ))}
+      </div>
+
+      {/* Mobile: single panel */}
+      <div className="flex-1 overflow-hidden p-2 md:hidden">
+        {mobileTab === "prijslijst" && (
+          <PrijslijstPanel
+            prijslijst={prijslijst}
+            onAddItem={(item: any) => {
+              addItemFromPrijslijst(item);
+              setMobileTab("preview");
+            }}
+          />
+        )}
+        {mobileTab === "preview" && (
+          <PreviewPanel
+            klant={selectedKlant}
+            projectNaam={projectNaam}
+            projectLocatie={projectLocatie}
+            datum={datum}
+            geldigTot={geldigTot}
+            items={items}
+            notities={notities}
+            onSelectItem={(i: number) => {
+              setSelectedItemIndex(i);
+              setMobileTab("item");
+            }}
+            selectedItemIndex={selectedItemIndex}
+          />
+        )}
+        {mobileTab === "item" && (
+          <ItemEditorPanel
+            item={selectedItem}
+            onUpdate={updateItem}
+            onDelete={() => {
+              deleteItem();
+              setMobileTab("preview");
+            }}
+          />
+        )}
+      </div>
+
+      {/* Desktop: 3-Panel Layout */}
+      <div className="hidden md:flex flex-1 gap-3 p-3 overflow-hidden">
         <div className="w-1/4 overflow-hidden">
           <PrijslijstPanel
             prijslijst={prijslijst}
