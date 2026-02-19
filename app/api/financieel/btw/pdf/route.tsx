@@ -449,10 +449,10 @@ export async function GET(request: Request) {
   const pdfData: BtwPDFData = { jaar, quarters, companyInfo };
 
   const buffer = await renderToBuffer(
-    BtwPDF({ data: pdfData })
+    React.createElement(BtwPDF, { data: pdfData }) as any
   );
 
-  return new Response(buffer, {
+  return new Response(Buffer.from(buffer), {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `inline; filename="BTW-Overzicht-${jaar}.pdf"`,
