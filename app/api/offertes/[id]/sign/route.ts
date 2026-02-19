@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { sendEmail, generateOfferteSignedConfirmationEmail } from "@/lib/email/email-service";
 
 const signSchema = z.object({
   signature: z.string().min(1, "Handtekening is verplicht"),
@@ -51,7 +52,37 @@ export async function POST(
         status: "Getekend",
         algemeneVoorwaardenUrl: "/algemene-voorwaarden.txt",
       },
+      include: {
+        klant: { select: { naam: true, email: true } },
+      },
     });
+
+    // Send confirmation email to client
+    if (updated.klant?.email) {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://dashboard.amsbouwers.nl';
+        const { subject, body } = generateOfferteSignedConfirmationEmail(updated, baseUrl);
+        await sendEmail({ to: updated.klant.email, subject, body });
+
+        // Log the email
+        await prisma.email.create({
+          data: {
+            type: 'offerte',
+            documentId: updated.id,
+            documentNummer: updated.offerteNummer,
+            recipient: updated.klant.email,
+            recipientName: updated.klant.naam,
+            subject,
+            body,
+            status: 'verzonden',
+            sentAt: new Date(),
+          },
+        });
+      } catch (emailError) {
+        console.error("Failed to send signing confirmation email:", emailError);
+        // Don't fail the signing if email fails
+      }
+    }
 
     return NextResponse.json({
       success: true,

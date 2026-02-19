@@ -283,6 +283,50 @@ AMS Bouwers B.V.`;
   return { subject, body };
 }
 
+export function generateOfferteSignedConfirmationEmail(offerte: any, baseUrl: string) {
+  const signedDate = new Date(offerte.klantGetekendOp);
+  const datum = signedDate.toLocaleDateString('nl-NL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const tijd = signedDate.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+  const paymentUrl = `${baseUrl}/betalen/offerte/${offerte.id}`;
+  const prepaymentCents = Math.round(offerte.totaal * 0.3);
+
+  const subject = `Bevestiging ondertekening: Offerte ${offerte.offerteNummer} - ${offerte.projectNaam}`;
+  const body = `Beste ${offerte.klantNaam},
+
+Bedankt voor het ondertekenen van de offerte. Hierbij bevestigen wij dat uw handtekening succesvol is ontvangen.
+
+{{INFO_BLOCK}}
+Offerte: ${offerte.offerteNummer}
+Project: ${offerte.projectNaam}
+Totaalbedrag: \u20AC ${(offerte.totaal / 100).toFixed(2).replace('.', ',')}
+Ondertekend door: ${offerte.klantNaam}
+Datum: ${datum}
+Tijdstip: ${tijd}
+{{/INFO_BLOCK}}
+
+{{SECTION}}Algemene voorwaarden{{/SECTION}}
+
+Door het ondertekenen van deze offerte gaat u akkoord met onze algemene voorwaarden. De algemene voorwaarden zijn als bijlage meegestuurd bij de originele offerte.
+
+{{SECTION}}Vooruitbetaling (30%){{/SECTION}}
+
+Om het project in te plannen vragen wij een vooruitbetaling van 30% (\u20AC ${(prepaymentCents / 100).toFixed(2).replace('.', ',')}). U kunt eenvoudig en veilig betalen via iDEAL:
+
+{{CTA}}${paymentUrl}|Vooruitbetaling voldoen{{/CTA}}
+
+U kunt ook betalen via bankoverschrijving:
+IBAN: NL91ABNA0417164300
+t.n.v. AMS Bouwers B.V.
+Onder vermelding van: ${offerte.offerteNummer} - Vooruitbetaling
+
+Wij nemen zo spoedig mogelijk contact met u op om de werkzaamheden in te plannen.
+
+Met vriendelijke groet,
+AMS Bouwers B.V.`;
+
+  return { subject, body };
+}
+
 // Generate professional HTML email template
 function generateHTMLEmail(textBody: string, subject: string, companyName: string): string {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://amsbouwers.nl';
