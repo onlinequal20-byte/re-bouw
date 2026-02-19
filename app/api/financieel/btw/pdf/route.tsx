@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSession } from "@/lib/simple-auth";
 import { prisma } from "@/lib/prisma";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
@@ -371,7 +370,7 @@ function getQuarter(date: Date): number {
 // GET handler
 // ---------------------------------------------------------------------------
 export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await getSession();
   if (!session) {
     return Response.json({ error: "Niet ingelogd" }, { status: 401 });
   }
