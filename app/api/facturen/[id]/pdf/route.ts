@@ -20,7 +20,7 @@ export async function GET(
     const isPublic = url.searchParams.get("public") === "true";
 
     if (!session && !isPublic) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
     }
 
     const factuur = await prisma.factuur.findUnique({
@@ -34,7 +34,7 @@ export async function GET(
     });
 
     if (!factuur) {
-      return NextResponse.json({ error: "Factuur not found" }, { status: 404 });
+      return NextResponse.json({ error: "Factuur niet gevonden" }, { status: 404 });
     }
 
     // Get company settings
@@ -110,7 +110,7 @@ export async function GET(
   } catch (error) {
     console.error("Error generating PDF:", error);
     return NextResponse.json(
-      { error: "Failed to generate PDF" },
+      { error: "PDF genereren mislukt" },
       { status: 500 }
     );
   }

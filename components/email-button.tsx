@@ -48,7 +48,7 @@ export function EmailButton({ id, type, clientEmail, disabled }: EmailButtonProp
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to send email");
+        throw new Error(data.error || "E-mail verzenden mislukt");
       }
 
       toast({

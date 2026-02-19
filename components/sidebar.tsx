@@ -11,7 +11,7 @@ import {
   DollarSign,
   Settings,
   LogOut,
-  Camera,
+  Wallet,
   FolderOpen,
   TrendingUp,
   Calendar,
@@ -27,7 +27,7 @@ const navigation = [
   { name: "Facturen", href: "/facturen", icon: Receipt },
   { name: "Projecten", href: "/projecten", icon: FolderOpen },
   { name: "Planning", href: "/planning", icon: Calendar },
-  { name: "Kosten", href: "/kosten", icon: Camera },
+  { name: "Kosten", href: "/kosten", icon: Wallet },
   { name: "Prijzen", href: "/prijzen", icon: DollarSign },
 
   { name: "Financieel", href: "/financieel", icon: TrendingUp },
@@ -45,13 +45,13 @@ export function Sidebar() {
   };
 
   return (
-    <div className="flex h-screen w-64 flex-col gradient-header text-white shadow-xl">
+    <div className="flex h-screen w-64 flex-col bg-[#1a1f2e] text-gray-300">
       {/* Logo */}
-      <div className="flex h-16 items-center justify-center border-b border-white/10 bg-black/20 px-4">
+      <div className="flex h-16 items-center justify-center border-b border-white/10 px-4">
         <div className="relative w-48 h-12 bg-white rounded-lg px-3 py-2">
-          <Image 
-            src="/images/amsbouwers.logo.png" 
-            alt="AMS Bouwers" 
+          <Image
+            src="/images/amsbouwers.logo.png"
+            alt="AMS Bouwers"
             fill
             className="object-contain p-1"
             priority
@@ -62,9 +62,9 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-6">
         {navigation.map((item) => {
-          const isActive = pathname === item.href || 
+          const isActive = pathname === item.href ||
             (item.href !== "/" && pathname.startsWith(item.href));
-          
+
           return (
             <Link
               key={item.name}
@@ -72,8 +72,8 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-primary text-white shadow-lg scale-105"
-                  : "text-gray-300 hover:bg-white/10 hover:text-white hover:scale-102"
+                  ? "bg-blue-500/20 text-white border-l-2 border-blue-400"
+                  : "text-gray-400 hover:bg-white/8 hover:text-gray-200"
               )}
             >
               <item.icon className="h-5 w-5" />
@@ -84,17 +84,17 @@ export function Sidebar() {
       </nav>
 
       {/* Logout */}
-      <div className="border-t border-white/10 p-4 bg-black/20">
+      <div className="border-t border-white/10 p-4">
         <Button
           variant="ghost"
-          className="w-full justify-start text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-200"
+          className="w-full justify-start text-gray-400 hover:bg-white/8 hover:text-gray-200 transition-all duration-200"
           onClick={handleLogout}
         >
           <LogOut className="mr-3 h-5 w-5" />
           Uitloggen
         </Button>
         <div className="mt-4 px-2">
-          <p className="text-xs text-white/40 text-center">
+          <p className="text-xs text-gray-500 text-center">
             &copy; {new Date().getFullYear()} AMS Bouwers
           </p>
         </div>

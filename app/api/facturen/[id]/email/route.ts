@@ -18,7 +18,7 @@ export async function POST(
     const session = await getSession();
     
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
     }
 
     const factuur = await prisma.factuur.findUnique({
@@ -32,7 +32,7 @@ export async function POST(
     });
 
     if (!factuur) {
-      return NextResponse.json({ error: "Factuur not found" }, { status: 404 });
+      return NextResponse.json({ error: "Factuur niet gevonden" }, { status: 404 });
     }
 
     if (!factuur.klant.email) {

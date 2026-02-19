@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye } from "lucide-react";
+import { Plus, Eye, Receipt } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -177,8 +177,10 @@ export default async function FacturenPage({
             <TableBody>
               {displayFacturen.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={filter === "openstaand" ? 10 : 9} className="text-center text-muted-foreground">
-                    Geen facturen gevonden
+                  <TableCell colSpan={filter === "openstaand" ? 10 : 9} className="text-center py-12">
+                    <Receipt className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+                    <p className="text-muted-foreground font-medium">Geen facturen gevonden</p>
+                    <p className="text-sm text-muted-foreground/60 mt-1">Facturen worden aangemaakt vanuit getekende offertes</p>
                   </TableCell>
                 </TableRow>
               ) : (

@@ -156,7 +156,7 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
             Dashboard
           </h1>
           <p className="text-muted-foreground mt-2">
@@ -191,17 +191,17 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="card-enhanced border-l-4 border-l-amber-500 hover:scale-105 transition-transform duration-200">
+        <Card className="card-enhanced border-l-4 border-l-orange-400 hover:scale-105 transition-transform duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Openstaande Facturen
             </CardTitle>
-            <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
-              <Receipt className="h-5 w-5 text-amber-600" />
+            <div className="h-10 w-10 rounded-full bg-orange-50 flex items-center justify-center">
+              <Receipt className="h-5 w-5 text-orange-500" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-amber-600">
+            <div className="text-3xl font-bold text-orange-500">
               {formatCurrency(data.openstaandBedrag)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">

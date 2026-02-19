@@ -72,7 +72,7 @@ export default function InstellingenPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to save settings");
+        throw new Error("Instellingen opslaan mislukt");
       }
 
       toast({

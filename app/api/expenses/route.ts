@@ -89,14 +89,14 @@ export async function DELETE(request: Request) {
     const id = searchParams.get("id");
 
     if (!id) {
-      return NextResponse.json({ error: "Expense ID required" }, { status: 400 });
+      return NextResponse.json({ error: "Kosten ID is verplicht" }, { status: 400 });
     }
 
     await prisma.expense.delete({
       where: { id },
     });
 
-    return NextResponse.json({ success: true, message: "Expense deleted" });
+    return NextResponse.json({ success: true, message: "Kosten verwijderd" });
   } catch (error: unknown) {
     return handleApiError(error, "verwijderen van uitgave");
   }
@@ -113,7 +113,7 @@ export async function PATCH(request: Request) {
     const { id, ...data } = body;
 
     if (!id) {
-      return NextResponse.json({ error: "Expense ID required" }, { status: 400 });
+      return NextResponse.json({ error: "Kosten ID is verplicht" }, { status: 400 });
     }
 
     const result = expensePatchSchema.safeParse(data);

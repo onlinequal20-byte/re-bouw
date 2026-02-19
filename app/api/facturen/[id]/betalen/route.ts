@@ -16,7 +16,7 @@ export async function POST(
     if (!isPublic) {
       const session = await getSession();
       if (!session) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
       }
     }
 
@@ -78,7 +78,7 @@ export async function POST(
   } catch (error: any) {
     console.error("Error creating payment:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to create payment" },
+      { error: error.message || "Betaling aanmaken mislukt" },
       { status: 500 }
     );
   }

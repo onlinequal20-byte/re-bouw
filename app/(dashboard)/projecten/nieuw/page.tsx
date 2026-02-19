@@ -77,7 +77,7 @@ export default function NieuwProjectPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create project");
+        throw new Error("Project aanmaken mislukt");
       }
 
       const project = await response.json();

@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Eye, Edit, Trash2 } from "lucide-react";
+import { Plus, Eye, Edit, Trash2, Users } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
 
@@ -82,8 +82,10 @@ export default async function KlantenPage() {
             <TableBody>
               {klanten.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center text-muted-foreground">
-                    Geen klanten gevonden
+                  <TableCell colSpan={9} className="text-center py-12">
+                    <Users className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+                    <p className="text-muted-foreground font-medium">Geen klanten gevonden</p>
+                    <p className="text-sm text-muted-foreground/60 mt-1">Voeg je eerste klant toe om te beginnen</p>
                   </TableCell>
                 </TableRow>
               ) : (

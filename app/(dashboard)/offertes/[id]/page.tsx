@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { ArrowLeft, Download, CheckCircle2, Copy, ExternalLink, FileText } from "lucide-react";
+import { ArrowLeft, Download, CheckCircle2, Copy, ExternalLink, FileText, ArrowRight, Mail, Clock, CircleDot } from "lucide-react";
 import Link from "next/link";
 import { EmailButton } from "@/components/email-button";
 import { FacturerenButton } from "./factureren-button";
@@ -247,6 +247,79 @@ export default async function OfferteDetailPage({
           </CardContent>
         </Card>
       )}
+
+      {/* Status Timeline & Next Steps */}
+      <Card className="border-blue-100 bg-blue-50/30">
+        <CardContent className="pt-6">
+          {/* Timeline */}
+          <div className="flex items-center justify-between mb-6">
+            {[
+              { label: "Concept", done: true },
+              { label: "Verzonden", done: offerte.emailVerzonden },
+              { label: "Getekend", done: !!offerte.klantHandtekening },
+              { label: "Gefactureerd", done: offerte.facturen.length > 0 },
+            ].map((step, i, arr) => (
+              <div key={step.label} className="flex items-center flex-1">
+                <div className="flex flex-col items-center">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                    step.done
+                      ? "bg-green-100 text-green-700 border-2 border-green-500"
+                      : "bg-muted text-muted-foreground border-2 border-muted-foreground/20"
+                  }`}>
+                    {step.done ? <CheckCircle2 className="h-4 w-4" /> : i + 1}
+                  </div>
+                  <span className={`text-xs mt-1 ${step.done ? "text-green-700 font-medium" : "text-muted-foreground"}`}>
+                    {step.label}
+                  </span>
+                </div>
+                {i < arr.length - 1 && (
+                  <div className={`flex-1 h-0.5 mx-2 mb-5 ${step.done ? "bg-green-500" : "bg-muted-foreground/20"}`} />
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Next Step Guidance */}
+          {!offerte.emailVerzonden && !offerte.klantHandtekening && (
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 border border-blue-200">
+              <Mail className="h-5 w-5 text-blue-600 shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-blue-900">Volgende stap: Verstuur de offerte</p>
+                <p className="text-xs text-blue-700">Klik op &quot;Verstuur Email&quot; om de offerte naar de klant te sturen</p>
+              </div>
+            </div>
+          )}
+          {offerte.emailVerzonden && !offerte.klantHandtekening && (
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-50 border border-amber-200">
+              <Clock className="h-5 w-5 text-amber-600 shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-amber-900">Wachten op handtekening</p>
+                <p className="text-xs text-amber-700">De offerte is verstuurd. Stuur eventueel een herinnering als de klant niet reageert</p>
+              </div>
+            </div>
+          )}
+          {offerte.klantHandtekening && offerte.facturen.length === 0 && (
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-green-50 border border-green-200">
+              <ArrowRight className="h-5 w-5 text-green-600 shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-green-900">Klaar voor facturatie!</p>
+                <p className="text-xs text-green-700">De offerte is getekend. Klik op &quot;Maak Factuur&quot; om een factuur te genereren</p>
+              </div>
+            </div>
+          )}
+          {offerte.facturen.length > 0 && (
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-green-50 border border-green-200">
+              <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-green-900">Factuur aangemaakt</p>
+                <p className="text-xs text-green-700">
+                  Factuur {offerte.facturen[0].factuurNummer} is aangemaakt vanuit deze offerte
+                </p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Signature Status Card */}
       <Card>

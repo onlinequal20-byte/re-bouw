@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye, Edit } from "lucide-react";
+import { Plus, Eye, Edit, FileText } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -145,8 +145,10 @@ export default async function OffertesPage() {
             <TableBody>
               {offertes.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground">
-                    Geen offertes gevonden
+                  <TableCell colSpan={8} className="text-center py-12">
+                    <FileText className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+                    <p className="text-muted-foreground font-medium">Geen offertes gevonden</p>
+                    <p className="text-sm text-muted-foreground/60 mt-1">Maak je eerste offerte aan voor een klant</p>
                   </TableCell>
                 </TableRow>
               ) : (

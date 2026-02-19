@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     // Check authentication
     const session = await getSession();
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
     }
 
     console.log('🧹 Starting cleanup of demo data...');

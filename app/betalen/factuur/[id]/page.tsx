@@ -57,7 +57,7 @@ export default function PublicBetaalPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to create payment");
+        throw new Error(error.error || "Betaling aanmaken mislukt");
       }
 
       const data = await response.json();

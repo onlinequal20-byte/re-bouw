@@ -17,7 +17,7 @@ export async function GET() {
     const session = await getSession();
     
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
     }
 
     const prijslijst = await prisma.prijslijst.findMany({
@@ -28,7 +28,7 @@ export async function GET() {
   } catch (error) {
     console.error("Error fetching prijslijst:", error);
     return NextResponse.json(
-      { error: "Failed to fetch prijslijst" },
+      { error: "Prijslijst ophalen mislukt" },
       { status: 500 }
     );
   }
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     const session = await getSession();
     
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Failed to create prijs" },
+      { error: "Prijs aanmaken mislukt" },
       { status: 500 }
     );
   }
@@ -76,14 +76,14 @@ export async function PUT(request: Request) {
     const session = await getSession();
     
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
     }
 
     const body = await request.json();
     const { id, ...data } = body;
 
     if (!id) {
-      return NextResponse.json({ error: "ID is required" }, { status: 400 });
+      return NextResponse.json({ error: "ID is verplicht" }, { status: 400 });
     }
 
     const validated = prijsSchema.parse(data);
@@ -109,7 +109,7 @@ export async function PUT(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Failed to update prijs" },
+      { error: "Prijs bijwerken mislukt" },
       { status: 500 }
     );
   }
@@ -120,14 +120,14 @@ export async function DELETE(request: Request) {
     const session = await getSession();
     
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
     if (!id) {
-      return NextResponse.json({ error: "ID is required" }, { status: 400 });
+      return NextResponse.json({ error: "ID is verplicht" }, { status: 400 });
     }
 
     await prisma.prijslijst.delete({
@@ -138,7 +138,7 @@ export async function DELETE(request: Request) {
   } catch (error) {
     console.error("Error deleting prijs:", error);
     return NextResponse.json(
-      { error: "Failed to delete prijs" },
+      { error: "Prijs verwijderen mislukt" },
       { status: 500 }
     );
   }

@@ -69,7 +69,7 @@ export default function NieuweKlantPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create klant");
+        throw new Error("Klant aanmaken mislukt");
       }
 
       toast({

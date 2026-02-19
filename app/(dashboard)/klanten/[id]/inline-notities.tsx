@@ -20,7 +20,7 @@ export function InlineNotities({ klantId, initialNotities }: { klantId: string; 
         body: JSON.stringify({ notities }),
       });
 
-      if (!response.ok) throw new Error("Failed to save");
+      if (!response.ok) throw new Error("Opslaan mislukt");
 
       toast({
         title: "Opgeslagen",

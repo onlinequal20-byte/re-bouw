@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const session = await getSession();
     
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Error fetching emails:", error);
     return NextResponse.json(
-      { error: "Failed to fetch emails" },
+      { error: "E-mails ophalen mislukt" },
       { status: 500 }
     );
   }
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     const session = await getSession();
     
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error creating email log:", error);
     return NextResponse.json(
-      { error: "Failed to log email" },
+      { error: "E-mail loggen mislukt" },
       { status: 500 }
     );
   }

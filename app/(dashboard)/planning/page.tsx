@@ -356,8 +356,6 @@ export default function PlanningPage() {
     return {
       top: `${topHours * UUR_HOOGTE}px`,
       height: `${Math.max(durationHours * UUR_HOOGTE - 2, 20)}px`,
-      backgroundColor: item.kleurCode + "20",
-      borderLeft: `3px solid ${item.kleurCode}`,
     };
   };
 
@@ -473,20 +471,33 @@ export default function PlanningPage() {
                 {hours.map((hour) => (
                   <div
                     key={hour}
-                    className="border-b cursor-pointer hover:bg-muted/30 transition-colors"
+                    className="border-b cursor-pointer group/slot transition-all"
                     style={{ height: `${UUR_HOOGTE}px` }}
                     onClick={() => openCreate(dayIndex, hour)}
-                  />
+                  >
+                    <div className="h-full w-full flex items-center justify-center opacity-0 group-hover/slot:opacity-100 transition-all duration-300">
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/40 backdrop-blur-md border border-white/50 shadow-[0_2px_12px_rgba(0,0,0,0.06)] text-xs text-muted-foreground/70">
+                        <Plus className="h-3 w-3" />
+                        Toevoegen
+                      </div>
+                    </div>
+                  </div>
                 ))}
 
                 {/* Items */}
                 {getItemsForDay(dayIndex).map((item) => (
                   <div
                     key={`${item.id}-${dayIndex}`}
-                    className={`absolute left-1 right-1 rounded-md px-2 py-1 overflow-hidden cursor-grab active:cursor-grabbing transition-shadow hover:shadow-md z-10 ${
-                      dragging?.itemId === item.id ? "opacity-70 shadow-lg" : ""
-                    }`}
-                    style={getItemStyle(item, dayIndex)}
+                    className={`absolute left-1.5 right-1.5 rounded-xl px-2.5 py-1.5 overflow-hidden cursor-grab active:cursor-grabbing z-10
+                      backdrop-blur-xl border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.6)]
+                      transition-all duration-200 hover:shadow-[0_8px_32px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.8)] hover:scale-[1.02]
+                      ${dragging?.itemId === item.id ? "opacity-80 shadow-[0_12px_40px_rgba(0,0,0,0.15)] scale-[1.03]" : ""}`}
+                    style={{
+                      ...getItemStyle(item, dayIndex),
+                      backgroundColor: item.kleurCode + "18",
+                      borderLeft: `3px solid ${item.kleurCode}`,
+                      background: `linear-gradient(135deg, ${item.kleurCode}15 0%, ${item.kleurCode}08 50%, rgba(255,255,255,0.4) 100%)`,
+                    }}
                     onClick={(e) => {
                       e.stopPropagation();
                       if (!dragging) openEdit(item);
@@ -497,20 +508,20 @@ export default function PlanningPage() {
                       {item.titel}
                     </div>
                     {item.project?.klant && (
-                      <div className="text-[10px] text-muted-foreground truncate flex items-center gap-0.5">
+                      <div className="text-[10px] text-muted-foreground/80 truncate flex items-center gap-0.5">
                         <User className="h-2.5 w-2.5" />
                         {item.project.klant.naam}
                       </div>
                     )}
                     {item.project?.locatie && (
-                      <div className="text-[10px] text-muted-foreground truncate flex items-center gap-0.5">
+                      <div className="text-[10px] text-muted-foreground/80 truncate flex items-center gap-0.5">
                         <MapPin className="h-2.5 w-2.5" />
                         {item.project.locatie}
                       </div>
                     )}
                     {/* Resize handle */}
                     <div
-                      className="absolute bottom-0 left-0 right-0 h-2 cursor-s-resize hover:bg-black/10 rounded-b"
+                      className="absolute bottom-0 left-0 right-0 h-2 cursor-s-resize hover:bg-white/30 rounded-b-xl transition-colors"
                       onMouseDown={(e) => handleMouseDown(e, item, "resize")}
                     />
                   </div>

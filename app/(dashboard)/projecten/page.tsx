@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye } from "lucide-react";
+import { Plus, Eye, FolderOpen } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
 
@@ -101,8 +101,10 @@ export default async function ProjectenPage() {
             <TableBody>
               {projecten.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center text-muted-foreground">
-                    Geen projecten gevonden
+                  <TableCell colSpan={10} className="text-center py-12">
+                    <FolderOpen className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+                    <p className="text-muted-foreground font-medium">Geen projecten gevonden</p>
+                    <p className="text-sm text-muted-foreground/60 mt-1">Maak een project aan om werk te organiseren</p>
                   </TableCell>
                 </TableRow>
               ) : (

@@ -73,7 +73,7 @@ function NieuweFactuurContent() {
     setLoadingOfferte(true);
     try {
       const res = await fetch(`/api/offertes/${offerteId}`);
-      if (!res.ok) throw new Error("Failed to fetch offerte");
+      if (!res.ok) throw new Error("Offerte ophalen mislukt");
       const offerte = await res.json();
       setInitialData(transformOfferte(offerte));
       setView("editor");
@@ -97,7 +97,7 @@ function NieuweFactuurContent() {
     setLoadingOffertes(true);
     try {
       const res = await fetch("/api/offertes");
-      if (!res.ok) throw new Error("Failed to fetch offertes");
+      if (!res.ok) throw new Error("Offertes ophalen mislukt");
       const data = await res.json();
       // Filter: only signed offertes without an existing factuur
       const eligible = data.filter(

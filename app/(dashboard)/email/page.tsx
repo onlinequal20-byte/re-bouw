@@ -167,7 +167,7 @@ export default function EmailPage() {
           description: "Zoho Mail instellingen zijn bijgewerkt",
         });
       } else {
-        throw new Error("Failed to save");
+        throw new Error("Opslaan mislukt");
       }
     } catch (error) {
       toast({
@@ -227,7 +227,7 @@ export default function EmailPage() {
           </p>
         </div>
         {isConfigured && (
-          <Badge variant="success" className="bg-green-100 text-green-800">
+          <Badge variant="success">
             <CheckCircle2 className="mr-1 h-3 w-3" />
             Zoho Geconfigureerd
           </Badge>
@@ -356,11 +356,6 @@ export default function EmailPage() {
                         <TableCell>
                           <Badge
                             variant={email.status === "verzonden" ? "success" : "destructive"}
-                            className={
-                              email.status === "verzonden"
-                                ? "bg-green-100 text-green-800"
-                                : ""
-                            }
                           >
                             {email.status}
                           </Badge>
@@ -409,7 +404,7 @@ export default function EmailPage() {
                     </>
                   ) : (
                     <>
-                      <XCircle className="h-8 w-8 text-orange-600" />
+                      <XCircle className="h-8 w-8 text-gray-400" />
                       <div>
                         <p className="font-semibold">Niet Geconfigureerd</p>
                         <p className="text-sm text-muted-foreground">
@@ -420,7 +415,7 @@ export default function EmailPage() {
                   )}
                 </div>
                 {isConfigured && (
-                  <Badge variant="success" className="bg-green-100 text-green-800">
+                  <Badge variant="success">
                     Actief
                   </Badge>
                 )}
@@ -591,11 +586,6 @@ export default function EmailPage() {
                   <Label className="text-sm text-muted-foreground">Status</Label>
                   <Badge
                     variant={selectedEmail.status === "verzonden" ? "success" : "destructive"}
-                    className={
-                      selectedEmail.status === "verzonden"
-                        ? "bg-green-100 text-green-800"
-                        : ""
-                    }
                   >
                     {selectedEmail.status}
                   </Badge>

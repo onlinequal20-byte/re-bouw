@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Upload, Receipt, Image as ImageIcon } from "lucide-react";
+import { Plus, Trash2, Upload, Receipt, Image as ImageIcon, Wallet } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 const eurosToCents = (euros: number) => Math.round(euros * 100);
@@ -325,7 +325,7 @@ export default function KostenPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-600">{formatCurrency(btwDezeMaand)}</div>
+            <div className="text-2xl font-bold text-blue-600">{formatCurrency(btwDezeMaand)}</div>
           </CardContent>
         </Card>
       </div>
@@ -534,8 +534,10 @@ export default function KostenPage() {
             <TableBody>
               {filteredExpenses.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
-                    Geen kosten gevonden
+                  <TableCell colSpan={9} className="text-center py-12">
+                    <Wallet className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+                    <p className="text-muted-foreground font-medium">Geen kosten gevonden</p>
+                    <p className="text-sm text-muted-foreground/60 mt-1">Voeg kosten toe om je uitgaven bij te houden</p>
                   </TableCell>
                 </TableRow>
               ) : (
