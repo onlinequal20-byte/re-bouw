@@ -125,7 +125,7 @@ function NieuweFactuurContent() {
   }
 
   // View 3: Editor
-  if (view === "editor") {
+  if (view === "editor" && initialData) {
     return <FactuurEditor initialData={initialData} />;
   }
 
