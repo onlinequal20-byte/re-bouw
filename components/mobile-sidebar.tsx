@@ -16,6 +16,9 @@ import {
   LogOut,
   Mail,
   Camera,
+  FolderOpen,
+  TrendingUp,
+  Calendar,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
@@ -26,9 +29,12 @@ const navigation = [
   { name: "Klanten", href: "/klanten", icon: Users },
   { name: "Offertes", href: "/offertes", icon: FileText },
   { name: "Facturen", href: "/facturen", icon: Receipt },
+  { name: "Projecten", href: "/projecten", icon: FolderOpen },
+  { name: "Planning", href: "/planning", icon: Calendar },
   { name: "Kosten", href: "/kosten", icon: Camera },
   { name: "Prijzen", href: "/prijzen", icon: DollarSign },
 
+  { name: "Financieel", href: "/financieel", icon: TrendingUp },
   { name: "Email", href: "/email", icon: Mail },
   { name: "Instellingen", href: "/instellingen", icon: Settings },
 ];

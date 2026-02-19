@@ -22,12 +22,15 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 
 function getStatusBadgeVariant(status: string) {
   switch (status) {
-    case "Geaccepteerd":
+    case "Getekend":
       return "success" as const;
     case "Verzonden":
       return "default" as const;
+    case "Bekeken":
+      return "default" as const;
     case "Concept":
       return "secondary" as const;
+    case "Verlopen":
     case "Afgewezen":
       return "destructive" as const;
     default:
@@ -36,10 +39,34 @@ function getStatusBadgeVariant(status: string) {
 }
 
 async function getOffertes() {
-  return prisma.offerte.findMany({
+  const offertes = await prisma.offerte.findMany({
     orderBy: { datum: "desc" },
     include: { klant: true },
   });
+
+  // Auto-expire: mark Verzonden/Bekeken offertes past geldigTot as Verlopen
+  const now = new Date();
+  const expiredIds = offertes
+    .filter(
+      (o) =>
+        (o.status === "Verzonden" || o.status === "Bekeken") &&
+        new Date(o.geldigTot) < now &&
+        !o.klantHandtekening
+    )
+    .map((o) => o.id);
+
+  if (expiredIds.length > 0) {
+    await prisma.offerte.updateMany({
+      where: { id: { in: expiredIds } },
+      data: { status: "Verlopen" },
+    });
+    // Update local data
+    offertes.forEach((o) => {
+      if (expiredIds.includes(o.id)) o.status = "Verlopen";
+    });
+  }
+
+  return offertes;
 }
 
 export default async function OffertesPage() {
@@ -60,6 +87,38 @@ export default async function OffertesPage() {
             Nieuwe Offerte
           </Button>
         </Link>
+      </div>
+
+      {/* Pipeline Overview */}
+      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
+        {(() => {
+          const statusConfig = [
+            { status: "Concept", label: "Concept", color: "text-gray-600", bg: "bg-gray-50" },
+            { status: "Verzonden", label: "Verzonden", color: "text-blue-600", bg: "bg-blue-50" },
+            { status: "Bekeken", label: "Bekeken", color: "text-purple-600", bg: "bg-purple-50" },
+            { status: "Getekend", label: "Getekend", color: "text-green-600", bg: "bg-green-50" },
+            { status: "Verlopen", label: "Verlopen", color: "text-orange-600", bg: "bg-orange-50" },
+            { status: "Afgewezen", label: "Afgewezen", color: "text-red-600", bg: "bg-red-50" },
+          ];
+
+          return statusConfig.map(({ status, label, color, bg }) => {
+            const filtered = offertes.filter((o) => o.status === status);
+            const count = filtered.length;
+            const total = filtered.reduce((sum, o) => sum + o.totaal, 0);
+
+            return (
+              <Card key={status} className={bg}>
+                <CardContent className="p-4">
+                  <p className={`text-sm font-medium ${color}`}>{label}</p>
+                  <p className="text-2xl font-bold">{count}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatCurrency(total)}
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          });
+        })()}
       </div>
 
       <Card>

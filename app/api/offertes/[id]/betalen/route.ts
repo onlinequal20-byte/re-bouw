@@ -31,9 +31,9 @@ export async function POST(
     }
 
     // Check if offerte is accepted
-    if (offerte.status !== "Geaccepteerd") {
+    if (offerte.status !== "Getekend") {
       return NextResponse.json(
-        { error: "Offerte moet eerst worden geaccepteerd" },
+        { error: "Offerte moet eerst worden getekend" },
         { status: 400 }
       );
     }
@@ -46,8 +46,8 @@ export async function POST(
       );
     }
 
-    // Calculate prepayment amount (30%)
-    const prepaymentAmount = offerte.totaal * 0.3;
+    // Calculate prepayment amount (30%) — totaal is in cents
+    const prepaymentAmount = Math.round(offerte.totaal * 0.3);
 
     // Create Mollie payment
     const payment = await createPayment({
@@ -67,8 +67,8 @@ export async function POST(
       where: { id: offerte.id },
       data: {
         notities: offerte.notities
-          ? `${offerte.notities}\n\nVooruitbetaling gestart via iDEAL op ${new Date().toLocaleString('nl-NL')}\nMollie Payment ID: ${payment.id}\nBedrag: €${prepaymentAmount.toFixed(2)}`
-          : `Vooruitbetaling gestart via iDEAL op ${new Date().toLocaleString('nl-NL')}\nMollie Payment ID: ${payment.id}\nBedrag: €${prepaymentAmount.toFixed(2)}`,
+          ? `${offerte.notities}\n\nVooruitbetaling gestart via iDEAL op ${new Date().toLocaleString('nl-NL')}\nMollie Payment ID: ${payment.id}\nBedrag: €${(prepaymentAmount / 100).toFixed(2)}`
+          : `Vooruitbetaling gestart via iDEAL op ${new Date().toLocaleString('nl-NL')}\nMollie Payment ID: ${payment.id}\nBedrag: €${(prepaymentAmount / 100).toFixed(2)}`,
       },
     });
 

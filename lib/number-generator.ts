@@ -70,3 +70,34 @@ export async function generateFactuurNummer(): Promise<string> {
   return factuurNummer;
 }
 
+export async function generateProjectNummer(): Promise<string> {
+  const currentYear = new Date().getFullYear();
+
+  const lastNumberSetting = await prisma.settings.findUnique({
+    where: { key: 'laatste_project_nummer' },
+  });
+
+  let lastNumber = lastNumberSetting ? parseInt(lastNumberSetting.value) : 0;
+
+  const lastProject = await prisma.project.findFirst({
+    orderBy: { projectNummer: 'desc' },
+  });
+
+  if (lastProject) {
+    const lastYear = parseInt(lastProject.projectNummer.split('-')[1]);
+    if (lastYear < currentYear) {
+      lastNumber = 0;
+    }
+  }
+
+  const nextNumber = lastNumber + 1;
+  const projectNummer = `PRJ-${currentYear}-${String(nextNumber).padStart(3, '0')}`;
+
+  await prisma.settings.upsert({
+    where: { key: 'laatste_project_nummer' },
+    update: { value: String(nextNumber) },
+    create: { key: 'laatste_project_nummer', value: String(nextNumber) },
+  });
+
+  return projectNummer;
+}

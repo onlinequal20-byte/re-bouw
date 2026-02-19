@@ -189,6 +189,8 @@ interface InvoiceItem {
   eenheid: string;
   prijsPerEenheid: number;
   totaal: number;
+  btwTarief?: string;
+  btwBedrag?: number;
 }
 
 interface InvoiceData {
@@ -228,8 +230,8 @@ interface InvoiceData {
 }
 
 export const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => {
-  const formatCurrency = (amount: number) => {
-    return `€ ${amount.toFixed(2).replace('.', ',')}`;
+  const formatCurrency = (cents: number) => {
+    return `€ ${(cents / 100).toFixed(2).replace('.', ',')}`;
   };
 
   const formatDate = (date: Date) => {
@@ -336,10 +338,29 @@ export const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => {
             <Text>Subtotaal:</Text>
             <Text>{formatCurrency(data.subtotaal)}</Text>
           </View>
-          <View style={styles.totalRow}>
-            <Text>BTW ({data.btwPercentage}%):</Text>
-            <Text>{formatCurrency(data.btwBedrag)}</Text>
-          </View>
+          {(() => {
+            const btwGroups: Record<string, number> = {};
+            data.items.forEach(item => {
+              const tarief = item.btwTarief || 'HOOG_21';
+              const label = tarief === 'HOOG_21' ? '21%' : tarief === 'LAAG_9' ? '9%' : tarief === 'VERLEGD' ? 'Verlegd' : 'Vrijgesteld';
+              btwGroups[label] = (btwGroups[label] || 0) + (item.btwBedrag || 0);
+            });
+            const entries = Object.entries(btwGroups).filter(([, v]) => v > 0);
+            if (entries.length <= 1) {
+              return (
+                <View style={styles.totalRow}>
+                  <Text>BTW ({data.btwPercentage}%):</Text>
+                  <Text>{formatCurrency(data.btwBedrag)}</Text>
+                </View>
+              );
+            }
+            return entries.map(([label, amount]) => (
+              <View key={label} style={styles.totalRow}>
+                <Text>BTW {label}:</Text>
+                <Text>{formatCurrency(amount)}</Text>
+              </View>
+            ));
+          })()}
           <View style={styles.grandTotal}>
             <Text>TOTAAL:</Text>
             <Text>{formatCurrency(data.totaal)}</Text>

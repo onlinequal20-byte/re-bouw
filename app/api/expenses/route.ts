@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/simple-auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
+import { expensePatchSchema } from "@/lib/validations/expense";
+import { handleApiError, validationError } from "@/lib/api-error";
 
 export async function GET(request: Request) {
   try {
     const session = await getSession();
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -16,12 +19,14 @@ export async function GET(request: Request) {
     const status = searchParams.get("status");
     const categorie = searchParams.get("categorie");
 
-    const where: any = {};
+    const where: Prisma.ExpenseWhereInput = {};
     if (klantId) where.klantId = klantId;
     if (offerteId) where.offerteId = offerteId;
     if (factuurId) where.factuurId = factuurId;
     if (status) where.status = status;
     if (categorie) where.categorie = categorie;
+    const projectId = searchParams.get("projectId");
+    if (projectId) where.projectId = projectId;
 
     const expenses = await prisma.expense.findMany({
       where,
@@ -46,6 +51,13 @@ export async function GET(request: Request) {
             projectNaam: true,
           },
         },
+        project: {
+          select: {
+            id: true,
+            projectNummer: true,
+            naam: true,
+          },
+        },
       },
       orderBy: {
         datum: "desc",
@@ -61,12 +73,8 @@ export async function GET(request: Request) {
     };
 
     return NextResponse.json({ expenses, totals });
-  } catch (error: any) {
-    console.error("Error fetching expenses:", error);
-    return NextResponse.json(
-      { error: error.message || "Failed to fetch expenses" },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    return handleApiError(error, "ophalen van uitgaven");
   }
 }
 
@@ -74,7 +82,7 @@ export async function DELETE(request: Request) {
   try {
     const session = await getSession();
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -89,12 +97,8 @@ export async function DELETE(request: Request) {
     });
 
     return NextResponse.json({ success: true, message: "Expense deleted" });
-  } catch (error: any) {
-    console.error("Error deleting expense:", error);
-    return NextResponse.json(
-      { error: error.message || "Failed to delete expense" },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    return handleApiError(error, "verwijderen van uitgave");
   }
 }
 
@@ -102,7 +106,7 @@ export async function PATCH(request: Request) {
   try {
     const session = await getSession();
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -112,23 +116,70 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Expense ID required" }, { status: 400 });
     }
 
+    const result = expensePatchSchema.safeParse(data);
+    if (!result.success) {
+      return validationError(Object.fromEntries(Object.entries(result.error.flatten().fieldErrors).map(([k, v]) => [k, v ?? []])));
+    }
+
     const expense = await prisma.expense.update({
       where: { id },
-      data,
+      data: result.data,
       include: {
         klant: true,
         offerte: true,
         factuur: true,
+        project: true,
       },
     });
 
     return NextResponse.json({ success: true, expense });
-  } catch (error: any) {
-    console.error("Error updating expense:", error);
-    return NextResponse.json(
-      { error: error.message || "Failed to update expense" },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    return handleApiError(error, "bijwerken van uitgave");
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
+    }
+
+    const body = await request.json();
+
+    // Validate required fields
+    const { datum, categorie, omschrijving, bedrag, btw, totaalBedrag, projectId, notities } = body;
+
+    if (!omschrijving || bedrag === undefined || totaalBedrag === undefined) {
+      return NextResponse.json({ error: "Omschrijving, bedrag en totaalbedrag zijn verplicht" }, { status: 400 });
+    }
+
+    const validCategories = ["Materialen", "Transport", "Gereedschap", "Voertuig", "Abonnementen", "Onderaanneming", "Overig"];
+    if (!categorie || !validCategories.includes(categorie)) {
+      return NextResponse.json({ error: "Ongeldige categorie" }, { status: 400 });
+    }
+
+    const expense = await prisma.expense.create({
+      data: {
+        datum: datum ? new Date(datum) : new Date(),
+        categorie,
+        omschrijving,
+        bedrag: Math.round(Number(bedrag)),
+        btw: Math.round(Number(btw) || 0),
+        totaalBedrag: Math.round(Number(totaalBedrag)),
+        projectId: projectId || null,
+        notities: notities || null,
+        status: "approved",
+        uploadedVia: "web",
+      },
+      include: {
+        project: { select: { id: true, projectNummer: true, naam: true } },
+      },
+    });
+
+    return NextResponse.json({ success: true, expense });
+  } catch (error: unknown) {
+    return handleApiError(error, "aanmaken van uitgave");
   }
 }
 

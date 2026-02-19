@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/simple-auth";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { InvoicePDF } from "@/lib/pdf/invoice-pdf";
 import { sendEmail, generateFactuurEmail } from "@/lib/email/email-service";
@@ -120,11 +121,12 @@ export async function POST(
       ],
     });
 
-    // Update factuur as sent
+    // Update factuur as sent, and set status to Verzonden if currently Concept
     await prisma.factuur.update({
       where: { id: factuur.id },
       data: {
         emailVerzonden: true,
+        ...(factuur.status === 'Concept' ? { status: 'Verzonden' } : {}),
       },
     });
 
@@ -143,12 +145,8 @@ export async function POST(
     });
 
     return NextResponse.json({ success: true, message: "Email verzonden" });
-  } catch (error: any) {
-    console.error("Error sending email:", error);
-    return NextResponse.json(
-      { error: error.message || "Failed to send email" },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    return handleApiError(error, "factuur email verzenden");
   }
 }
 

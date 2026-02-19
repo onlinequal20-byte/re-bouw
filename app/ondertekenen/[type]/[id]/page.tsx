@@ -40,12 +40,17 @@ export default function SignaturePage() {
       }
 
       const data = await res.json();
-      
+
       // Check if already signed
       if (data.klantHandtekening) {
         setSigned(true);
       }
-      
+
+      // Track "Bekeken" for offertes that haven't been signed or viewed yet
+      if (type === "offerte" && !data.klantHandtekening && !data.bekeken) {
+        fetch(`/api/offertes/${id}/bekeken`, { method: "POST" }).catch(() => {});
+      }
+
       setDocument(data);
     } catch (error) {
       toast({
@@ -205,7 +210,7 @@ export default function SignaturePage() {
               <div>
                 <p className="text-gray-600">Totaalbedrag</p>
                 <p className="font-semibold text-lg">
-                  € {document?.totaal?.toFixed(2)}
+                  € {document?.totaal ? (document.totaal / 100).toFixed(2).replace('.', ',') : '0,00'}
                 </p>
               </div>
             </div>

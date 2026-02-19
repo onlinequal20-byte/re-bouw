@@ -5,11 +5,29 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatCurrency(amount: number): string {
+/**
+ * Format cents (integer) as Dutch currency string.
+ * All monetary values in the database are stored as integer cents.
+ */
+export function formatCurrency(cents: number): string {
   return new Intl.NumberFormat('nl-NL', {
     style: 'currency',
     currency: 'EUR',
-  }).format(amount);
+  }).format(cents / 100);
+}
+
+/**
+ * Convert euro amount to integer cents.
+ */
+export function eurosToCents(euros: number): number {
+  return Math.round(euros * 100);
+}
+
+/**
+ * Format cents as Dutch euro string without currency symbol (e.g. "1.250,50").
+ */
+export function centsToEuroString(cents: number): string {
+  return (cents / 100).toFixed(2).replace('.', ',');
 }
 
 export function formatDate(date: Date | string): string {

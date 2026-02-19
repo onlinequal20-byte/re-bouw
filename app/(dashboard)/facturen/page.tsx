@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye, Edit } from "lucide-react";
+import { Plus, Eye } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -24,26 +24,70 @@ function getStatusBadgeVariant(status: string) {
   switch (status) {
     case "Betaald":
       return "success" as const;
-    case "Onbetaald":
-      return "warning" as const;
-    case "Achterstallig":
-      return "destructive" as const;
-    case "Gedeeltelijk betaald":
+    case "Concept":
+      return "secondary" as const;
+    case "Verzonden":
       return "default" as const;
+    case "Te laat":
+      return "destructive" as const;
+    case "Deels betaald":
+      return "warning" as const;
     default:
       return "default" as const;
   }
 }
 
+function getOverdueColor(vervaldatum: Date): string {
+  const now = new Date();
+  const diffDays = Math.floor((now.getTime() - new Date(vervaldatum).getTime()) / (1000 * 60 * 60 * 24));
+  if (diffDays > 30) return "bg-red-50";
+  if (diffDays >= 14) return "bg-orange-50";
+  if (diffDays >= 0) return "bg-green-50";
+  return "";
+}
+
 async function getFacturen() {
-  return prisma.factuur.findMany({
+  const facturen = await prisma.factuur.findMany({
     orderBy: { datum: "desc" },
     include: { klant: true },
   });
+
+  // Auto "Te laat": mark Verzonden/Deels betaald facturen past vervaldatum
+  const now = new Date();
+  const overdueIds = facturen
+    .filter(
+      (f) =>
+        (f.status === "Verzonden" || f.status === "Deels betaald") &&
+        new Date(f.vervaldatum) < now
+    )
+    .map((f) => f.id);
+
+  if (overdueIds.length > 0) {
+    await prisma.factuur.updateMany({
+      where: { id: { in: overdueIds } },
+      data: { status: "Te laat" },
+    });
+    facturen.forEach((f) => {
+      if (overdueIds.includes(f.id)) f.status = "Te laat";
+    });
+  }
+
+  return facturen;
 }
 
-export default async function FacturenPage() {
+export default async function FacturenPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string }>;
+}) {
   const facturen = await getFacturen();
+  const { filter } = await searchParams;
+
+  const displayFacturen = filter === "openstaand"
+    ? facturen
+        .filter((f) => ["Verzonden", "Te laat", "Deels betaald"].includes(f.status))
+        .sort((a, b) => new Date(a.vervaldatum).getTime() - new Date(b.vervaldatum).getTime())
+    : facturen;
 
   return (
     <div className="space-y-6">
@@ -62,11 +106,56 @@ export default async function FacturenPage() {
         </Link>
       </div>
 
+      {/* Pipeline Overview */}
+      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
+        {(() => {
+          const statusConfig = [
+            { status: "Concept", label: "Concept", color: "text-gray-600", bg: "bg-gray-50" },
+            { status: "Verzonden", label: "Verzonden", color: "text-blue-600", bg: "bg-blue-50" },
+            { status: "Te laat", label: "Te laat", color: "text-red-600", bg: "bg-red-50" },
+            { status: "Deels betaald", label: "Deels betaald", color: "text-orange-600", bg: "bg-orange-50" },
+            { status: "Betaald", label: "Betaald", color: "text-green-600", bg: "bg-green-50" },
+          ];
+
+          return statusConfig.map(({ status, label, color, bg }) => {
+            const filtered = facturen.filter((f) => f.status === status);
+            const count = filtered.length;
+            const total = filtered.reduce((sum, f) => sum + f.totaal, 0);
+
+            return (
+              <Card key={status} className={bg}>
+                <CardContent className="p-4">
+                  <p className={`text-sm font-medium ${color}`}>{label}</p>
+                  <p className="text-2xl font-bold">{count}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatCurrency(total)}
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          });
+        })()}
+      </div>
+
+      {/* Filter tabs */}
+      <div className="flex gap-2">
+        <Link href="/facturen">
+          <Button variant={!filter ? "default" : "outline"} size="sm">
+            Alle
+          </Button>
+        </Link>
+        <Link href="/facturen?filter=openstaand">
+          <Button variant={filter === "openstaand" ? "default" : "outline"} size="sm">
+            Openstaand
+          </Button>
+        </Link>
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>Alle Facturen</CardTitle>
+          <CardTitle>{filter === "openstaand" ? "Openstaande Facturen" : "Alle Facturen"}</CardTitle>
           <CardDescription>
-            {facturen.length} factu{facturen.length !== 1 ? "ren" : "ur"} in totaal
+            {displayFacturen.length} factu{displayFacturen.length !== 1 ? "ren" : "ur"}{filter === "openstaand" ? " openstaand" : " in totaal"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -78,6 +167,7 @@ export default async function FacturenPage() {
                 <TableHead>Project</TableHead>
                 <TableHead>Datum</TableHead>
                 <TableHead>Vervaldatum</TableHead>
+                {filter === "openstaand" && <TableHead>Te laat</TableHead>}
                 <TableHead className="text-right">Bedrag</TableHead>
                 <TableHead className="text-right">Betaald</TableHead>
                 <TableHead>Status</TableHead>
@@ -85,15 +175,18 @@ export default async function FacturenPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {facturen.length === 0 ? (
+              {displayFacturen.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center text-muted-foreground">
+                  <TableCell colSpan={filter === "openstaand" ? 10 : 9} className="text-center text-muted-foreground">
                     Geen facturen gevonden
                   </TableCell>
                 </TableRow>
               ) : (
-                facturen.map((factuur) => (
-                  <TableRow key={factuur.id}>
+                displayFacturen.map((factuur) => (
+                  <TableRow
+                    key={factuur.id}
+                    className={filter === "openstaand" ? getOverdueColor(factuur.vervaldatum) : ""}
+                  >
                     <TableCell className="font-medium">
                       {factuur.factuurNummer}
                     </TableCell>
@@ -101,6 +194,15 @@ export default async function FacturenPage() {
                     <TableCell>{factuur.projectNaam}</TableCell>
                     <TableCell>{formatDate(factuur.datum)}</TableCell>
                     <TableCell>{formatDate(factuur.vervaldatum)}</TableCell>
+                    {filter === "openstaand" && (
+                      <TableCell>
+                        {(() => {
+                          const days = Math.floor((Date.now() - new Date(factuur.vervaldatum).getTime()) / (1000 * 60 * 60 * 24));
+                          if (days <= 0) return <span className="text-green-600">Op tijd</span>;
+                          return <span className={days > 30 ? "text-red-600 font-semibold" : days >= 14 ? "text-orange-600 font-medium" : "text-green-600"}>{days} dagen</span>;
+                        })()}
+                      </TableCell>
+                    )}
                     <TableCell className="text-right">
                       {formatCurrency(factuur.totaal)}
                     </TableCell>
@@ -131,4 +233,3 @@ export default async function FacturenPage() {
     </div>
   );
 }
-

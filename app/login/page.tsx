@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +16,16 @@ import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,8 +55,9 @@ export default function LoginPage() {
           title: "Succesvol ingelogd!",
           description: "Je wordt doorgestuurd naar het dashboard.",
         });
-        // Use window.location for hard navigation
-        window.location.href = "/";
+        // Redirect to callbackUrl if present, otherwise home
+        const callbackUrl = searchParams.get("callbackUrl") || "/";
+        window.location.href = callbackUrl;
       }
     } catch (error) {
       toast({

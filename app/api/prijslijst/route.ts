@@ -46,7 +46,11 @@ export async function POST(request: Request) {
     const data = prijsSchema.parse(body);
 
     const prijs = await prisma.prijslijst.create({
-      data,
+      data: {
+        ...data,
+        prijsPerEenheid: Math.round(data.prijsPerEenheid * 100),
+        materiaalKosten: Math.round(data.materiaalKosten * 100),
+      },
     });
 
     return NextResponse.json(prijs);
@@ -86,7 +90,11 @@ export async function PUT(request: Request) {
 
     const prijs = await prisma.prijslijst.update({
       where: { id },
-      data: validated,
+      data: {
+        ...validated,
+        prijsPerEenheid: Math.round(validated.prijsPerEenheid * 100),
+        materiaalKosten: Math.round(validated.materiaalKosten * 100),
+      },
     });
 
     return NextResponse.json(prijs);

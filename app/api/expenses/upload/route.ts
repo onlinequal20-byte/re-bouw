@@ -5,6 +5,7 @@ import sharp from "sharp";
 // OCR disabled for Vercel compatibility
 // import { createWorker } from "tesseract.js";
 import { supabase } from "@/lib/supabase";
+import { handleApiError } from "@/lib/api-error";
 
 export const maxDuration = 30; // Reduced timeout since OCR is disabled
 
@@ -97,12 +98,7 @@ export async function POST(request: Request) {
       console.error("❌ Supabase upload error:", uploadError);
       console.error("Error details:", JSON.stringify(uploadError, null, 2));
       return NextResponse.json(
-        { 
-          error: `Upload naar opslag mislukt: ${uploadError.message}`,
-          details: uploadError,
-          supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-          hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-        },
+        { error: "Upload naar opslag mislukt" },
         { status: 500 }
       );
     }
@@ -126,8 +122,10 @@ export async function POST(request: Request) {
     console.log("ℹ️  OCR skipped - manual entry required");
 
     // Calculate totals from user input
-    const bedrag = parseFloat(bedragInput) || 0;
-    const btw = bedrag * 0.21; // 21% BTW
+    // Calculate totals — store as integer cents
+    const bedragEuros = parseFloat(bedragInput) || 0;
+    const bedrag = Math.round(bedragEuros * 100);
+    const btw = Math.round(bedrag * 0.21); // 21% BTW in cents
     const totaalBedrag = bedrag + btw;
 
     console.log("💾 Saving to database...");
@@ -169,16 +167,7 @@ export async function POST(request: Request) {
       expense,
       message: "Bonnetje succesvol geüpload en verwerkt",
     });
-  } catch (error: any) {
-    console.error("❌ Upload error:", error);
-    console.error("Error stack:", error.stack);
-    return NextResponse.json(
-      { 
-        error: error.message || "Upload mislukt. Probeer het opnieuw.",
-        details: error.toString(),
-        stack: error.stack,
-      },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    return handleApiError(error, "uploaden van bonnetje");
   }
 }

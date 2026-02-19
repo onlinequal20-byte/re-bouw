@@ -14,25 +14,28 @@ export async function getMollieClient() {
   return createMollieClient({ apiKey: apiKeySetting.value });
 }
 
+interface CreatePaymentParams {
+  /** Amount in integer cents */
+  amount: number;
+  description: string;
+  redirectUrl: string;
+  webhookUrl?: string;
+  metadata?: Record<string, string>;
+}
+
 export async function createPayment({
   amount,
   description,
   redirectUrl,
   webhookUrl,
   metadata,
-}: {
-  amount: number;
-  description: string;
-  redirectUrl: string;
-  webhookUrl?: string;
-  metadata?: Record<string, any>;
-}) {
+}: CreatePaymentParams) {
   const mollie = await getMollieClient();
 
   const payment = await mollie.payments.create({
     amount: {
       currency: 'EUR',
-      value: amount.toFixed(2),
+      value: (amount / 100).toFixed(2),
     },
     description,
     redirectUrl,
@@ -49,8 +52,24 @@ export async function getPayment(paymentId: string) {
   return await mollie.payments.get(paymentId);
 }
 
+/**
+ * Verify a webhook by fetching the payment from Mollie API.
+ * Returns the payment object if valid, or null if the payment doesn't exist.
+ * This is Mollie's recommended verification approach: fetch the payment
+ * from their API using the provided ID to confirm it's genuine.
+ */
+export async function verifyWebhookPayment(paymentId: string) {
+  try {
+    const mollie = await getMollieClient();
+    return await mollie.payments.get(paymentId);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`Failed to verify webhook payment ${paymentId}: ${message}`);
+    return null;
+  }
+}
+
 export async function getPaymentMethods() {
   const mollie = await getMollieClient();
   return await mollie.methods.list();
 }
-

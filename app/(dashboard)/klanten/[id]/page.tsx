@@ -1,32 +1,34 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Receipt, FileText, Calendar, MapPin, Mail, Phone, ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, FolderOpen, FileText, Receipt, Mail } from "lucide-react";
 import Link from "next/link";
+import { InlineNotities } from "./inline-notities";
 
-export default async function KlantPage({
+export default async function KlantDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-
   const klant = await prisma.klant.findUnique({
     where: { id },
     include: {
-      facturen: {
-        orderBy: { datum: "desc" },
-      },
-      offertes: {
-        orderBy: { datum: "desc" },
-      },
-      expenses: {
-        orderBy: { datum: "desc" },
-      },
+      projecten: { orderBy: { createdAt: "desc" } },
+      offertes: { orderBy: { datum: "desc" } },
+      facturen: { orderBy: { datum: "desc" } },
+      expenses: { orderBy: { datum: "desc" } },
     },
   });
 
@@ -34,213 +36,305 @@ export default async function KlantPage({
     notFound();
   }
 
-  // Calculate totals
-  const totalFacturen = klant.facturen.reduce((sum, f) => sum + f.totaal, 0);
-  const totalBetaald = klant.facturen.reduce((sum, f) => sum + f.betaaldBedrag, 0);
-  const totalExpenses = klant.expenses.reduce((sum, e) => sum + e.totaalBedrag, 0);
-  const winst = totalBetaald - totalExpenses;
+  // Get emails for this klant's documents
+  const documentIds = [
+    ...klant.offertes.map(o => o.id),
+    ...klant.facturen.map(f => f.id),
+  ];
+
+  const emails = documentIds.length > 0
+    ? await prisma.email.findMany({
+        where: { documentId: { in: documentIds } },
+        orderBy: { sentAt: "desc" },
+        take: 20,
+      })
+    : [];
+
+  const totaalFacturen = klant.facturen.reduce((sum, f) => sum + f.totaal, 0);
+  const totaalBetaald = klant.facturen.reduce((sum, f) => sum + f.betaaldBedrag, 0);
+  const openstaand = totaalFacturen - totaalBetaald;
+  const totaalKosten = klant.expenses.reduce((sum, e) => sum + e.totaalBedrag, 0);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/klanten">
-          <Button variant="outline" size="icon">
+          <Button variant="ghost" size="icon">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{klant.naam}</h1>
-          <p className="text-muted-foreground flex items-center gap-2">
-            <Mail className="h-4 w-4" /> {klant.email || "Geen email"}
-            <span className="mx-2">•</span>
-            <Phone className="h-4 w-4" /> {klant.telefoon || "Geen telefoon"}
-          </p>
+          <p className="text-muted-foreground">Klantdossier</p>
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card className="card-enhanced border-l-4 border-l-green-500">
+      {/* Summary Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Totaal Gefactureerd
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Gefactureerd</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {formatCurrency(totalFacturen)}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Betaald: {formatCurrency(totalBetaald)}
-            </p>
+            <div className="text-2xl font-bold text-green-600">{formatCurrency(totaalFacturen)}</div>
           </CardContent>
         </Card>
-
-        <Card className="card-enhanced border-l-4 border-l-red-500">
+        <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Totaal Kosten (Bonnetjes)
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Openstaand</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {formatCurrency(totalExpenses)}
+            <div className={`text-2xl font-bold ${openstaand > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+              {formatCurrency(openstaand)}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {klant.expenses.length} bonnetjes
-            </p>
           </CardContent>
         </Card>
-
-        <Card className="card-enhanced border-l-4 border-l-blue-500">
+        <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Winst (Betaald - Kosten)
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Kosten</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${winst >= 0 ? "text-blue-600" : "text-red-600"}`}>
-              {formatCurrency(winst)}
+            <div className="text-2xl font-bold text-red-600">{formatCurrency(totaalKosten)}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Winst</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${(totaalFacturen - totaalKosten) >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+              {formatCurrency(totaalFacturen - totaalKosten)}
             </div>
           </CardContent>
         </Card>
       </div>
 
+      {/* Klant Info + Notities */}
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="card-enhanced">
+        <Card>
           <CardHeader>
-            <CardTitle>Klantgegevens</CardTitle>
+            <CardTitle>Contactgegevens</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <CardContent className="space-y-2">
+            {klant.email && (
               <div>
-                <span className="text-sm font-medium text-muted-foreground">Adres</span>
-                <p>{klant.adres || "-"}</p>
+                <span className="text-sm text-muted-foreground">Email:</span>
+                <p className="font-medium">{klant.email}</p>
               </div>
+            )}
+            {klant.telefoon && (
               <div>
-                <span className="text-sm font-medium text-muted-foreground">Postcode/Plaats</span>
-                <p>{klant.postcode} {klant.plaats}</p>
+                <span className="text-sm text-muted-foreground">Telefoon:</span>
+                <p className="font-medium">{klant.telefoon}</p>
               </div>
+            )}
+            {klant.adres && (
               <div>
-                <span className="text-sm font-medium text-muted-foreground">KVK Nummer</span>
-                <p>{klant.kvkNummer || "-"}</p>
+                <span className="text-sm text-muted-foreground">Adres:</span>
+                <p className="font-medium">{klant.adres}</p>
+                {klant.postcode && klant.plaats && (
+                  <p className="font-medium">{klant.postcode} {klant.plaats}</p>
+                )}
               </div>
+            )}
+            {klant.kvkNummer && (
               <div>
-                <span className="text-sm font-medium text-muted-foreground">Klant sinds</span>
-                <p>{formatDate(klant.createdAt)}</p>
-              </div>
-            </div>
-            {klant.notities && (
-              <div className="mt-4 pt-4 border-t">
-                <span className="text-sm font-medium text-muted-foreground">Notities</span>
-                <p className="mt-1 text-sm whitespace-pre-wrap">{klant.notities}</p>
+                <span className="text-sm text-muted-foreground">KvK:</span>
+                <p className="font-medium">{klant.kvkNummer}</p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        <Card className="card-enhanced">
+        <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Receipt className="h-5 w-5" />
-              Kosten & Bonnetjes
-            </CardTitle>
-            <CardDescription>
-              Overzicht van kosten gemaakt voor deze klant
-            </CardDescription>
+            <CardTitle>Notities</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Datum</TableHead>
-                  <TableHead>Omschrijving</TableHead>
-                  <TableHead className="text-right">Bedrag</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {klant.expenses.slice(0, 5).map((expense) => (
-                  <TableRow key={expense.id}>
-                    <TableCell>{formatDate(expense.datum)}</TableCell>
-                    <TableCell>{expense.omschrijving}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(expense.totaalBedrag)}</TableCell>
-                    <TableCell>
-                      {expense.imageUrl && (
-                        <a href={expense.imageUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {klant.expenses.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground">
-                      Geen kosten geboekt
-                    </TableCell>
-                  </TableRow>
-                )}
-                {klant.expenses.length > 5 && (
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center">
-                      <Link href={`/kosten?klantId=${klant.id}`} className="text-sm text-blue-600 hover:underline">
-                        Bekijk alle {klant.expenses.length} bonnetjes
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+            <InlineNotities klantId={klant.id} initialNotities={klant.notities || ""} />
           </CardContent>
         </Card>
       </div>
 
-      <Card className="card-enhanced">
+      {/* Projecten */}
+      <Card>
         <CardHeader>
-          <CardTitle>Recente Facturen</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <FolderOpen className="h-5 w-5" />
+            Projecten
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nummer</TableHead>
-                <TableHead>Datum</TableHead>
-                <TableHead>Project</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Bedrag</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {klant.facturen.map((factuur) => (
-                <TableRow key={factuur.id}>
-                  <TableCell className="font-medium">
-                    <Link href={`/facturen/${factuur.id}`} className="hover:underline">
-                      {factuur.factuurNummer}
-                    </Link>
-                  </TableCell>
-                  <TableCell>{formatDate(factuur.datum)}</TableCell>
-                  <TableCell>{factuur.projectNaam}</TableCell>
-                  <TableCell>
-                    <Badge variant={factuur.status === "Betaald" ? "default" : "secondary"}>
-                      {factuur.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">{formatCurrency(factuur.totaal)}</TableCell>
-                </TableRow>
-              ))}
-              {klant.facturen.length === 0 && (
+          {klant.projecten.length === 0 ? (
+            <p className="text-muted-foreground text-center py-4">Geen projecten</p>
+          ) : (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground">
-                    Geen facturen gevonden
-                  </TableCell>
+                  <TableHead>Nummer</TableHead>
+                  <TableHead>Naam</TableHead>
+                  <TableHead>Locatie</TableHead>
+                  <TableHead>Status</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {klant.projecten.map((project) => (
+                  <TableRow key={project.id}>
+                    <TableCell>
+                      <Link href={`/projecten/${project.id}`} className="text-blue-600 hover:underline font-mono text-sm">
+                        {project.projectNummer}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="font-medium">{project.naam}</TableCell>
+                    <TableCell>{project.locatie || "-"}</TableCell>
+                    <TableCell>
+                      <Badge variant={project.status === "Actief" ? "success" : project.status === "Geannuleerd" ? "destructive" : "secondary"}>
+                        {project.status}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Offertes */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Offertes
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {klant.offertes.length === 0 ? (
+            <p className="text-muted-foreground text-center py-4">Geen offertes</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nummer</TableHead>
+                  <TableHead>Project</TableHead>
+                  <TableHead>Datum</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Totaal</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {klant.offertes.map((offerte) => (
+                  <TableRow key={offerte.id}>
+                    <TableCell>
+                      <Link href={`/offertes/${offerte.id}`} className="text-blue-600 hover:underline font-mono text-sm">
+                        {offerte.offerteNummer}
+                      </Link>
+                    </TableCell>
+                    <TableCell>{offerte.projectNaam}</TableCell>
+                    <TableCell>{formatDate(offerte.datum)}</TableCell>
+                    <TableCell>
+                      <Badge variant={offerte.status === "Geaccepteerd" ? "success" : offerte.status === "Afgewezen" ? "destructive" : "secondary"}>
+                        {offerte.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right font-medium">{formatCurrency(offerte.totaal)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Facturen */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Receipt className="h-5 w-5" />
+            Facturen
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {klant.facturen.length === 0 ? (
+            <p className="text-muted-foreground text-center py-4">Geen facturen</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nummer</TableHead>
+                  <TableHead>Project</TableHead>
+                  <TableHead>Datum</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Totaal</TableHead>
+                  <TableHead className="text-right">Betaald</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {klant.facturen.map((factuur) => (
+                  <TableRow key={factuur.id}>
+                    <TableCell>
+                      <Link href={`/facturen/${factuur.id}`} className="text-blue-600 hover:underline font-mono text-sm">
+                        {factuur.factuurNummer}
+                      </Link>
+                    </TableCell>
+                    <TableCell>{factuur.projectNaam}</TableCell>
+                    <TableCell>{formatDate(factuur.datum)}</TableCell>
+                    <TableCell>
+                      <Badge variant={factuur.status === "Betaald" ? "success" : factuur.status === "Achterstallig" ? "destructive" : "default"}>
+                        {factuur.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right font-medium">{formatCurrency(factuur.totaal)}</TableCell>
+                    <TableCell className="text-right">{formatCurrency(factuur.betaaldBedrag)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Communicatie */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Mail className="h-5 w-5" />
+            Communicatie
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {emails.length === 0 ? (
+            <p className="text-muted-foreground text-center py-4">Geen emails verzonden</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Datum</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Document</TableHead>
+                  <TableHead>Onderwerp</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {emails.map((email) => (
+                  <TableRow key={email.id}>
+                    <TableCell>{formatDate(email.sentAt)}</TableCell>
+                    <TableCell className="capitalize">{email.type}</TableCell>
+                    <TableCell className="font-mono text-sm">{email.documentNummer}</TableCell>
+                    <TableCell>{email.subject}</TableCell>
+                    <TableCell>
+                      <Badge variant={email.status === "verzonden" ? "success" : "destructive"}>
+                        {email.status}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>
   );
 }
-
-

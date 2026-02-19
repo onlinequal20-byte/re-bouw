@@ -16,21 +16,30 @@ import { ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
 import { EmailButton } from "@/components/email-button";
 import { PaymentButton } from "@/components/payment-button";
+import { FactuurReminderButton } from "./reminder-button";
 
 function getStatusBadgeVariant(status: string) {
   switch (status) {
     case "Betaald":
       return "success" as const;
-    case "Onbetaald":
-      return "warning" as const;
-    case "Achterstallig":
-      return "destructive" as const;
-    case "Gedeeltelijk betaald":
+    case "Concept":
+      return "secondary" as const;
+    case "Verzonden":
       return "default" as const;
+    case "Te laat":
+      return "destructive" as const;
+    case "Deels betaald":
+      return "warning" as const;
     default:
       return "default" as const;
   }
 }
+
+const HERINNERING_LABELS: Record<string, string> = {
+  VRIENDELIJK: "Vriendelijk",
+  ZAKELIJK: "Zakelijk",
+  LAATSTE: "Laatste aanmaning",
+};
 
 export default async function FactuurDetailPage({
   params,
@@ -42,8 +51,12 @@ export default async function FactuurDetailPage({
     where: { id },
     include: {
       klant: true,
+      project: { select: { id: true, projectNummer: true, naam: true } },
       items: {
         orderBy: { volgorde: "asc" },
+      },
+      herinneringen: {
+        orderBy: { verzondOp: "desc" },
       },
     },
   });
@@ -51,6 +64,8 @@ export default async function FactuurDetailPage({
   if (!factuur) {
     notFound();
   }
+
+  const showReminder = factuur.status !== "Betaald" && factuur.status !== "Concept";
 
   return (
     <div className="space-y-6">
@@ -69,6 +84,7 @@ export default async function FactuurDetailPage({
           </div>
         </div>
         <div className="flex gap-2">
+          {showReminder && <FactuurReminderButton factuurId={factuur.id} />}
           <PaymentButton
             factuurId={factuur.id}
             factuurNummer={factuur.factuurNummer}
@@ -160,6 +176,11 @@ export default async function FactuurDetailPage({
                   {factuur.projectLocatie}
                 </p>
               )}
+              {factuur.project && (
+                <Link href={`/projecten/${factuur.project.id}`} className="text-blue-600 hover:underline text-sm">
+                  {factuur.project.projectNummer}
+                </Link>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -179,6 +200,7 @@ export default async function FactuurDetailPage({
                 <TableHead>Eenheid</TableHead>
                 <TableHead className="text-right">Prijs/Eenheid</TableHead>
                 <TableHead className="text-right">Totaal</TableHead>
+                <TableHead>BTW</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -194,6 +216,9 @@ export default async function FactuurDetailPage({
                   <TableCell className="text-right">
                     {formatCurrency(item.totaal)}
                   </TableCell>
+                  <TableCell>
+                    {item.btwTarief === "LAAG_9" ? "9%" : item.btwTarief === "VERLEGD" ? "Verlegd" : item.btwTarief === "VRIJGESTELD" ? "Vrijgesteld" : "21%"}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -207,9 +232,7 @@ export default async function FactuurDetailPage({
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">
-                BTW ({factuur.btwPercentage}%):
-              </span>
+              <span className="text-muted-foreground">BTW:</span>
               <span className="font-medium">
                 {formatCurrency(factuur.btwBedrag)}
               </span>
@@ -221,6 +244,31 @@ export default async function FactuurDetailPage({
           </div>
         </CardContent>
       </Card>
+
+      {/* Herinnering History */}
+      {factuur.herinneringen.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Herinneringen</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {factuur.herinneringen.map((h) => (
+                <div key={h.id} className="flex items-center gap-3 border-l-2 border-orange-400 pl-4 py-1">
+                  <div>
+                    <p className="font-medium text-sm">
+                      {HERINNERING_LABELS[h.type] || h.type}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(h.verzondOp).toLocaleString("nl-NL")}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {factuur.notities && (
         <Card>
@@ -235,4 +283,3 @@ export default async function FactuurDetailPage({
     </div>
   );
 }
-

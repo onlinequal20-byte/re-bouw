@@ -73,15 +73,36 @@ model Klant {
   offertes   Offerte[]
   facturen   Factuur[]
   expenses   Expense[]
+  projecten  Project[]
+}
+
+model Project {
+  id              String    @id @default(cuid())
+  projectNummer   String    @unique
+  naam            String
+  locatie         String?
+  klantId         String
+  klant           Klant     @relation(fields: [klantId], references: [id], onDelete: Cascade)
+  status          String    @default("Actief") // Actief, Afgerond, Geannuleerd
+  notities        String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  offertes        Offerte[]
+  facturen        Factuur[]
+  expenses        Expense[]
+  planningItems   PlanningItem[]
+
+  @@index([klantId])
+  @@index([status])
 }
 
 model Prijslijst {
   id              String   @id @default(cuid())
   categorie       String
   omschrijving    String
-  prijsPerEenheid Float
+  prijsPerEenheid Int
   eenheid         String
-  materiaalKosten Float    @default(0)
+  materiaalKosten Int      @default(0)
   actief          Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -94,17 +115,22 @@ model Offerte {
   geldigTot               DateTime
   klantId                 String
   klant                   Klant          @relation(fields: [klantId], references: [id], onDelete: Cascade)
+  projectId               String?
+  project                 Project?       @relation(fields: [projectId], references: [id], onDelete: SetNull)
   projectNaam             String
   projectLocatie          String?
   items                   OfferteItem[]
-  subtotaal               Float
+  subtotaal               Int
   btwPercentage           Float
-  btwBedrag               Float
-  totaal                  Float
+  btwBedrag               Int
+  totaal                  Int
   status                  String         @default("Concept")
   emailVerzonden          Boolean        @default(false)
   vooruitbetaald          Boolean        @default(false) // 30% prepayment received
+  molliePaymentId         String?        // Last processed Mollie payment ID for idempotency
   notities                String?
+  bekeken                 Boolean        @default(false)
+  bekekenOp               DateTime?      // When client first viewed signing page
   // Signature fields
   klantHandtekening       String?        // Base64 signature image
   klantNaam               String?        // Name of person who signed
@@ -116,9 +142,10 @@ model Offerte {
   algemeneVoorwaardenUrl  String?        // URL to AV PDF
   algemeneVoorwaardenHash String?        // Hash of AV for verification
   expenses                Expense[]
+  facturen                Factuur[]     // Invoices generated from this quote
   createdAt               DateTime       @default(now())
   updatedAt               DateTime       @updatedAt
-  
+
   @@index([datum])
   @@index([status])
   @@index([klantId])
@@ -131,8 +158,10 @@ model OfferteItem {
   omschrijving    String
   aantal          Float
   eenheid         String
-  prijsPerEenheid Float
-  totaal          Float
+  prijsPerEenheid Int
+  totaal          Int
+  btwTarief       String   @default("HOOG_21")
+  btwBedrag       Int      @default(0)
   volgorde        Int
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -145,15 +174,21 @@ model Factuur {
   vervaldatum             DateTime
   klantId                 String
   klant                   Klant         @relation(fields: [klantId], references: [id], onDelete: Cascade)
+  projectId               String?
+  project                 Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
   projectNaam             String
   projectLocatie          String?
   items                   FactuurItem[]
-  subtotaal               Float
+  subtotaal               Int
   btwPercentage           Float
-  btwBedrag               Float
-  totaal                  Float
-  status                  String        @default("Onbetaald")
-  betaaldBedrag           Float         @default(0)
+  btwBedrag               Int
+  totaal                  Int
+  status                  String        @default("Concept")
+  herinneringen           FactuurHerinnering[]
+  betaaldBedrag           Int           @default(0)
+  offerteId               String?       // Source offerte if generated from quote
+  offerte                 Offerte?      @relation(fields: [offerteId], references: [id], onDelete: SetNull)
+  molliePaymentId         String?       // Last processed Mollie payment ID for idempotency
   emailVerzonden          Boolean       @default(false)
   notities                String?
   // Signature fields
@@ -171,6 +206,7 @@ model Factuur {
   @@index([status])
   @@index([klantId])
   @@index([vervaldatum])
+  @@index([offerteId])
 }
 
 model FactuurItem {
@@ -180,8 +216,10 @@ model FactuurItem {
   omschrijving    String
   aantal          Float
   eenheid         String
-  prijsPerEenheid Float
-  totaal          Float
+  prijsPerEenheid Int
+  totaal          Int
+  btwTarief       String   @default("HOOG_21")
+  btwBedrag       Int      @default(0)
   volgorde        Int
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -225,23 +263,25 @@ model Expense {
   offerte           Offerte?  @relation(fields: [offerteId], references: [id], onDelete: SetNull)
   factuurId         String?
   factuur           Factuur?  @relation(fields: [factuurId], references: [id], onDelete: SetNull)
-  
+  projectId         String?
+  project           Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
   // Receipt/Expense details
   datum             DateTime  @default(now())
-  categorie         String    // "Materialen", "Transport", "Gereedschap", "Overig"
+  categorie         String    // "Materialen", "Transport", "Gereedschap", "Voertuig", "Abonnementen", "Onderaanneming", "Overig"
   omschrijving      String
-  bedrag            Float
-  btw               Float     @default(0)
-  totaalBedrag      Float
+  bedrag            Int
+  btw               Int       @default(0)
+  totaalBedrag      Int
   
   // Receipt image
-  imageUrl          String    // Path to uploaded image
-  imageName         String    // Original filename
-  imageSize         Int       // File size in bytes
+  imageUrl          String?   // Path to uploaded image
+  imageName         String?   // Original filename
+  imageSize         Int?      // File size in bytes
   
   // OCR extracted data
   ocrText           String?   // Full extracted text
-  ocrBedrag         Float?    // Auto-detected amount
+  ocrBedrag         Int?      // Auto-detected amount (cents)
   ocrDatum          DateTime? // Auto-detected date
   ocrWinkel         String?   // Auto-detected store name
   ocrVerified       Boolean   @default(false) // Manual verification
@@ -255,8 +295,37 @@ model Expense {
   updatedAt         DateTime  @updatedAt
   
   @@index([klantId])
+  @@index([projectId])
   @@index([datum])
   @@index([categorie])
   @@index([status])
+}
+
+model PlanningItem {
+  id          String    @id @default(cuid())
+  titel       String
+  startDatum  DateTime
+  eindDatum   DateTime
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  notities    String?
+  kleurCode   String    @default("#3b82f6") // blue-500
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([startDatum])
+  @@index([eindDatum])
+  @@index([projectId])
+}
+
+model FactuurHerinnering {
+  id          String   @id @default(cuid())
+  factuurId   String
+  factuur     Factuur  @relation(fields: [factuurId], references: [id], onDelete: Cascade)
+  type        String   // VRIENDELIJK, ZAKELIJK, LAATSTE
+  verzondOp   DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@index([factuurId])
 }
 

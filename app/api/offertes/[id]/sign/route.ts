@@ -48,7 +48,7 @@ export async function POST(
         klantNaam: naam,
         klantGetekendOp: new Date(),
         klantIpAdres: ip,
-        status: "Geaccepteerd",
+        status: "Getekend",
         algemeneVoorwaardenUrl: "/algemene-voorwaarden.txt",
       },
     });

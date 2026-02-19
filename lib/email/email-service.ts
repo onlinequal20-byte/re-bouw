@@ -74,16 +74,16 @@ export function generateOfferteEmail(offerte: any, baseUrl: string) {
   const signUrl = `${baseUrl}/ondertekenen/offerte/${offerte.id}`;
   const paymentUrl = `${baseUrl}/betalen/offerte/${offerte.id}`;
   
-  // Calculate prepayment amount (30% of total)
-  const prepaymentAmount = offerte.totaal * 0.3;
-  
+  // Calculate prepayment amount (30% of total) — values are in cents
+  const prepaymentCents = Math.round(offerte.totaal * 0.3);
+
   const body = `Beste ${offerte.klant.naam},
 
 Hierbij ontvangt u de offerte voor ${offerte.projectNaam}.
 
 Offerte nummer: ${offerte.offerteNummer}
-Totaalbedrag: € ${offerte.totaal.toFixed(2).replace('.', ',')}
-Vooruitbetaling (30%): € ${prepaymentAmount.toFixed(2).replace('.', ',')}
+Totaalbedrag: € ${(offerte.totaal / 100).toFixed(2).replace('.', ',')}
+Vooruitbetaling (30%): € ${(prepaymentCents / 100).toFixed(2).replace('.', ',')}
 Geldig tot: ${new Date(offerte.geldigTot).toLocaleDateString('nl-NL')}
 
 De offerte en algemene voorwaarden zijn als PDF bijgevoegd bij deze email.
@@ -133,6 +133,41 @@ BTW: NL123456789B01`;
   return { subject, body };
 }
 
+export function generateOfferteReminderEmail(offerte: any, baseUrl: string) {
+  const subject = `Herinnering: Offerte ${offerte.offerteNummer} - ${offerte.projectNaam}`;
+  const signUrl = `${baseUrl}/ondertekenen/offerte/${offerte.id}`;
+
+  const body = `Beste ${offerte.klant.naam},
+
+Wij willen u er graag aan herinneren dat u nog een openstaande offerte heeft voor ${offerte.projectNaam}.
+
+Offerte nummer: ${offerte.offerteNummer}
+Totaalbedrag: € ${(offerte.totaal / 100).toFixed(2).replace('.', ',')}
+Geldig tot: ${new Date(offerte.geldigTot).toLocaleDateString('nl-NL')}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📝 DIGITAAL ONDERTEKENEN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+U kunt deze offerte eenvoudig digitaal ondertekenen via:
+${signUrl}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Mocht u vragen hebben of meer informatie wensen, neem dan gerust contact met ons op.
+
+Met vriendelijke groet,
+
+AMS Bouwers B.V.
+Sloterweg 1160
+1066 CV Amsterdam
+Tel: 0642959565
+Email: info@amsbouwers.nl
+Web: amsbouwers.nl`;
+
+  return { subject, body };
+}
+
 export function generateFactuurEmail(factuur: any, baseUrl: string) {
   const subject = `Factuur ${factuur.factuurNummer} - ${factuur.projectNaam}`;
   const signUrl = `${baseUrl}/ondertekenen/factuur/${factuur.id}`;
@@ -145,9 +180,9 @@ export function generateFactuurEmail(factuur: any, baseUrl: string) {
 Hierbij ontvangt u de factuur voor ${factuur.projectNaam}.
 
 Factuur nummer: ${factuur.factuurNummer}
-Totaalbedrag: € ${factuur.totaal.toFixed(2).replace('.', ',')}
-${factuur.betaaldBedrag > 0 ? `Reeds betaald: € ${factuur.betaaldBedrag.toFixed(2).replace('.', ',')}` : ''}
-${!isPaid ? `Openstaand bedrag: € ${remainingAmount.toFixed(2).replace('.', ',')}` : ''}
+Totaalbedrag: € ${(factuur.totaal / 100).toFixed(2).replace('.', ',')}
+${factuur.betaaldBedrag > 0 ? `Reeds betaald: € ${(factuur.betaaldBedrag / 100).toFixed(2).replace('.', ',')}` : ''}
+${!isPaid ? `Openstaand bedrag: € ${(remainingAmount / 100).toFixed(2).replace('.', ',')}` : ''}
 Vervaldatum: ${new Date(factuur.vervaldatum).toLocaleDateString('nl-NL')}
 ${isPaid ? '\n✅ STATUS: BETAALD' : ''}
 
@@ -193,6 +228,139 @@ Sloterweg 1160
 Tel: 0642959565
 Email: info@amsbouwers.nl
 Web: amsbouwers.nl
+
+KVK: 80195466
+BTW: NL123456789B01`;
+
+  return { subject, body };
+}
+
+export function generateFactuurReminderEmail(
+  factuur: any,
+  tone: 'vriendelijk' | 'zakelijk' | 'laatste',
+  baseUrl: string
+) {
+  const paymentUrl = `${baseUrl}/betalen/factuur/${factuur.id}`;
+  const bedrag = (factuur.totaal / 100).toFixed(2).replace('.', ',');
+  const openstaand = ((factuur.totaal - (factuur.betaaldBedrag || 0)) / 100).toFixed(2).replace('.', ',');
+  const vervaldatum = new Date(factuur.vervaldatum).toLocaleDateString('nl-NL');
+
+  if (tone === 'vriendelijk') {
+    const subject = `Herinnering: Factuur ${factuur.factuurNummer} - ${factuur.projectNaam}`;
+    const body = `Beste ${factuur.klant.naam},
+
+Wij willen u er vriendelijk aan herinneren dat de betaling van onderstaande factuur nog openstaat.
+
+Factuur nummer: ${factuur.factuurNummer}
+Totaalbedrag: \u20AC ${bedrag}
+Openstaand bedrag: \u20AC ${openstaand}
+Vervaldatum: ${vervaldatum}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💳 DIRECT ONLINE BETALEN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+U kunt eenvoudig en veilig online betalen via:
+${paymentUrl}
+
+OF betaal via bankoverschrijving naar:
+IBAN: NL91ABNA0417164300
+t.n.v. AMS Bouwers B.V.
+onder vermelding van: ${factuur.factuurNummer}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Mocht de betaling reeds onderweg zijn, dan kunt u deze herinnering als niet verzonden beschouwen.
+
+Met vriendelijke groet,
+
+AMS Bouwers B.V.
+Sloterweg 1160
+1066 CV Amsterdam
+Tel: 0642959565
+Email: info@amsbouwers.nl`;
+
+    return { subject, body };
+  }
+
+  if (tone === 'zakelijk') {
+    const subject = `Tweede herinnering: Factuur ${factuur.factuurNummer} is vervallen`;
+    const body = `Beste ${factuur.klant.naam},
+
+Ondanks onze eerdere herinnering hebben wij nog geen betaling ontvangen voor onderstaande factuur. De vervaldatum is inmiddels verstreken.
+
+Factuur nummer: ${factuur.factuurNummer}
+Totaalbedrag: \u20AC ${bedrag}
+Openstaand bedrag: \u20AC ${openstaand}
+Vervaldatum: ${vervaldatum}
+
+Wij verzoeken u vriendelijk doch dringend het openstaande bedrag binnen 7 dagen te voldoen.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💳 DIRECT ONLINE BETALEN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+U kunt eenvoudig en veilig online betalen via:
+${paymentUrl}
+
+OF betaal via bankoverschrijving naar:
+IBAN: NL91ABNA0417164300
+t.n.v. AMS Bouwers B.V.
+onder vermelding van: ${factuur.factuurNummer}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Mocht u vragen hebben over deze factuur, neem dan zo spoedig mogelijk contact met ons op.
+
+Met vriendelijke groet,
+
+AMS Bouwers B.V.
+Sloterweg 1160
+1066 CV Amsterdam
+Tel: 0642959565
+Email: info@amsbouwers.nl`;
+
+    return { subject, body };
+  }
+
+  // tone === 'laatste'
+  const subject = `LAATSTE AANMANING: Factuur ${factuur.factuurNummer} - Directe actie vereist`;
+  const body = `Beste ${factuur.klant.naam},
+
+Dit is onze laatste aanmaning betreffende de openstaande factuur hieronder. Ondanks eerdere herinneringen hebben wij tot op heden geen betaling ontvangen.
+
+Factuur nummer: ${factuur.factuurNummer}
+Totaalbedrag: \u20AC ${bedrag}
+Openstaand bedrag: \u20AC ${openstaand}
+Oorspronkelijke vervaldatum: ${vervaldatum}
+
+⚠️ DRINGEND: Wij verzoeken u het openstaande bedrag binnen 5 werkdagen te voldoen.
+
+Indien wij binnen deze termijn geen betaling ontvangen, zijn wij genoodzaakt de vordering uit handen te geven aan een incassobureau. De bijkomende kosten hiervan komen voor uw rekening.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💳 DIRECT ONLINE BETALEN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+U kunt eenvoudig en veilig online betalen via:
+${paymentUrl}
+
+OF betaal via bankoverschrijving naar:
+IBAN: NL91ABNA0417164300
+t.n.v. AMS Bouwers B.V.
+onder vermelding van: ${factuur.factuurNummer}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Voor vragen kunt u contact opnemen via onderstaande gegevens.
+
+Met vriendelijke groet,
+
+AMS Bouwers B.V.
+Sloterweg 1160
+1066 CV Amsterdam
+Tel: 0642959565
+Email: info@amsbouwers.nl
 
 KVK: 80195466
 BTW: NL123456789B01`;

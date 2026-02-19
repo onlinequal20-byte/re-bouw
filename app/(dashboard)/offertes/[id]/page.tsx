@@ -12,19 +12,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { ArrowLeft, Download, CheckCircle2, Copy, ExternalLink } from "lucide-react";
+import { ArrowLeft, Download, CheckCircle2, Copy, ExternalLink, FileText } from "lucide-react";
 import Link from "next/link";
 import { EmailButton } from "@/components/email-button";
+import { FacturerenButton } from "./factureren-button";
+import { ReminderButton } from "./reminder-button";
 import Image from "next/image";
 
 function getStatusBadgeVariant(status: string) {
   switch (status) {
-    case "Geaccepteerd":
+    case "Getekend":
       return "success" as const;
     case "Verzonden":
       return "default" as const;
+    case "Bekeken":
+      return "outline" as const;
     case "Concept":
       return "secondary" as const;
+    case "Verlopen":
     case "Afgewezen":
       return "destructive" as const;
     default:
@@ -45,6 +50,7 @@ export default async function OfferteDetailPage({
       items: {
         orderBy: { volgorde: "asc" },
       },
+      facturen: { select: { id: true, factuurNummer: true } },
     },
   });
 
@@ -80,6 +86,20 @@ export default async function OfferteDetailPage({
             type="offerte"
             clientEmail={offerte.klant.email}
           />
+          {!offerte.klantHandtekening && offerte.emailVerzonden && (
+            <ReminderButton offerteId={offerte.id} />
+          )}
+          {offerte.klantHandtekening && offerte.facturen.length === 0 && (
+            <FacturerenButton offerteId={offerte.id} />
+          )}
+          {offerte.klantHandtekening && offerte.facturen.length > 0 && (
+            <Link href={`/facturen/${offerte.facturen[0].id}`}>
+              <Button variant="outline">
+                <FileText className="mr-2 h-4 w-4" />
+                Bekijk Factuur
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -148,6 +168,11 @@ export default async function OfferteDetailPage({
                   {offerte.projectLocatie}
                 </p>
               )}
+              {(offerte as any).project && (
+                <Link href={`/projecten/${(offerte as any).project.id}`} className="text-blue-600 hover:underline text-sm">
+                  {(offerte as any).project.projectNummer}
+                </Link>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -167,6 +192,7 @@ export default async function OfferteDetailPage({
                 <TableHead>Eenheid</TableHead>
                 <TableHead className="text-right">Prijs/Eenheid</TableHead>
                 <TableHead className="text-right">Totaal</TableHead>
+                <TableHead>BTW</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -182,6 +208,9 @@ export default async function OfferteDetailPage({
                   <TableCell className="text-right">
                     {formatCurrency(item.totaal)}
                   </TableCell>
+                  <TableCell>
+                    {(item as any).btwTarief === "LAAG_9" ? "9%" : (item as any).btwTarief === "VERLEGD" ? "Verlegd" : (item as any).btwTarief === "VRIJGESTELD" ? "Vrijgesteld" : "21%"}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -195,9 +224,7 @@ export default async function OfferteDetailPage({
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">
-                BTW ({offerte.btwPercentage}%):
-              </span>
+              <span className="text-muted-foreground">BTW:</span>
               <span className="font-medium">
                 {formatCurrency(offerte.btwBedrag)}
               </span>
