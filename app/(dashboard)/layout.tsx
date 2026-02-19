@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/sidebar";
 import { MobileSidebar } from "@/components/mobile-sidebar";
+import { BottomNav } from "@/components/bottom-nav";
 import Image from "next/image";
 
 export default function DashboardLayout({
@@ -31,12 +32,15 @@ export default function DashboardLayout({
         </div>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto bg-gradient-to-br from-gray-50/80 via-white to-gray-100/50 p-4 md:p-8">
+        <main className="flex-1 overflow-y-auto bg-gradient-to-br from-gray-50/80 via-white to-gray-100/50 p-4 pb-20 md:p-8 md:pb-8">
           <div className="mx-auto max-w-7xl">
           {children}
           </div>
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }

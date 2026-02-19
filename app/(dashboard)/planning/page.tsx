@@ -72,6 +72,7 @@ const UREN_EIND = 19;
 const UUR_HOOGTE = 60; // px per hour
 
 const DAGEN_NL = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"];
+const DAGEN_NL_KORT = ["Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"];
 const MAANDEN_NL = [
   "januari", "februari", "maart", "april", "mei", "juni",
   "juli", "augustus", "september", "oktober", "november", "december",
@@ -117,6 +118,11 @@ export default function PlanningPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<PlanningItem | null>(null);
+  const [mobileDayIndex, setMobileDayIndex] = useState(() => {
+    const today = new Date();
+    const day = today.getDay();
+    return day === 0 ? 6 : day - 1; // Mon=0, Sun=6
+  });
   const [formData, setFormData] = useState<FormData>({
     titel: "",
     startDatum: "",
@@ -361,18 +367,23 @@ export default function PlanningPage() {
 
   const isToday = (date: Date) => isSameDay(date, new Date());
 
+  const formatTime = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  };
+
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Planning</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Planning</h1>
+          <p className="text-sm text-muted-foreground">
             {formatDatum(weekStart)} - {formatDatum(addDays(weekStart, 6))}{" "}
             {weekStart.getFullYear()}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 md:gap-2">
           <Button
             variant="outline"
             size="icon"
@@ -382,7 +393,13 @@ export default function PlanningPage() {
           </Button>
           <Button
             variant="outline"
-            onClick={() => setWeekStart(getWeekStart(new Date()))}
+            size="sm"
+            onClick={() => {
+              setWeekStart(getWeekStart(new Date()));
+              const today = new Date();
+              const day = today.getDay();
+              setMobileDayIndex(day === 0 ? 6 : day - 1);
+            }}
           >
             Vandaag
           </Button>
@@ -393,7 +410,7 @@ export default function PlanningPage() {
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button onClick={() => {
+          <Button size="sm" onClick={() => {
             const now = new Date();
             now.setMinutes(0, 0, 0);
             const end = new Date(now);
@@ -409,14 +426,91 @@ export default function PlanningPage() {
             });
             setDialogOpen(true);
           }}>
-            <Plus className="mr-2 h-4 w-4" />
-            Nieuw
+            <Plus className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Nieuw</span>
           </Button>
         </div>
       </div>
 
-      {/* Calendar Grid */}
-      <div className="border rounded-lg overflow-hidden bg-white">
+      {/* ─── Mobile Day View ─────────────────────────────────────── */}
+      <div className="md:hidden">
+        {/* Day selector tabs */}
+        <div className="flex gap-1 mb-3 overflow-x-auto pb-1">
+          {days.map((day, i) => (
+            <button
+              key={i}
+              onClick={() => setMobileDayIndex(i)}
+              className={`flex flex-col items-center px-3 py-2 rounded-lg min-w-[48px] transition-colors ${
+                mobileDayIndex === i
+                  ? "bg-primary text-white"
+                  : isToday(day)
+                  ? "bg-primary/10 text-primary"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              <span className="text-[10px] font-medium">{DAGEN_NL_KORT[i]}</span>
+              <span className="text-sm font-bold">{day.getDate()}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Day items list */}
+        <div className="space-y-2">
+          {(() => {
+            const dayItems = getItemsForDay(mobileDayIndex);
+            if (dayItems.length === 0) {
+              return (
+                <div className="text-center py-12 text-muted-foreground">
+                  <p className="font-medium">Geen afspraken</p>
+                  <p className="text-sm mt-1">Tik + om een afspraak toe te voegen</p>
+                </div>
+              );
+            }
+            return dayItems
+              .sort((a, b) => new Date(a.startDatum).getTime() - new Date(b.startDatum).getTime())
+              .map((item) => (
+                <div
+                  key={item.id}
+                  className="flex gap-3 p-3 rounded-xl border bg-white active:scale-[0.98] transition-transform"
+                  style={{ borderLeft: `4px solid ${item.kleurCode}` }}
+                  onClick={() => openEdit(item)}
+                >
+                  <div className="text-xs text-muted-foreground pt-0.5 shrink-0 w-12">
+                    <div>{formatTime(item.startDatum)}</div>
+                    <div>{formatTime(item.eindDatum)}</div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{item.titel}</p>
+                    {item.project?.klant && (
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                        <User className="h-3 w-3" />
+                        {item.project.klant.naam}
+                      </p>
+                    )}
+                    {item.project?.locatie && (
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        {item.project.locatie}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ));
+          })()}
+        </div>
+
+        {/* Quick add for mobile */}
+        <Button
+          className="w-full mt-4"
+          onClick={() => openCreate(mobileDayIndex, new Date().getHours())}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Afspraak toevoegen
+        </Button>
+      </div>
+
+      {/* ─── Desktop Calendar Grid ──────────────────────────────── */}
+      <div className="hidden md:block border rounded-lg overflow-hidden bg-white">
         {/* Day headers */}
         <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b">
           <div className="p-2 text-xs text-muted-foreground" />

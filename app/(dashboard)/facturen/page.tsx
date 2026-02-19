@@ -101,13 +101,14 @@ export default async function FacturenPage({
         <Link href="/facturen/nieuw">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Nieuwe Factuur
+            <span className="hidden sm:inline">Nieuwe Factuur</span>
+            <span className="sm:hidden">Nieuw</span>
           </Button>
         </Link>
       </div>
 
-      {/* Pipeline Overview */}
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
+      {/* Pipeline Overview - 2 cols mobile, 3 cols tablet, 5 cols desktop */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
         {(() => {
           const statusConfig = [
             { status: "Concept", label: "Concept", color: "text-gray-600", bg: "bg-gray-50" },
@@ -124,9 +125,9 @@ export default async function FacturenPage({
 
             return (
               <Card key={status} className={bg}>
-                <CardContent className="p-4">
-                  <p className={`text-sm font-medium ${color}`}>{label}</p>
-                  <p className="text-2xl font-bold">{count}</p>
+                <CardContent className="p-3 md:p-4">
+                  <p className={`text-xs md:text-sm font-medium ${color}`}>{label}</p>
+                  <p className="text-xl md:text-2xl font-bold">{count}</p>
                   <p className="text-xs text-muted-foreground">
                     {formatCurrency(total)}
                   </p>
@@ -151,7 +152,41 @@ export default async function FacturenPage({
         </Link>
       </div>
 
-      <Card>
+      {/* Mobile card view */}
+      <div className="space-y-3 md:hidden">
+        {displayFacturen.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <Receipt className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+              <p className="text-muted-foreground font-medium">Geen facturen gevonden</p>
+            </CardContent>
+          </Card>
+        ) : (
+          displayFacturen.map((factuur) => (
+            <Link key={factuur.id} href={`/facturen/${factuur.id}`}>
+              <Card className={`${filter === "openstaand" ? getOverdueColor(factuur.vervaldatum) : ""} active:scale-[0.98] transition-transform`}>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium">{factuur.factuurNummer}</p>
+                      <p className="text-sm text-muted-foreground truncate">{factuur.klant.naam}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="font-bold">{formatCurrency(factuur.totaal)}</p>
+                      <Badge variant={getStatusBadgeVariant(factuur.status)} className="mt-1">
+                        {factuur.status}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))
+        )}
+      </div>
+
+      {/* Desktop table */}
+      <Card className="hidden md:block">
         <CardHeader>
           <CardTitle>{filter === "openstaand" ? "Openstaande Facturen" : "Alle Facturen"}</CardTitle>
           <CardDescription>

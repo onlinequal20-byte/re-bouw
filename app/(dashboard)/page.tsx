@@ -43,7 +43,6 @@ async function getDashboardData() {
     recentOffertes,
     recentFacturen,
   ] = await Promise.all([
-    // Get revenue this month - only select needed fields
     prisma.factuur.findMany({
       where: {
         datum: {
@@ -55,7 +54,6 @@ async function getDashboardData() {
         totaal: true,
       },
     }),
-    // Get revenue previous month
     prisma.factuur.findMany({
       where: {
         datum: {
@@ -67,7 +65,6 @@ async function getDashboardData() {
         totaal: true,
       },
     }),
-    // Get outstanding invoices - only select needed fields
     prisma.factuur.findMany({
       where: {
         status: {
@@ -79,15 +76,12 @@ async function getDashboardData() {
         betaaldBedrag: true,
       },
     }),
-    // Get sent quotations count
     prisma.offerte.count({
       where: {
         status: "Verzonden",
       },
     }),
-    // Get client count
     prisma.klant.count(),
-    // Get recent quotations - only select needed fields
     prisma.offerte.findMany({
       take: 5,
       orderBy: { datum: "desc" },
@@ -103,7 +97,6 @@ async function getDashboardData() {
         },
       },
     }),
-    // Get recent invoices - only select needed fields
     prisma.factuur.findMany({
       take: 5,
       orderBy: { datum: "desc" },
@@ -166,7 +159,7 @@ export const revalidate = 60;
 
 export default async function DashboardPage() {
   const session = await getSession();
-  
+
   if (!session) {
     redirect("/login");
   }
@@ -177,14 +170,14 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-gray-900">
             Dashboard
           </h1>
-          <p className="text-muted-foreground mt-2">
+          <p className="text-muted-foreground mt-1 md:mt-2">
             Overzicht van uw bedrijfsactiviteiten
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-2">
           <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
             <DollarSign className="h-6 w-6 text-primary" />
           </div>
@@ -192,18 +185,18 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
         <Card className="card-enhanced border-l-4 border-l-primary hover:scale-105 transition-transform duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Omzet Deze Maand
             </CardTitle>
-            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <div className="hidden md:flex h-10 w-10 rounded-full bg-primary/10 items-center justify-center">
               <DollarSign className="h-5 w-5 text-primary" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary">
+            <div className="text-xl md:text-3xl font-bold text-primary">
               {formatCurrency(data.omzetDezeMaand)}
             </div>
             {data.omzetGroeiPercentage !== null ? (
@@ -220,15 +213,15 @@ export default async function DashboardPage() {
 
         <Card className="card-enhanced border-l-4 border-l-orange-400 hover:scale-105 transition-transform duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Openstaande Facturen
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+              Openstaand
             </CardTitle>
-            <div className="h-10 w-10 rounded-full bg-orange-50 flex items-center justify-center">
+            <div className="hidden md:flex h-10 w-10 rounded-full bg-orange-50 items-center justify-center">
               <Receipt className="h-5 w-5 text-orange-500" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-orange-500">
+            <div className="text-xl md:text-3xl font-bold text-orange-500">
               {formatCurrency(data.openstaandBedrag)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -239,15 +232,15 @@ export default async function DashboardPage() {
 
         <Card className="card-enhanced border-l-4 border-l-blue-500 hover:scale-105 transition-transform duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Verzonden Offertes
             </CardTitle>
-            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+            <div className="hidden md:flex h-10 w-10 rounded-full bg-blue-100 items-center justify-center">
               <FileText className="h-5 w-5 text-blue-600" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-600">{data.offerteCount}</div>
+            <div className="text-xl md:text-3xl font-bold text-blue-600">{data.offerteCount}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Wachten op reactie
             </p>
@@ -256,15 +249,15 @@ export default async function DashboardPage() {
 
         <Card className="card-enhanced border-l-4 border-l-green-500 hover:scale-105 transition-transform duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Aantal Klanten
             </CardTitle>
-            <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+            <div className="hidden md:flex h-10 w-10 rounded-full bg-green-100 items-center justify-center">
               <Users className="h-5 w-5 text-green-600" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-600">{data.klantenCount}</div>
+            <div className="text-xl md:text-3xl font-bold text-green-600">{data.klantenCount}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Actieve klanten
             </p>
@@ -272,29 +265,29 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      {/* Quick Actions */}
+      {/* Quick Actions - full width on mobile */}
       <Card>
         <CardHeader>
           <CardTitle>Snelle Acties</CardTitle>
-          <CardDescription>
+          <CardDescription className="hidden md:block">
             Veelgebruikte acties voor dagelijks gebruik
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-wrap gap-2">
-          <Link href="/offertes/nieuw">
-            <Button>
+        <CardContent className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <Link href="/offertes/nieuw" className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto">
               <FileText className="mr-2 h-4 w-4" />
               Nieuwe Offerte
             </Button>
           </Link>
-          <Link href="/facturen/nieuw">
-            <Button>
+          <Link href="/facturen/nieuw" className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto">
               <Receipt className="mr-2 h-4 w-4" />
               Nieuwe Factuur
             </Button>
           </Link>
-          <Link href="/klanten/nieuw">
-            <Button variant="outline">
+          <Link href="/klanten/nieuw" className="w-full sm:w-auto">
+            <Button variant="outline" className="w-full sm:w-auto">
               <Users className="mr-2 h-4 w-4" />
               Nieuwe Klant
             </Button>
@@ -307,12 +300,32 @@ export default async function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Recente Offertes</CardTitle>
-            <CardDescription>
+            <CardDescription className="hidden md:block">
               De laatste 5 aangemaakte offertes
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
+            {/* Mobile list */}
+            <div className="space-y-3 md:hidden">
+              {data.recentOffertes.map((offerte) => (
+                <Link key={offerte.id} href={`/offertes/${offerte.id}`} className="block">
+                  <div className="flex items-center justify-between py-2 border-b last:border-0">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium">{offerte.offerteNummer}</p>
+                      <p className="text-xs text-muted-foreground truncate">{offerte.klant.naam}</p>
+                    </div>
+                    <div className="text-right shrink-0 ml-3">
+                      <p className="text-sm font-medium">{formatCurrency(offerte.totaal)}</p>
+                      <Badge variant={getStatusBadgeVariant(offerte.status)} className="text-[10px]">
+                        {offerte.status}
+                      </Badge>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            {/* Desktop table */}
+            <Table className="hidden md:table">
               <TableHeader>
                 <TableRow>
                   <TableHead>Nummer</TableHead>
@@ -350,12 +363,32 @@ export default async function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Recente Facturen</CardTitle>
-            <CardDescription>
+            <CardDescription className="hidden md:block">
               De laatste 5 aangemaakte facturen
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
+            {/* Mobile list */}
+            <div className="space-y-3 md:hidden">
+              {data.recentFacturen.map((factuur) => (
+                <Link key={factuur.id} href={`/facturen/${factuur.id}`} className="block">
+                  <div className="flex items-center justify-between py-2 border-b last:border-0">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium">{factuur.factuurNummer}</p>
+                      <p className="text-xs text-muted-foreground truncate">{factuur.klant.naam}</p>
+                    </div>
+                    <div className="text-right shrink-0 ml-3">
+                      <p className="text-sm font-medium">{formatCurrency(factuur.totaal)}</p>
+                      <Badge variant={getStatusBadgeVariant(factuur.status)} className="text-[10px]">
+                        {factuur.status}
+                      </Badge>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            {/* Desktop table */}
+            <Table className="hidden md:table">
               <TableHeader>
                 <TableRow>
                   <TableHead>Nummer</TableHead>
@@ -392,4 +425,3 @@ export default async function DashboardPage() {
     </div>
   );
 }
-

@@ -84,13 +84,14 @@ export default async function OffertesPage() {
         <Link href="/offertes/nieuw">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Nieuwe Offerte
+            <span className="hidden sm:inline">Nieuwe Offerte</span>
+            <span className="sm:hidden">Nieuw</span>
           </Button>
         </Link>
       </div>
 
-      {/* Pipeline Overview */}
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
+      {/* Pipeline Overview - 3 cols mobile, 6 cols desktop */}
+      <div className="grid grid-cols-3 gap-2 md:gap-4 lg:grid-cols-6">
         {(() => {
           const statusConfig = [
             { status: "Concept", label: "Concept", color: "text-gray-600", bg: "bg-gray-50" },
@@ -108,10 +109,10 @@ export default async function OffertesPage() {
 
             return (
               <Card key={status} className={bg}>
-                <CardContent className="p-4">
-                  <p className={`text-sm font-medium ${color}`}>{label}</p>
-                  <p className="text-2xl font-bold">{count}</p>
-                  <p className="text-xs text-muted-foreground">
+                <CardContent className="p-3 md:p-4">
+                  <p className={`text-xs md:text-sm font-medium ${color}`}>{label}</p>
+                  <p className="text-xl md:text-2xl font-bold">{count}</p>
+                  <p className="text-xs text-muted-foreground truncate">
                     {formatCurrency(total)}
                   </p>
                 </CardContent>
@@ -121,7 +122,42 @@ export default async function OffertesPage() {
         })()}
       </div>
 
-      <Card>
+      {/* Mobile card view */}
+      <div className="space-y-3 md:hidden">
+        {offertes.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <FileText className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+              <p className="text-muted-foreground font-medium">Geen offertes gevonden</p>
+              <p className="text-sm text-muted-foreground/60 mt-1">Maak je eerste offerte aan voor een klant</p>
+            </CardContent>
+          </Card>
+        ) : (
+          offertes.map((offerte) => (
+            <Link key={offerte.id} href={`/offertes/${offerte.id}`}>
+              <Card className="active:scale-[0.98] transition-transform">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium">{offerte.offerteNummer}</p>
+                      <p className="text-sm text-muted-foreground truncate">{offerte.klant.naam}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="font-bold">{formatCurrency(offerte.totaal)}</p>
+                      <Badge variant={getStatusBadgeVariant(offerte.status)} className="mt-1">
+                        {offerte.status}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))
+        )}
+      </div>
+
+      {/* Desktop table */}
+      <Card className="hidden md:block">
         <CardHeader>
           <CardTitle>Alle Offertes</CardTitle>
           <CardDescription>
@@ -188,4 +224,3 @@ export default async function OffertesPage() {
     </div>
   );
 }
-

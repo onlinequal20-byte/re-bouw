@@ -283,49 +283,49 @@ export default function KostenPage() {
         <p className="text-muted-foreground mt-1">Beheer al uw bedrijfskosten</p>
       </div>
 
-      {/* Summary cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      {/* Summary cards - 2x2 on mobile, 4 cols on desktop */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Totaal deze maand
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totaalDezeMaand)}</div>
+            <div className="text-lg md:text-2xl font-bold">{formatCurrency(totaalDezeMaand)}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Totaal dit jaar
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totaalDitJaar)}</div>
+            <div className="text-lg md:text-2xl font-bold">{formatCurrency(totaalDitJaar)}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Aantal kosten
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{aantalKosten}</div>
+            <div className="text-lg md:text-2xl font-bold">{aantalKosten}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               BTW deze maand
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{formatCurrency(btwDezeMaand)}</div>
+            <div className="text-lg md:text-2xl font-bold text-blue-600">{formatCurrency(btwDezeMaand)}</div>
           </CardContent>
         </Card>
       </div>
@@ -444,7 +444,7 @@ export default function KostenPage() {
           </div>
 
           {/* Row 4: File upload + Submit */}
-          <div className="flex items-end gap-4">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end">
             <div className="flex-1 space-y-2">
               <Label htmlFor="file">Bonnetje uploaden (optioneel)</Label>
               <Input
@@ -459,6 +459,7 @@ export default function KostenPage() {
               onClick={handleSubmit}
               disabled={!omschrijving || !bedrag || submitting}
               size="lg"
+              className="w-full md:w-auto"
             >
               {submitting ? (
                 "Bezig..."
@@ -473,9 +474,9 @@ export default function KostenPage() {
         </CardContent>
       </Card>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4">
-        <div className="w-48">
+      {/* Filters - stack on mobile */}
+      <div className="flex flex-col gap-4 md:flex-row md:flex-wrap">
+        <div className="w-full md:w-48">
           <Select value={filterCategorie} onValueChange={setFilterCategorie}>
             <SelectTrigger>
               <SelectValue placeholder="Categorie" />
@@ -490,7 +491,7 @@ export default function KostenPage() {
             </SelectContent>
           </Select>
         </div>
-        <div className="w-48">
+        <div className="w-full md:w-48">
           <Select value={filterMonth} onValueChange={setFilterMonth}>
             <SelectTrigger>
               <SelectValue placeholder="Maand" />
@@ -505,7 +506,7 @@ export default function KostenPage() {
             </SelectContent>
           </Select>
         </div>
-        <div className="flex-1 min-w-[200px]">
+        <div className="flex-1 min-w-0">
           <Input
             placeholder="Zoek op omschrijving..."
             value={filterSearch}
@@ -514,8 +515,63 @@ export default function KostenPage() {
         </div>
       </div>
 
-      {/* Expenses table */}
-      <Card>
+      {/* Mobile card view */}
+      <div className="space-y-3 md:hidden">
+        {filteredExpenses.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <Wallet className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+              <p className="text-muted-foreground font-medium">Geen kosten gevonden</p>
+              <p className="text-sm text-muted-foreground/60 mt-1">Voeg kosten toe om je uitgaven bij te houden</p>
+            </CardContent>
+          </Card>
+        ) : (
+          filteredExpenses.map((expense) => (
+            <Card key={expense.id}>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{expense.omschrijving}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="outline" className="text-xs">{expense.categorie}</Badge>
+                      <span className="text-xs text-muted-foreground">{formatDate(new Date(expense.datum))}</span>
+                    </div>
+                    {expense.project && (
+                      <p className="text-xs text-muted-foreground mt-1">{expense.project.naam}</p>
+                    )}
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="font-bold">{formatCurrency(expense.totaalBedrag)}</p>
+                    <p className="text-xs text-muted-foreground">BTW: {formatCurrency(expense.btw)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-end gap-2 mt-3 pt-3 border-t">
+                  {expense.imageUrl && (
+                    <a
+                      href={expense.imageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600"
+                    >
+                      <Receipt className="h-4 w-4" />
+                    </a>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(expense.id)}
+                  >
+                    <Trash2 className="h-4 w-4 text-red-600" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
+
+      {/* Desktop table */}
+      <Card className="hidden md:block">
         <CardContent className="p-0">
           <Table>
             <TableHeader>

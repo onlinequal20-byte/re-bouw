@@ -52,12 +52,51 @@ export default async function KlantenPage() {
         <Link href="/klanten/nieuw">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Nieuwe Klant
+            <span className="hidden sm:inline">Nieuwe Klant</span>
+            <span className="sm:hidden">Nieuw</span>
           </Button>
         </Link>
       </div>
 
-      <Card>
+      {/* Mobile card view */}
+      <div className="space-y-3 md:hidden">
+        {klanten.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <Users className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+              <p className="text-muted-foreground font-medium">Geen klanten gevonden</p>
+              <p className="text-sm text-muted-foreground/60 mt-1">Voeg je eerste klant toe om te beginnen</p>
+            </CardContent>
+          </Card>
+        ) : (
+          klanten.map((klant) => {
+            const winst = klant.totaalFacturen - klant.totaalExpenses;
+            return (
+              <Link key={klant.id} href={`/klanten/${klant.id}`}>
+                <Card className="active:scale-[0.98] transition-transform">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium">{klant.naam}</p>
+                        <p className="text-sm text-muted-foreground">{klant.plaats || "—"}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm text-green-600 font-medium">{formatCurrency(klant.totaalFacturen)}</p>
+                        <p className={`text-sm font-bold ${winst >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                          {formatCurrency(winst)}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })
+        )}
+      </div>
+
+      {/* Desktop table */}
+      <Card className="hidden md:block">
         <CardHeader>
           <CardTitle>Alle Klanten</CardTitle>
           <CardDescription>
@@ -114,16 +153,6 @@ export default async function KlantenPage() {
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
-                          {/* 
-                          <Link href={`/klanten/${klant.id}/bewerken`}>
-                            <Button variant="ghost" size="icon">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </Link>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                          */}
                         </div>
                       </TableCell>
                     </TableRow>
