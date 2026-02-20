@@ -64,7 +64,7 @@ export default async function ProjectDetailPage({
   const openstaand = totaalFacturen - totaalBetaald;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 md:space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/projecten">
@@ -73,7 +73,7 @@ export default async function ProjectDetailPage({
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-xl md:text-3xl font-bold tracking-tight">
               {project.projectNummer}
             </h1>
             <p className="text-muted-foreground">{project.naam}</p>
@@ -85,13 +85,13 @@ export default async function ProjectDetailPage({
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Offertes</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totaalOffertes)}</div>
+            <div className="text-lg md:text-2xl font-bold">{formatCurrency(totaalOffertes)}</div>
             <p className="text-xs text-muted-foreground">{project.offertes.length} offerte(s)</p>
           </CardContent>
         </Card>
@@ -100,7 +100,7 @@ export default async function ProjectDetailPage({
             <CardTitle className="text-sm font-medium text-muted-foreground">Gefactureerd</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{formatCurrency(totaalFacturen)}</div>
+            <div className="text-lg md:text-2xl font-bold text-green-600">{formatCurrency(totaalFacturen)}</div>
             <p className="text-xs text-muted-foreground">{project.facturen.length} factuur/facturen</p>
           </CardContent>
         </Card>
@@ -109,7 +109,7 @@ export default async function ProjectDetailPage({
             <CardTitle className="text-sm font-medium text-muted-foreground">Openstaand</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${openstaand > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+            <div className={`text-lg md:text-2xl font-bold ${openstaand > 0 ? 'text-orange-600' : 'text-green-600'}`}>
               {formatCurrency(openstaand)}
             </div>
             <p className="text-xs text-muted-foreground">Nog te ontvangen</p>
@@ -120,7 +120,7 @@ export default async function ProjectDetailPage({
             <CardTitle className="text-sm font-medium text-muted-foreground">Kosten</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{formatCurrency(totaalKosten)}</div>
+            <div className="text-lg md:text-2xl font-bold text-red-600">{formatCurrency(totaalKosten)}</div>
             <p className="text-xs text-muted-foreground">{project.expenses.length} uitgave(n)</p>
           </CardContent>
         </Card>
@@ -129,7 +129,7 @@ export default async function ProjectDetailPage({
             <CardTitle className="text-sm font-medium text-muted-foreground">Winst</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${winst >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+            <div className={`text-lg md:text-2xl font-bold ${winst >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
               {formatCurrency(winst)}
             </div>
             <p className="text-xs text-muted-foreground">Gefactureerd - Kosten</p>
@@ -180,34 +180,58 @@ export default async function ProjectDetailPage({
           {project.offertes.length === 0 ? (
             <p className="text-muted-foreground text-center py-4">Geen offertes gekoppeld</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nummer</TableHead>
-                  <TableHead>Datum</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Totaal</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              <div className="md:hidden space-y-3">
                 {project.offertes.map((offerte) => (
-                  <TableRow key={offerte.id}>
-                    <TableCell>
-                      <Link href={`/offertes/${offerte.id}`} className="text-blue-600 hover:underline font-mono text-sm">
-                        {offerte.offerteNummer}
-                      </Link>
-                    </TableCell>
-                    <TableCell>{formatDate(offerte.datum)}</TableCell>
-                    <TableCell>
-                      <Badge variant={offerte.status === "Geaccepteerd" ? "success" : offerte.status === "Afgewezen" ? "destructive" : "secondary"}>
-                        {offerte.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-medium">{formatCurrency(offerte.totaal)}</TableCell>
-                  </TableRow>
+                  <Link key={offerte.id} href={`/offertes/${offerte.id}`}>
+                    <Card className="hover:bg-muted/50 transition-colors">
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="font-mono text-sm">{offerte.offerteNummer}</p>
+                          <Badge variant={offerte.status === "Geaccepteerd" ? "success" : offerte.status === "Afgewezen" ? "destructive" : "secondary"}>
+                            {offerte.status}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-muted-foreground">{formatDate(offerte.datum)}</p>
+                          <p className="font-medium">{formatCurrency(offerte.totaal)}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nummer</TableHead>
+                      <TableHead>Datum</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Totaal</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {project.offertes.map((offerte) => (
+                      <TableRow key={offerte.id}>
+                        <TableCell>
+                          <Link href={`/offertes/${offerte.id}`} className="text-blue-600 hover:underline font-mono text-sm">
+                            {offerte.offerteNummer}
+                          </Link>
+                        </TableCell>
+                        <TableCell>{formatDate(offerte.datum)}</TableCell>
+                        <TableCell>
+                          <Badge variant={offerte.status === "Geaccepteerd" ? "success" : offerte.status === "Afgewezen" ? "destructive" : "secondary"}>
+                            {offerte.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right font-medium">{formatCurrency(offerte.totaal)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
@@ -224,36 +248,60 @@ export default async function ProjectDetailPage({
           {project.facturen.length === 0 ? (
             <p className="text-muted-foreground text-center py-4">Geen facturen gekoppeld</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nummer</TableHead>
-                  <TableHead>Datum</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Totaal</TableHead>
-                  <TableHead className="text-right">Betaald</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              <div className="md:hidden space-y-3">
                 {project.facturen.map((factuur) => (
-                  <TableRow key={factuur.id}>
-                    <TableCell>
-                      <Link href={`/facturen/${factuur.id}`} className="text-blue-600 hover:underline font-mono text-sm">
-                        {factuur.factuurNummer}
-                      </Link>
-                    </TableCell>
-                    <TableCell>{formatDate(factuur.datum)}</TableCell>
-                    <TableCell>
-                      <Badge variant={factuur.status === "Betaald" ? "success" : factuur.status === "Achterstallig" ? "destructive" : "default"}>
-                        {factuur.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-medium">{formatCurrency(factuur.totaal)}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(factuur.betaaldBedrag)}</TableCell>
-                  </TableRow>
+                  <Link key={factuur.id} href={`/facturen/${factuur.id}`}>
+                    <Card className="hover:bg-muted/50 transition-colors">
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="font-mono text-sm">{factuur.factuurNummer}</p>
+                          <Badge variant={factuur.status === "Betaald" ? "success" : factuur.status === "Achterstallig" ? "destructive" : "default"}>
+                            {factuur.status}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-muted-foreground">{formatDate(factuur.datum)}</p>
+                          <p className="font-medium">{formatCurrency(factuur.totaal)}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nummer</TableHead>
+                      <TableHead>Datum</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Totaal</TableHead>
+                      <TableHead className="text-right">Betaald</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {project.facturen.map((factuur) => (
+                      <TableRow key={factuur.id}>
+                        <TableCell>
+                          <Link href={`/facturen/${factuur.id}`} className="text-blue-600 hover:underline font-mono text-sm">
+                            {factuur.factuurNummer}
+                          </Link>
+                        </TableCell>
+                        <TableCell>{formatDate(factuur.datum)}</TableCell>
+                        <TableCell>
+                          <Badge variant={factuur.status === "Betaald" ? "success" : factuur.status === "Achterstallig" ? "destructive" : "default"}>
+                            {factuur.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right font-medium">{formatCurrency(factuur.totaal)}</TableCell>
+                        <TableCell className="text-right">{formatCurrency(factuur.betaaldBedrag)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
@@ -270,26 +318,46 @@ export default async function ProjectDetailPage({
           {project.expenses.length === 0 ? (
             <p className="text-muted-foreground text-center py-4">Geen kosten gekoppeld</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Datum</TableHead>
-                  <TableHead>Omschrijving</TableHead>
-                  <TableHead>Categorie</TableHead>
-                  <TableHead className="text-right">Bedrag</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              <div className="md:hidden space-y-3">
                 {project.expenses.map((expense) => (
-                  <TableRow key={expense.id}>
-                    <TableCell>{formatDate(expense.datum)}</TableCell>
-                    <TableCell>{expense.omschrijving}</TableCell>
-                    <TableCell>{expense.categorie}</TableCell>
-                    <TableCell className="text-right font-medium">{formatCurrency(expense.totaalBedrag)}</TableCell>
-                  </TableRow>
+                  <Card key={expense.id}>
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="font-medium text-sm">{expense.omschrijving}</p>
+                        <p className="font-medium">{formatCurrency(expense.totaalBedrag)}</p>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-muted-foreground">{expense.categorie}</p>
+                        <p className="text-xs text-muted-foreground">{formatDate(expense.datum)}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Datum</TableHead>
+                      <TableHead>Omschrijving</TableHead>
+                      <TableHead>Categorie</TableHead>
+                      <TableHead className="text-right">Bedrag</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {project.expenses.map((expense) => (
+                      <TableRow key={expense.id}>
+                        <TableCell>{formatDate(expense.datum)}</TableCell>
+                        <TableCell>{expense.omschrijving}</TableCell>
+                        <TableCell>{expense.categorie}</TableCell>
+                        <TableCell className="text-right font-medium">{formatCurrency(expense.totaalBedrag)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

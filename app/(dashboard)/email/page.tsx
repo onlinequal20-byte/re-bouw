@@ -218,11 +218,11 @@ export default function EmailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 md:space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Email Beheer</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl md:text-3xl font-bold tracking-tight">Email Beheer</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Bekijk verzonden emails en beheer Zoho instellingen
           </p>
         </div>
@@ -251,7 +251,7 @@ export default function EmailPage() {
           {/* Search and Filter */}
           <Card>
             <CardContent className="pt-6">
-              <div className="flex gap-4">
+              <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -261,7 +261,7 @@ export default function EmailPage() {
                     className="pl-10"
                   />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button
                     variant={filterType === "all" ? "default" : "outline"}
                     onClick={() => setFilterType("all")}
@@ -274,16 +274,16 @@ export default function EmailPage() {
                     onClick={() => setFilterType("offerte")}
                     size="sm"
                   >
-                    <FileText className="mr-2 h-4 w-4" />
-                    Offertes
+                    <FileText className="md:mr-2 h-4 w-4" />
+                    <span className="hidden md:inline">Offertes</span>
                   </Button>
                   <Button
                     variant={filterType === "factuur" ? "default" : "outline"}
                     onClick={() => setFilterType("factuur")}
                     size="sm"
                   >
-                    <Receipt className="mr-2 h-4 w-4" />
-                    Facturen
+                    <Receipt className="md:mr-2 h-4 w-4" />
+                    <span className="hidden md:inline">Facturen</span>
                   </Button>
                   <Button
                     variant="outline"
@@ -319,60 +319,86 @@ export default function EmailPage() {
                   </p>
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-24">Type</TableHead>
-                      <TableHead>Document</TableHead>
-                      <TableHead>Ontvanger</TableHead>
-                      <TableHead>Onderwerp</TableHead>
-                      <TableHead>Datum</TableHead>
-                      <TableHead className="w-24">Status</TableHead>
-                      <TableHead className="w-20"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                <>
+                  {/* Mobile Card View */}
+                  <div className="md:hidden space-y-3">
                     {filteredEmails.map((email) => (
-                      <TableRow key={email.id}>
-                        <TableCell>
-                          <Badge variant={email.type === "offerte" ? "default" : "secondary"}>
-                            {email.type === "offerte" ? (
-                              <FileText className="h-3 w-3 mr-1" />
-                            ) : (
-                              <Receipt className="h-3 w-3 mr-1" />
-                            )}
-                            {email.type}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-medium">{email.documentNummer}</TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{email.recipientName}</p>
-                            <p className="text-sm text-muted-foreground">{email.recipient}</p>
+                      <Card key={email.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => setSelectedEmail(email)}>
+                        <CardContent className="p-3">
+                          <div className="flex items-center justify-between mb-1">
+                            <Badge variant={email.type === "offerte" ? "default" : "secondary"} className="text-xs">
+                              {email.type}
+                            </Badge>
+                            <Badge variant={email.status === "verzonden" ? "success" : "destructive"} className="text-xs">
+                              {email.status}
+                            </Badge>
                           </div>
-                        </TableCell>
-                        <TableCell className="max-w-xs truncate">{email.subject}</TableCell>
-                        <TableCell>{formatDate(new Date(email.sentAt))}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={email.status === "verzonden" ? "success" : "destructive"}
-                          >
-                            {email.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedEmail(email)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
+                          <p className="font-medium text-sm">{email.recipientName}</p>
+                          <p className="text-xs text-muted-foreground truncate">{email.subject}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{formatDate(new Date(email.sentAt))}</p>
+                        </CardContent>
+                      </Card>
                     ))}
-                  </TableBody>
-                </Table>
+                  </div>
+
+                  {/* Desktop Table View */}
+                  <div className="hidden md:block">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-24">Type</TableHead>
+                          <TableHead>Document</TableHead>
+                          <TableHead>Ontvanger</TableHead>
+                          <TableHead>Onderwerp</TableHead>
+                          <TableHead>Datum</TableHead>
+                          <TableHead className="w-24">Status</TableHead>
+                          <TableHead className="w-20"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredEmails.map((email) => (
+                          <TableRow key={email.id}>
+                            <TableCell>
+                              <Badge variant={email.type === "offerte" ? "default" : "secondary"}>
+                                {email.type === "offerte" ? (
+                                  <FileText className="h-3 w-3 mr-1" />
+                                ) : (
+                                  <Receipt className="h-3 w-3 mr-1" />
+                                )}
+                                {email.type}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="font-medium">{email.documentNummer}</TableCell>
+                            <TableCell>
+                              <div>
+                                <p className="font-medium">{email.recipientName}</p>
+                                <p className="text-sm text-muted-foreground">{email.recipient}</p>
+                              </div>
+                            </TableCell>
+                            <TableCell className="max-w-xs truncate">{email.subject}</TableCell>
+                            <TableCell>{formatDate(new Date(email.sentAt))}</TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={email.status === "verzonden" ? "success" : "destructive"}
+                              >
+                                {email.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedEmail(email)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>

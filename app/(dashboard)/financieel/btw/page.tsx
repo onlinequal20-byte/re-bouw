@@ -136,16 +136,16 @@ export default async function BtwOverzichtPage({
   const years = [currentYear - 2, currentYear - 1, currentYear, currentYear + 1];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 md:space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">BTW Overzicht</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-xl md:text-3xl font-bold tracking-tight">BTW Overzicht</h1>
+        <p className="text-sm md:text-base text-muted-foreground">
           Kwartaaloverzicht voor BTW aangifte
         </p>
       </div>
 
       {/* Year selector */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {years.map((y) => (
           <Link key={y} href={`/financieel/btw?jaar=${y}`}>
             <Button variant={y === jaar ? "default" : "outline"} size="sm">
@@ -166,30 +166,30 @@ export default async function BtwOverzichtPage({
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex justify-between">
-                  <span>Output BTW 21%</span>
-                  <span>{formatCurrency(qd.outputHoog21)}</span>
+                  <span className="text-sm">Output BTW 21%</span>
+                  <span className="text-sm">{formatCurrency(qd.outputHoog21)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Output BTW 9%</span>
-                  <span>{formatCurrency(qd.outputLaag9)}</span>
+                  <span className="text-sm">Output BTW 9%</span>
+                  <span className="text-sm">{formatCurrency(qd.outputLaag9)}</span>
                 </div>
                 {qd.outputVerlegd > 0 && (
                   <div className="flex justify-between">
-                    <span>BTW Verlegd</span>
-                    <span>{formatCurrency(qd.outputVerlegd)}</span>
+                    <span className="text-sm">BTW Verlegd</span>
+                    <span className="text-sm">{formatCurrency(qd.outputVerlegd)}</span>
                   </div>
                 )}
                 <div className="flex justify-between border-t pt-2">
-                  <span>Totaal verschuldigde BTW</span>
-                  <span>{formatCurrency(qd.totalOutput)}</span>
+                  <span className="text-sm">Totaal verschuldigde BTW</span>
+                  <span className="text-sm">{formatCurrency(qd.totalOutput)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Voorbelasting (input BTW)</span>
-                  <span>{formatCurrency(qd.inputBtw)}</span>
+                  <span className="text-sm">Voorbelasting (input BTW)</span>
+                  <span className="text-sm">{formatCurrency(qd.inputBtw)}</span>
                 </div>
                 <div className="flex justify-between border-t pt-2 font-bold">
-                  <span>Te betalen</span>
-                  <span>{formatCurrency(qd.teBetalen)}</span>
+                  <span className="text-sm">Te betalen</span>
+                  <span className="text-sm">{formatCurrency(qd.teBetalen)}</span>
                 </div>
               </CardContent>
             </Card>
@@ -233,15 +233,15 @@ export default async function BtwOverzichtPage({
       </Card>
 
       {/* Download buttons */}
-      <div className="flex gap-3">
+      <div className="flex flex-col md:flex-row gap-3">
         <Link href={`/api/financieel/btw/pdf?jaar=${jaar}`}>
-          <Button>
+          <Button className="w-full md:w-auto">
             <Download className="mr-2 h-4 w-4" />
             PDF Downloaden
           </Button>
         </Link>
         <Link href={`/api/financieel/btw/csv?jaar=${jaar}`}>
-          <Button variant="outline">
+          <Button variant="outline" className="w-full md:w-auto">
             <Download className="mr-2 h-4 w-4" />
             CSV Exporteren
           </Button>

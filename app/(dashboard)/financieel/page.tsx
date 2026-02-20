@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+export const revalidate = 30;
 import {
   Table,
   TableBody,
@@ -82,18 +84,18 @@ export default async function FinancieelPage({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 md:space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="text-xl md:text-3xl font-bold tracking-tight">
           Financieel Overzicht
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-sm md:text-base text-muted-foreground">
           Maandelijks overzicht van inkomsten en uitgaven
         </p>
       </div>
 
       {/* Year selector */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {jaren.map((j) => (
           <Link key={j} href={`/financieel?jaar=${j}`}>
             <Button variant={j === jaar ? "default" : "outline"} size="sm">
@@ -112,7 +114,7 @@ export default async function FinancieelPage({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-green-600">
+            <p className="text-lg md:text-2xl font-bold text-green-600">
               {formatCurrency(totaalInkomsten)}
             </p>
           </CardContent>
@@ -124,7 +126,7 @@ export default async function FinancieelPage({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-red-600">
+            <p className="text-lg md:text-2xl font-bold text-red-600">
               {formatCurrency(totaalUitgaven)}
             </p>
           </CardContent>
@@ -137,7 +139,7 @@ export default async function FinancieelPage({
           </CardHeader>
           <CardContent>
             <p
-              className={`text-2xl font-bold ${totaalWinst >= 0 ? "text-blue-600" : "text-red-600"}`}
+              className={`text-lg md:text-2xl font-bold ${totaalWinst >= 0 ? "text-blue-600" : "text-red-600"}`}
             >
               {formatCurrency(totaalWinst)}
             </p>
@@ -145,8 +147,58 @@ export default async function FinancieelPage({
         </Card>
       </div>
 
+      {/* Mobile card view */}
+      <div className="md:hidden space-y-3">
+        {maandData.map((m) => {
+          const winst = m.inkomsten - m.uitgaven;
+          return (
+            <Link key={m.maand} href={`/financieel/maand/${jaar}/${m.maand + 1}`}>
+              <Card className="hover:bg-muted/50 transition-colors">
+                <CardContent className="p-4">
+                  <p className="font-medium capitalize mb-2">{MAANDEN[m.maand]}</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Inkomsten</p>
+                      <p className="text-sm font-medium">{formatCurrency(m.inkomsten)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Uitgaven</p>
+                      <p className="text-sm font-medium">{formatCurrency(m.uitgaven)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Winst</p>
+                      <p className={`text-sm font-bold ${winst >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatCurrency(winst)}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          );
+        })}
+        {/* Mobile totals */}
+        <Card className="border-2">
+          <CardContent className="p-4">
+            <p className="font-bold mb-2">Totaal</p>
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <p className="text-xs text-muted-foreground">Inkomsten</p>
+                <p className="text-sm font-bold">{formatCurrency(totaalInkomsten)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Uitgaven</p>
+                <p className="text-sm font-bold">{formatCurrency(totaalUitgaven)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Winst</p>
+                <p className={`text-sm font-bold ${totaalWinst >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatCurrency(totaalWinst)}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Monthly table */}
-      <Card>
+      <Card className="hidden md:block">
         <CardHeader>
           <CardTitle>Maandoverzicht {jaar}</CardTitle>
         </CardHeader>

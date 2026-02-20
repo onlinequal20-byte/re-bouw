@@ -70,6 +70,11 @@ interface Project {
   naam: string;
 }
 
+interface Klant {
+  id: string;
+  naam: string;
+}
+
 function todayString() {
   const d = new Date();
   return d.toISOString().slice(0, 10);
@@ -78,6 +83,7 @@ function todayString() {
 export default function KostenPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [klanten, setKlanten] = useState<Klant[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -88,6 +94,7 @@ export default function KostenPage() {
   const [bedrag, setBedrag] = useState("");
   const [btwField, setBtwField] = useState("");
   const [projectId, setProjectId] = useState("none");
+  const [klantId, setKlantId] = useState("none");
   const [notities, setNotities] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
@@ -115,6 +122,7 @@ export default function KostenPage() {
   useEffect(() => {
     fetchExpenses();
     fetchProjects();
+    fetchKlanten();
   }, []);
 
   const fetchExpenses = async () => {
@@ -139,6 +147,16 @@ export default function KostenPage() {
     }
   };
 
+  const fetchKlanten = async () => {
+    try {
+      const response = await fetch("/api/klanten");
+      const data = await response.json();
+      setKlanten(data || []);
+    } catch (error) {
+      console.error("Error fetching klanten:", error);
+    }
+  };
+
   const resetForm = () => {
     setDatum(todayString());
     setCategorie("Materialen");
@@ -146,6 +164,7 @@ export default function KostenPage() {
     setBedrag("");
     setBtwField("");
     setProjectId("none");
+    setKlantId("none");
     setNotities("");
     setFile(null);
   };
@@ -200,6 +219,9 @@ export default function KostenPage() {
 
       if (projectId && projectId !== "none") {
         body.projectId = projectId;
+      }
+      if (klantId && klantId !== "none") {
+        body.klantId = klantId;
       }
 
       const res = await fetch("/api/expenses", {
@@ -414,8 +436,24 @@ export default function KostenPage() {
             </div>
           </div>
 
-          {/* Row 3: Project, Notities */}
-          <div className="grid gap-4 md:grid-cols-2">
+          {/* Row 3: Klant, Project, Notities */}
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="klant">Klant (optioneel)</Label>
+              <Select value={klantId} onValueChange={setKlantId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecteer een klant" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Geen klant</SelectItem>
+                  {klanten.map((k) => (
+                    <SelectItem key={k.id} value={k.id}>
+                      {k.naam}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="project">Project (optioneel)</Label>
               <Select value={projectId} onValueChange={setProjectId}>

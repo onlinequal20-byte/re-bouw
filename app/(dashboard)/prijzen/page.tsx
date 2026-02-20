@@ -40,11 +40,11 @@ export default async function PrijzenPage() {
   }, {} as Record<string, typeof prijslijst>);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 md:space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Prijslijst</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl md:text-3xl font-bold tracking-tight">Prijslijst</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Beheer uw standaard prijzen per categorie
           </p>
         </div>
@@ -61,51 +61,79 @@ export default async function PrijzenPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Omschrijving</TableHead>
-                    <TableHead className="text-right">Prijs per Eenheid</TableHead>
-                    <TableHead>Eenheid</TableHead>
-                    <TableHead className="text-right">Materiaalkosten</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Acties</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {items.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-medium">
-                        {item.omschrijving}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(item.prijsPerEenheid)}
-                      </TableCell>
-                      <TableCell>{item.eenheid}</TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(item.materiaalKosten)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={item.actief ? "success" : "secondary"}>
-                          {item.actief ? "Actief" : "Inactief"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex justify-end gap-2">
-                          <PriceDialog
-                            price={item}
-                            trigger={
-                              <Button variant="ghost" size="icon">
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                            }
-                          />
-                        </div>
-                      </TableCell>
+              {/* Mobile view */}
+              <div className="md:hidden space-y-3">
+                {items.map((item) => (
+                  <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{item.omschrijving}</p>
+                      <p className="text-sm text-muted-foreground">{formatCurrency(item.prijsPerEenheid)} / {item.eenheid}</p>
+                    </div>
+                    <div className="flex items-center gap-2 ml-2">
+                      <Badge variant={item.actief ? "success" : "secondary"} className="text-xs">
+                        {item.actief ? "Actief" : "Inactief"}
+                      </Badge>
+                      <PriceDialog
+                        price={item}
+                        trigger={
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        }
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop view */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Omschrijving</TableHead>
+                      <TableHead className="text-right">Prijs per Eenheid</TableHead>
+                      <TableHead>Eenheid</TableHead>
+                      <TableHead className="text-right">Materiaalkosten</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Acties</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {items.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="font-medium">
+                          {item.omschrijving}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {formatCurrency(item.prijsPerEenheid)}
+                        </TableCell>
+                        <TableCell>{item.eenheid}</TableCell>
+                        <TableCell className="text-right">
+                          {formatCurrency(item.materiaalKosten)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={item.actief ? "success" : "secondary"}>
+                            {item.actief ? "Actief" : "Inactief"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex justify-end gap-2">
+                            <PriceDialog
+                              price={item}
+                              trigger={
+                                <Button variant="ghost" size="icon">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              }
+                            />
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         ))}

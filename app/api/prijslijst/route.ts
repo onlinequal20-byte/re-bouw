@@ -24,7 +24,9 @@ export async function GET() {
       orderBy: [{ categorie: "asc" }, { omschrijving: "asc" }],
     });
 
-    return NextResponse.json(prijslijst);
+    return NextResponse.json(prijslijst, {
+      headers: { "Cache-Control": "private, max-age=60" },
+    });
   } catch (error) {
     console.error("Error fetching prijslijst:", error);
     return NextResponse.json(

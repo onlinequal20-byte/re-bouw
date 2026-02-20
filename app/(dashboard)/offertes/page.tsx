@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
+
+export const revalidate = 30;
 import {
   Card,
   CardContent,

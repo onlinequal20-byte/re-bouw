@@ -72,7 +72,9 @@ export async function GET(request: Request) {
       totalAmount: expenses.reduce((sum, exp) => sum + exp.totaalBedrag, 0),
     };
 
-    return NextResponse.json({ expenses, totals });
+    return NextResponse.json({ expenses, totals }, {
+      headers: { "Cache-Control": "private, max-age=10" },
+    });
   } catch (error: unknown) {
     return handleApiError(error, "ophalen van uitgaven");
   }
@@ -148,7 +150,7 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     // Validate required fields
-    const { datum, categorie, omschrijving, bedrag, btw, totaalBedrag, projectId, notities } = body;
+    const { datum, categorie, omschrijving, bedrag, btw, totaalBedrag, projectId, klantId, notities } = body;
 
     if (!omschrijving || bedrag === undefined || totaalBedrag === undefined) {
       return NextResponse.json({ error: "Omschrijving, bedrag en totaalbedrag zijn verplicht" }, { status: 400 });
@@ -168,6 +170,7 @@ export async function POST(request: Request) {
         btw: Math.round(Number(btw) || 0),
         totaalBedrag: Math.round(Number(totaalBedrag)),
         projectId: projectId || null,
+        klantId: klantId || null,
         notities: notities || null,
         status: "approved",
         uploadedVia: "web",

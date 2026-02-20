@@ -166,6 +166,8 @@ model OfferteItem {
   volgorde        Int
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([offerteId])
 }
 
 model Factuur {
@@ -228,6 +230,8 @@ model FactuurItem {
   volgorde        Int
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([factuurId])
 }
 
 model Settings {

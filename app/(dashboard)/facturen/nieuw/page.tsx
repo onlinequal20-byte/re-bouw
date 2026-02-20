@@ -13,7 +13,18 @@ import {
 import { ArrowLeft, FileText, PenLine, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
-import FactuurEditor from "@/components/factuur-editor/factuur-editor";
+import dynamic from "next/dynamic";
+
+const FactuurEditor = dynamic(
+  () => import("@/components/factuur-editor/factuur-editor"),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    ),
+  }
+);
 
 type View = "selection" | "offerte-picker" | "editor";
 

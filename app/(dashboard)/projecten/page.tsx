@@ -59,23 +59,68 @@ export default async function ProjectenPage() {
   const projecten = await getProjecten();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 md:space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Projecten</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl md:text-3xl font-bold tracking-tight">Projecten</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Beheer uw projecten en bekijk de voortgang
           </p>
         </div>
         <Link href="/projecten/nieuw">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Nieuw Project
+            <span className="hidden md:inline">Nieuw Project</span>
+            <span className="md:hidden">Nieuw</span>
           </Button>
         </Link>
       </div>
 
-      <Card>
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3">
+        {projecten.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center">
+              <FolderOpen className="h-10 w-10 mx-auto mb-3 text-muted-foreground/40" />
+              <p className="text-muted-foreground font-medium">Geen projecten gevonden</p>
+            </CardContent>
+          </Card>
+        ) : (
+          projecten.map((project) => {
+            const winst = project.totaalFacturen - project.totaalKosten;
+            return (
+              <Link key={project.id} href={`/projecten/${project.id}`}>
+                <Card className="hover:bg-muted/50 transition-colors">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <p className="font-medium">{project.naam}</p>
+                        <p className="text-sm text-muted-foreground">{project.klant.naam}</p>
+                      </div>
+                      <Badge variant={getStatusVariant(project.status)}>
+                        {project.status}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 mt-3">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Gefactureerd</p>
+                        <p className="text-sm font-medium text-green-600">{formatCurrency(project.totaalFacturen)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Winst</p>
+                        <p className={`text-sm font-bold ${winst >= 0 ? 'text-blue-600' : 'text-red-600'}`}>{formatCurrency(winst)}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <Card className="hidden md:block">
         <CardHeader>
           <CardTitle>Alle Projecten</CardTitle>
           <CardDescription>

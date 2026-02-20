@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/simple-auth";
 import { prisma } from "@/lib/prisma";
 import { klantCreateSchema } from "@/lib/validations/klant";
@@ -16,7 +17,9 @@ export async function GET() {
       orderBy: { naam: "asc" },
     });
 
-    return NextResponse.json(klanten);
+    return NextResponse.json(klanten, {
+      headers: { "Cache-Control": "private, max-age=30" },
+    });
   } catch (error: unknown) {
     return handleApiError(error, "klanten ophalen");
   }
@@ -54,6 +57,7 @@ export async function POST(request: Request) {
       },
     });
 
+    revalidatePath("/klanten");
     return NextResponse.json(klant, { status: 201 });
   } catch (error: unknown) {
     return handleApiError(error, "klant aanmaken");

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/simple-auth";
 import { prisma } from "@/lib/prisma";
 import { klantUpdateSchema } from "@/lib/validations/klant";
@@ -83,6 +84,8 @@ export async function PATCH(
       data: result.data,
     });
 
+    revalidatePath("/klanten");
+    revalidatePath(`/klanten/${id}`);
     return NextResponse.json(klant);
   } catch (error: unknown) {
     return handleApiError(error, "klant bijwerken");

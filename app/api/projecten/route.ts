@@ -29,7 +29,9 @@ export async function GET(request: Request) {
       },
     });
 
-    return NextResponse.json(projecten);
+    return NextResponse.json(projecten, {
+      headers: { "Cache-Control": "private, max-age=30" },
+    });
   } catch (error: unknown) {
     return handleApiError(error, "projecten ophalen");
   }
