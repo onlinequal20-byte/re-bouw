@@ -10,8 +10,10 @@ export const settingsSchema = z.object({
   website: z.string().optional(),
   iban: z.string().optional(),
   betalingsvoorwaarden: z.string().optional(),
-  zoho_email: z.string().email("Ongeldig e-mailadres").optional().or(z.literal("")),
-  zoho_password: z.string().optional(),
+  smtp_email: z.string().email("Ongeldig e-mailadres").optional().or(z.literal("")),
+  smtp_password: z.string().optional(),
+  smtp_host: z.string().optional(),
+  smtp_port: z.string().optional(),
   mollie_api_key: z.string().optional(),
 });
 

@@ -125,7 +125,7 @@ export async function POST(
           contentType: "application/pdf",
         },
         {
-          filename: "Algemene-Voorwaarden-AMS-Bouwers.txt",
+          filename: "Algemene-Voorwaarden-Re-Bouw.txt",
           content: avContent,
           contentType: "text/plain",
         },

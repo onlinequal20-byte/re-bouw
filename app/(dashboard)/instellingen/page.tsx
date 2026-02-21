@@ -46,8 +46,10 @@ export default function InstellingenPage() {
       website: "",
       iban: "",
       betalingsvoorwaarden: "",
-      zoho_email: "",
-      zoho_password: "",
+      smtp_email: "",
+      smtp_password: "",
+      smtp_host: "mail.re-bouw.nl",
+      smtp_port: "465",
       mollie_api_key: "",
     },
   });
@@ -118,9 +120,9 @@ export default function InstellingenPage() {
                 <Building2 className="mr-2 h-4 w-4" />
                 Bedrijfsgegevens
               </TabsTrigger>
-              <TabsTrigger value="zoho">
+              <TabsTrigger value="email">
                 <Mail className="mr-2 h-4 w-4" />
-                Zoho Mail
+                E-mail SMTP
               </TabsTrigger>
               <TabsTrigger value="mollie">
                 <CreditCard className="mr-2 h-4 w-4" />
@@ -258,27 +260,54 @@ export default function InstellingenPage() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="zoho">
+            <TabsContent value="email">
               <Card>
                 <CardHeader>
-                  <CardTitle>Zoho Mail Configuratie</CardTitle>
+                  <CardTitle>E-mail SMTP Configuratie</CardTitle>
                   <CardDescription>
-                    Configureer je Zoho Mail account voor het versturen van offertes en facturen
+                    Configureer je e-mail account voor het versturen van offertes en facturen
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="smtp_host"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>SMTP Server</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="mail.re-bouw.nl" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="smtp_port"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>SMTP Poort</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="465" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
                   <FormField
                     control={form.control}
-                    name="zoho_email"
+                    name="smtp_email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Zoho Email Adres</FormLabel>
+                        <FormLabel>E-mailadres</FormLabel>
                         <FormControl>
-                          <Input {...field} type="email" placeholder="jouw@email.com" />
+                          <Input {...field} type="email" placeholder="mail@re-bouw.nl" />
                         </FormControl>
-                        <FormDescription>
-                          Je volledige Zoho Mail emailadres
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -286,32 +315,17 @@ export default function InstellingenPage() {
 
                   <FormField
                     control={form.control}
-                    name="zoho_password"
+                    name="smtp_password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Zoho Wachtwoord of App Password</FormLabel>
+                        <FormLabel>Wachtwoord</FormLabel>
                         <FormControl>
                           <Input {...field} type="password" />
                         </FormControl>
-                        <FormDescription>
-                          Je Zoho Mail wachtwoord of een app-specific password
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
-                  <div className="rounded-lg bg-blue-50 p-4 text-sm">
-                    <h4 className="font-medium mb-2">ℹ️ Hoe configureer je Zoho Mail?</h4>
-                    <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
-                      <li>Log in op je Zoho Mail account</li>
-                      <li>Ga naar Account Settings → Security</li>
-                      <li>Schakel "Allow access to less secure apps" in (indien nodig)</li>
-                      <li>Of maak een App-Specific Password aan voor extra beveiliging</li>
-                      <li>Vul je email en wachtwoord/app-password hierboven in</li>
-                      <li>Klik op "Opslaan" onderaan de pagina</li>
-                    </ol>
-                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

@@ -254,7 +254,7 @@ export const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => {
             ) : (
               // Fallback if no logo provided (should not happen with new logic)
               <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#ffffff' }}>
-                AMS <Text style={{ color: '#f59e0b' }}>BOUWERS</Text>
+                RE <Text style={{ color: '#f59e0b' }}>BOUW</Text>
               </Text>
             )}
           </View>

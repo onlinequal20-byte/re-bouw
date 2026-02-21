@@ -59,8 +59,8 @@ export default function EmailPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
-  const [zohoEmail, setZohoEmail] = useState("");
-  const [zohoPassword, setZohoPassword] = useState("");
+  const [smtpEmail, setZohoEmail] = useState("");
+  const [smtpPassword, setZohoPassword] = useState("");
   const [isConfigured, setIsConfigured] = useState(false);
   
   // Inbox state
@@ -86,11 +86,11 @@ export default function EmailPage() {
       if (res.ok) {
         const settings = await res.json();
 
-        if (settings.zoho_email) {
-          setZohoEmail(settings.zoho_email);
+        if (settings.smtp_email) {
+          setZohoEmail(settings.smtp_email);
           setIsConfigured(true);
         }
-        if (settings.zoho_password) {
+        if (settings.smtp_password) {
           setZohoPassword("••••••••"); // Mask password
         }
       }
@@ -139,7 +139,7 @@ export default function EmailPage() {
   };
 
   const handleSave = async () => {
-    if (!zohoEmail || !zohoPassword || zohoPassword === "••••••••") {
+    if (!smtpEmail || !smtpPassword || smtpPassword === "••••••••") {
       toast({
         title: "Validatie fout",
         description: "Vul alle velden in",
@@ -155,8 +155,8 @@ export default function EmailPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          zoho_email: zohoEmail,
-          zoho_password: zohoPassword,
+          smtp_email: smtpEmail,
+          smtp_password: smtpPassword,
         }),
       });
 
@@ -164,7 +164,7 @@ export default function EmailPage() {
         setIsConfigured(true);
         toast({
           title: "Opgeslagen! ✅",
-          description: "Zoho Mail instellingen zijn bijgewerkt",
+          description: "E-mail SMTP instellingen zijn bijgewerkt",
         });
       } else {
         throw new Error("Opslaan mislukt");
@@ -184,7 +184,7 @@ export default function EmailPage() {
     if (!isConfigured) {
       toast({
         title: "Niet geconfigureerd",
-        description: "Configureer eerst je Zoho Mail instellingen",
+        description: "Configureer eerst je E-mail SMTP instellingen",
         variant: "destructive",
       });
       return;
@@ -196,7 +196,7 @@ export default function EmailPage() {
       // Send a test email to yourself
       toast({
         title: "Test Email",
-        description: "Zoho Mail is correct geconfigureerd! Je kunt nu emails versturen.",
+        description: "E-mail SMTP is correct geconfigureerd! Je kunt nu emails versturen.",
       });
     } catch (error) {
       toast({
@@ -412,7 +412,7 @@ export default function EmailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="h-5 w-5" />
-                Zoho Mail Status
+                E-mail SMTP Status
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -424,7 +424,7 @@ export default function EmailPage() {
                       <div>
                         <p className="font-semibold">Geconfigureerd</p>
                         <p className="text-sm text-muted-foreground">
-                          Email: {zohoEmail}
+                          Email: {smtpEmail}
                         </p>
                       </div>
                     </>
@@ -434,7 +434,7 @@ export default function EmailPage() {
                       <div>
                         <p className="font-semibold">Niet Geconfigureerd</p>
                         <p className="text-sm text-muted-foreground">
-                          Configureer je Zoho Mail om emails te versturen
+                          Configureer je E-mail SMTP om emails te versturen
                         </p>
                       </div>
                     </>
@@ -454,35 +454,35 @@ export default function EmailPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <SettingsIcon className="h-5 w-5" />
-            Zoho Mail Configuratie
+            E-mail SMTP Configuratie
           </CardTitle>
           <CardDescription>
-            Configureer je Zoho Mail SMTP instellingen
+            Configureer je E-mail SMTP SMTP instellingen
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="zoho-email">Zoho Email Adres</Label>
+            <Label htmlFor="smtp-email">E-mailadres</Label>
             <Input
-              id="zoho-email"
+              id="smtp-email"
               type="email"
-              placeholder="jouw@zohomail.com"
-              value={zohoEmail}
+              placeholder="mail@re-bouw.nl"
+              value={smtpEmail}
               onChange={(e) => setZohoEmail(e.target.value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="zoho-password">Wachtwoord / App-Specifiek Wachtwoord</Label>
+            <Label htmlFor="smtp-password">Wachtwoord / SMTP Wachtwoord</Label>
             <Input
-              id="zoho-password"
+              id="smtp-password"
               type="password"
               placeholder="••••••••"
-              value={zohoPassword}
+              value={smtpPassword}
               onChange={(e) => setZohoPassword(e.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              Voor extra beveiliging, gebruik een App-Specifiek Wachtwoord
+              Voor extra beveiliging, gebruik een SMTP Wachtwoord
             </p>
           </div>
 
@@ -577,8 +577,8 @@ export default function EmailPage() {
             <strong>3. Automatisch:</strong> PDF wordt bijgevoegd + Algemene Voorwaarden + Handtekening link
           </p>
           <p className="pt-2 text-xs text-muted-foreground">
-            💡 <strong>Tip:</strong> Gebruik een App-Specifiek Wachtwoord voor betere beveiliging.
-            Maak deze aan in je Zoho Mail instellingen.
+            💡 <strong>Tip:</strong> Gebruik een SMTP Wachtwoord voor betere beveiliging.
+            Maak deze aan in je E-mail SMTP instellingen.
           </p>
           </CardContent>
           </Card>

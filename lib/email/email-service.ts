@@ -14,11 +14,11 @@ interface EmailData {
 
 export async function sendEmail(data: EmailData) {
   try {
-    // Get Zoho settings from database
+    // Get email settings from database
     const settings = await prisma.settings.findMany({
       where: {
         key: {
-          in: ['zoho_email', 'zoho_password', 'email', 'bedrijfsnaam'],
+          in: ['smtp_email', 'smtp_password', 'smtp_host', 'smtp_port', 'email', 'bedrijfsnaam'],
         },
       },
     });
@@ -28,23 +28,25 @@ export async function sendEmail(data: EmailData) {
       return acc;
     }, {} as Record<string, string>);
 
-    const zohoEmail = settingsMap['zoho_email'];
-    const zohoPassword = settingsMap['zoho_password'];
+    const smtpEmail = settingsMap['smtp_email'];
+    const smtpPassword = settingsMap['smtp_password'];
+    const smtpHost = settingsMap['smtp_host'] || 'mail.re-bouw.nl';
+    const smtpPort = parseInt(settingsMap['smtp_port'] || '465');
     const fromEmail = settingsMap['email'] || 'info@re-bouw.nl';
     const fromName = settingsMap['bedrijfsnaam'] || 'Re-Bouw B.V.';
 
-    if (!zohoEmail || !zohoPassword) {
-      throw new Error('Zoho Mail credentials not configured');
+    if (!smtpEmail || !smtpPassword) {
+      throw new Error('SMTP email credentials not configured');
     }
 
-    // Create Zoho transporter
+    // Create SMTP transporter
     const transporter = nodemailer.createTransport({
-      host: 'smtp.zoho.eu', // or smtp.zoho.com for international
-      port: 465,
-      secure: true,
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpPort === 465,
       auth: {
-        user: zohoEmail,
-        pass: zohoPassword,
+        user: smtpEmail,
+        pass: smtpPassword,
       },
     });
 
@@ -52,7 +54,7 @@ export async function sendEmail(data: EmailData) {
     const htmlBody = generateHTMLEmail(data.body, data.subject, fromName);
 
     const info = await transporter.sendMail({
-      from: `"${fromName}" <${zohoEmail}>`,
+      from: `"${fromName}" <${smtpEmail}>`,
       to: data.to,
       bcc: fromEmail, // BCC to company email
       subject: data.subject,
