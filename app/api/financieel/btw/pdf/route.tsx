@@ -235,7 +235,7 @@ const BtwPDF: React.FC<{ data: BtwPDFData }> = ({ data }) => {
             RE <Text style={styles.headerAccent}>BOUW</Text>
           </Text>
           <Text style={styles.tagline}>
-            Uw betrouwbare partner voor bouw en renovatie
+            Vakmanschap in elke verbouwing
           </Text>
         </View>
 

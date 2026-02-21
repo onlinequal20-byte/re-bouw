@@ -258,7 +258,7 @@ export const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => {
               </Text>
             )}
           </View>
-          <Text style={styles.tagline}>Uw betrouwbare partner voor bouw en renovatie</Text>
+          <Text style={styles.tagline}>Vakmanschap in elke verbouwing</Text>
         </View>
 
         <View style={styles.contentContainer}>

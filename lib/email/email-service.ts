@@ -375,7 +375,7 @@ function generateHTMLEmail(textBody: string, subject: string, companyName: strin
                 <img src="${logoUrl}" alt="${companyName}" style="max-width: 200px; max-height: 80px; display: block;" />
               </div>
               <p style="margin: 0; color: #ffffff; font-size: 14px; opacity: 0.9;">
-                Uw betrouwbare partner voor bouw en renovatie
+                Vakmanschap in elke verbouwing
               </p>
             </td>
           </tr>
