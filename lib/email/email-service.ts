@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { prisma } from '@/lib/prisma';
+// Re-Bouw email service v2
 
 interface EmailData {
   to: string;
