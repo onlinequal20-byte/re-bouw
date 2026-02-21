@@ -76,9 +76,6 @@ export function generateOfferteEmail(offerte: any, baseUrl: string) {
   const signUrl = `${baseUrl}/ondertekenen/offerte/${offerte.id}`;
   const paymentUrl = `${baseUrl}/betalen/offerte/${offerte.id}`;
 
-  // Calculate prepayment amount (30% of total) — values are in cents
-  const prepaymentCents = Math.round(offerte.totaal * 0.3);
-
   const body = `Beste ${offerte.klant.naam},
 
 Naar aanleiding van ons bezoek en de opname ter plaatse hebben wij het genoegen u bijgaand onze offerte aan te bieden voor de werkzaamheden aan uw woning.
@@ -87,7 +84,6 @@ Naar aanleiding van ons bezoek en de opname ter plaatse hebben wij het genoegen 
 Offerte: ${offerte.offerteNummer}
 Project: ${offerte.projectNaam}
 Totaalbedrag: \u20AC ${(offerte.totaal / 100).toFixed(2).replace('.', ',')}
-Vooruitbetaling (30%): \u20AC ${(prepaymentCents / 100).toFixed(2).replace('.', ',')}
 Geldig tot: ${new Date(offerte.geldigTot).toLocaleDateString('nl-NL')}
 {{/INFO_BLOCK}}
 
@@ -99,16 +95,9 @@ U kunt deze offerte eenvoudig digitaal ondertekenen. Door te ondertekenen gaat u
 
 {{CTA}}${signUrl}|Offerte ondertekenen{{/CTA}}
 
-{{SECTION}}Vooruitbetaling met iDEAL{{/SECTION}}
+{{SECTION}}Aanbetaling{{/SECTION}}
 
-Na ondertekening kunt u direct 30% vooruitbetalen met iDEAL. Snel, veilig en zonder extra kosten. Na betaling kan het project direct starten.
-
-{{CTA}}${paymentUrl}|Direct betalen{{/CTA}}
-
-U kunt ook betalen via bankoverschrijving:
-IBAN: 
-t.n.v. Re-Bouw B.V.
-Onder vermelding van: ${offerte.offerteNummer} - Vooruitbetaling
+Na ondertekening ontvangt u een apart verzoek voor de aanbetaling. U kunt eenvoudig online betalen via iDEAL of per bankoverschrijving. De betalingsinstructies worden per e-mail naar u verstuurd.
 
 Mocht u vragen hebben of meer informatie wensen, neem dan gerust contact met ons op.
 
@@ -289,9 +278,6 @@ export function generateOfferteSignedConfirmationEmail(offerte: any, baseUrl: st
   const signedDate = new Date(offerte.klantGetekendOp);
   const datum = signedDate.toLocaleDateString('nl-NL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   const tijd = signedDate.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
-  const paymentUrl = `${baseUrl}/betalen/offerte/${offerte.id}`;
-  const prepaymentCents = Math.round(offerte.totaal * 0.3);
-
   const subject = `Bevestiging ondertekening: Offerte ${offerte.offerteNummer} - ${offerte.projectNaam}`;
   const body = `Beste ${offerte.klantNaam},
 
@@ -310,16 +296,9 @@ Tijdstip: ${tijd}
 
 Door het ondertekenen van deze offerte gaat u akkoord met onze algemene voorwaarden. De algemene voorwaarden zijn als bijlage meegestuurd bij de originele offerte.
 
-{{SECTION}}Vooruitbetaling (30%){{/SECTION}}
+{{SECTION}}Aanbetaling{{/SECTION}}
 
-Om het project in te plannen vragen wij een vooruitbetaling van 30% (\u20AC ${(prepaymentCents / 100).toFixed(2).replace('.', ',')}). U kunt eenvoudig en veilig betalen via iDEAL:
-
-{{CTA}}${paymentUrl}|Vooruitbetaling voldoen{{/CTA}}
-
-U kunt ook betalen via bankoverschrijving:
-IBAN: 
-t.n.v. Re-Bouw B.V.
-Onder vermelding van: ${offerte.offerteNummer} - Vooruitbetaling
+U ontvangt binnenkort een apart verzoek voor de aanbetaling per e-mail. U kunt dan eenvoudig online betalen via iDEAL of per bankoverschrijving.
 
 Wij nemen zo spoedig mogelijk contact met u op om de werkzaamheden in te plannen.
 
