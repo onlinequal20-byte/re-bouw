@@ -81,8 +81,8 @@ export function MobileSidebar() {
         <div className="flex h-16 items-center justify-center border-b border-white/10 px-4">
           <div className="relative w-40 h-10 bg-white rounded-lg px-2 py-1">
             <Image
-              src="/images/amsbouwers.logo.png"
-              alt="AMS Bouwers"
+              src="/images/rebouw-logo.png"
+              alt="Re-Bouw"
               fill
               className="object-contain p-0.5"
               priority

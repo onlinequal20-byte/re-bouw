@@ -232,7 +232,7 @@ const BtwPDF: React.FC<{ data: BtwPDFData }> = ({ data }) => {
         {/* Header Banner */}
         <View style={styles.headerBanner}>
           <Text style={styles.headerTitle}>
-            AMS <Text style={styles.headerAccent}>BOUWERS</Text>
+            RE <Text style={styles.headerAccent}>BOUW</Text>
           </Text>
           <Text style={styles.tagline}>
             Uw betrouwbare partner voor bouw en renovatie
@@ -409,7 +409,7 @@ export async function GET(request: Request) {
   const getSetting = (key: string) =>
     settings.find((s) => s.key === key)?.value || "";
   const companyInfo = {
-    naam: getSetting("company_name") || "AMS Bouwers",
+    naam: getSetting("company_name") || "Re-Bouw",
     adres: getSetting("company_address") || "",
     kvk: getSetting("company_kvk") || "",
     btw: getSetting("company_btw") || "",

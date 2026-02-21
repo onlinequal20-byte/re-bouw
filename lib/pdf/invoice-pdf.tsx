@@ -1,7 +1,7 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
 
-// Create modern styles with AMS Bouwers branding
+// Create modern styles with Re-Bouw branding
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',

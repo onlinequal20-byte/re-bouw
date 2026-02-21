@@ -60,7 +60,7 @@ export async function POST(
     // Send confirmation email to client
     if (updated.klant?.email) {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://dashboard.amsbouwers.nl';
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://dashboard.re-bouw.nl';
         const { subject, body } = generateOfferteSignedConfirmationEmail(updated, baseUrl);
         await sendEmail({ to: updated.klant.email, subject, body });
 

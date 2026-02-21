@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "AMS Bouwers B.V. - Dashboard",
+  title: "Re-Bouw B.V. - Dashboard",
   description: "Offerte en Factuur Beheer Systeem",
   icons: {
     icon: [

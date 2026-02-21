@@ -102,7 +102,7 @@ export function EmailButton({ id, type, clientEmail, disabled }: EmailButtonProp
               <strong>Ontvanger:</strong> {clientEmail}
             </p>
             <p className="text-sm mt-2">
-              De {type} wordt als PDF bijlage meegestuurd en een kopie wordt gestuurd naar info@amsbouwers.nl
+              De {type} wordt als PDF bijlage meegestuurd en een kopie wordt gestuurd naar info@re-bouw.nl
             </p>
           </div>
           <div className="flex justify-end gap-2">

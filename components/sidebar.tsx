@@ -50,8 +50,8 @@ export function Sidebar() {
       <div className="flex h-16 items-center justify-center border-b border-white/10 px-4">
         <div className="relative w-48 h-12 bg-white rounded-lg px-3 py-2">
           <Image
-            src="/images/amsbouwers.logo.png"
-            alt="AMS Bouwers"
+            src="/images/rebouw-logo.png"
+            alt="Re-Bouw"
             fill
             className="object-contain p-1"
             priority
@@ -95,7 +95,7 @@ export function Sidebar() {
         </Button>
         <div className="mt-4 px-2">
           <p className="text-xs text-gray-500 text-center">
-            &copy; {new Date().getFullYear()} AMS Bouwers
+            &copy; {new Date().getFullYear()} Re-Bouw
           </p>
         </div>
       </div>

@@ -103,7 +103,7 @@ export default function PreviewPanel({
                 OFFERTE
               </h1>
               <span className="text-sm font-medium text-gray-500">
-                AMS Bouwers
+                Re-Bouw
               </span>
             </div>
             <div className="h-1 bg-amber-500 rounded-full" />

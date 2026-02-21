@@ -122,7 +122,7 @@ export default function PublicBetaalPage() {
             Factuur Betalen
           </h1>
           <p className="text-gray-600">
-            AMS Bouwers B.V.
+            Re-Bouw B.V.
           </p>
         </div>
 
@@ -256,9 +256,9 @@ export default function PublicBetaalPage() {
                 <div className="bg-gray-50 rounded-lg p-3 text-sm">
                   <div className="grid grid-cols-2 gap-2">
                     <span className="text-gray-600">IBAN:</span>
-                    <span className="font-mono">NL91 ABNA 0417 1643 00</span>
+                    <span className="font-mono"></span>
                     <span className="text-gray-600">T.n.v.:</span>
-                    <span>AMS Bouwers B.V.</span>
+                    <span>Re-Bouw B.V.</span>
                     <span className="text-gray-600">Onder vermelding van:</span>
                     <span className="font-medium">{factuur.factuurNummer}</span>
                   </div>
@@ -273,11 +273,11 @@ export default function PublicBetaalPage() {
           <p>Vragen over deze factuur?</p>
           <p className="mt-1">
             Neem contact op via{" "}
-            <a href="mailto:info@amsbouwers.nl" className="text-blue-600 hover:underline">
-              info@amsbouwers.nl
+            <a href="mailto:info@re-bouw.nl" className="text-blue-600 hover:underline">
+              info@re-bouw.nl
             </a>{" "}
             of{" "}
-            <a href="tel:0642959565" className="text-blue-600 hover:underline">
+            <a href="tel:0614601517" className="text-blue-600 hover:underline">
               06-42959565
             </a>
           </p>

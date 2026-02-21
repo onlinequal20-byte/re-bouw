@@ -9,11 +9,11 @@ async function main() {
   // Create admin user
   const hashedPassword = await bcrypt.hash('Sharifi_1967', 10);
   const user = await prisma.user.upsert({
-    where: { email: 'nader@amsbouwers.nl' },
+    where: { email: 'ramin@re-bouw.nl' },
     update: {},
     create: {
-      email: 'nader@amsbouwers.nl',
-      name: 'Nader Sharifi',
+      email: 'ramin@re-bouw.nl',
+      name: 'Ramin',
       password: hashedPassword,
     },
   });
@@ -808,13 +808,13 @@ async function main() {
   await prisma.settings.upsert({
     where: { key: 'bedrijfsnaam' },
     update: {},
-    create: { key: 'bedrijfsnaam', value: 'AMS Bouwers B.V.' },
+    create: { key: 'bedrijfsnaam', value: 'Re-Bouw B.V.' },
   });
 
   await prisma.settings.upsert({
     where: { key: 'kvk_nummer' },
     update: {},
-    create: { key: 'kvk_nummer', value: '80195466' },
+    create: { key: 'kvk_nummer', value: '60443162' },
   });
 
   await prisma.settings.upsert({
@@ -826,31 +826,31 @@ async function main() {
   await prisma.settings.upsert({
     where: { key: 'adres' },
     update: {},
-    create: { key: 'adres', value: 'Sloterweg 1160, 1066 CV Amsterdam' },
+    create: { key: 'adres', value: '' },
   });
 
   await prisma.settings.upsert({
     where: { key: 'telefoon' },
     update: {},
-    create: { key: 'telefoon', value: '0642959565' },
+    create: { key: 'telefoon', value: '0614601517' },
   });
 
   await prisma.settings.upsert({
     where: { key: 'email' },
     update: {},
-    create: { key: 'email', value: 'info@amsbouwers.nl' },
+    create: { key: 'email', value: 'info@re-bouw.nl' },
   });
 
   await prisma.settings.upsert({
     where: { key: 'website' },
     update: {},
-    create: { key: 'website', value: 'amsbouwers.nl' },
+    create: { key: 'website', value: 're-bouw.nl' },
   });
 
   await prisma.settings.upsert({
     where: { key: 'iban' },
     update: {},
-    create: { key: 'iban', value: 'NL91ABNA0417164300' },
+    create: { key: 'iban', value: '' },
   });
 
   await prisma.settings.upsert({
@@ -868,7 +868,7 @@ async function main() {
     create: {
       key: 'email_handtekening',
       value:
-        'Met vriendelijke groet,\n\nAMS Bouwers B.V.\nSloterweg 1160\n1066 CV Amsterdam\nTel: 0642959565\nEmail: info@amsbouwers.nl\nWeb: amsbouwers.nl\n\nKVK: 80195466\nBTW: NL123456789B01',
+        'Met vriendelijke groet,\n\nRe-Bouw B.V.\n\n\nTel: 0614601517\nEmail: info@re-bouw.nl\nWeb: re-bouw.nl\n\nKVK: 60443162\nBTW: NL123456789B01',
     },
   });
 

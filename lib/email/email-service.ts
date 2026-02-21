@@ -30,8 +30,8 @@ export async function sendEmail(data: EmailData) {
 
     const zohoEmail = settingsMap['zoho_email'];
     const zohoPassword = settingsMap['zoho_password'];
-    const fromEmail = settingsMap['email'] || 'info@amsbouwers.nl';
-    const fromName = settingsMap['bedrijfsnaam'] || 'AMS Bouwers B.V.';
+    const fromEmail = settingsMap['email'] || 'info@re-bouw.nl';
+    const fromName = settingsMap['bedrijfsnaam'] || 'Re-Bouw B.V.';
 
     if (!zohoEmail || !zohoPassword) {
       throw new Error('Zoho Mail credentials not configured');
@@ -104,14 +104,14 @@ Na ondertekening kunt u direct 30% vooruitbetalen met iDEAL. Snel, veilig en zon
 {{CTA}}${paymentUrl}|Direct betalen{{/CTA}}
 
 U kunt ook betalen via bankoverschrijving:
-IBAN: NL91ABNA0417164300
-t.n.v. AMS Bouwers B.V.
+IBAN: 
+t.n.v. Re-Bouw B.V.
 Onder vermelding van: ${offerte.offerteNummer} - Vooruitbetaling
 
 Mocht u vragen hebben of meer informatie wensen, neem dan gerust contact met ons op.
 
 Met vriendelijke groet,
-AMS Bouwers B.V.`;
+Re-Bouw B.V.`;
 
   return { subject, body };
 }
@@ -135,7 +135,7 @@ Geldig tot: ${new Date(offerte.geldigTot).toLocaleDateString('nl-NL')}
 Mocht u vragen hebben of meer informatie wensen, neem dan gerust contact met ons op.
 
 Met vriendelijke groet,
-AMS Bouwers B.V.`;
+Re-Bouw B.V.`;
 
   return { subject, body };
 }
@@ -167,8 +167,8 @@ U kunt deze factuur eenvoudig en veilig online betalen. Directe bevestiging, gee
 {{CTA}}${paymentUrl}|Factuur betalen{{/CTA}}
 
 U kunt ook betalen via bankoverschrijving:
-IBAN: NL91ABNA0417164300
-t.n.v. AMS Bouwers B.V.
+IBAN: 
+t.n.v. Re-Bouw B.V.
 Onder vermelding van: ${factuur.factuurNummer}
 
 ` : ''}{{SECTION}}Digitaal ondertekenen (optioneel){{/SECTION}}
@@ -180,7 +180,7 @@ U kunt deze factuur desgewenst digitaal ondertekenen ter bevestiging.
 Mocht u vragen hebben, neem dan gerust contact met ons op.
 
 Met vriendelijke groet,
-AMS Bouwers B.V.`;
+Re-Bouw B.V.`;
 
   return { subject, body };
 }
@@ -211,14 +211,14 @@ Vervaldatum: ${vervaldatum}
 {{CTA}}${paymentUrl}|Direct betalen{{/CTA}}
 
 U kunt ook betalen via bankoverschrijving:
-IBAN: NL91ABNA0417164300
-t.n.v. AMS Bouwers B.V.
+IBAN: 
+t.n.v. Re-Bouw B.V.
 Onder vermelding van: ${factuur.factuurNummer}
 
 Mocht de betaling reeds onderweg zijn, dan kunt u deze herinnering als niet verzonden beschouwen.
 
 Met vriendelijke groet,
-AMS Bouwers B.V.`;
+Re-Bouw B.V.`;
 
     return { subject, body };
   }
@@ -241,14 +241,14 @@ Wij verzoeken u het openstaande bedrag binnen 7 dagen te voldoen.
 {{CTA}}${paymentUrl}|Direct betalen{{/CTA}}
 
 U kunt ook betalen via bankoverschrijving:
-IBAN: NL91ABNA0417164300
-t.n.v. AMS Bouwers B.V.
+IBAN: 
+t.n.v. Re-Bouw B.V.
 Onder vermelding van: ${factuur.factuurNummer}
 
 Mocht u vragen hebben over deze factuur, neem dan zo spoedig mogelijk contact met ons op.
 
 Met vriendelijke groet,
-AMS Bouwers B.V.`;
+Re-Bouw B.V.`;
 
     return { subject, body };
   }
@@ -271,14 +271,14 @@ Wij verzoeken u dringend het openstaande bedrag binnen 5 werkdagen te voldoen. I
 {{CTA}}${paymentUrl}|Direct betalen{{/CTA}}
 
 U kunt ook betalen via bankoverschrijving:
-IBAN: NL91ABNA0417164300
-t.n.v. AMS Bouwers B.V.
+IBAN: 
+t.n.v. Re-Bouw B.V.
 Onder vermelding van: ${factuur.factuurNummer}
 
 Voor vragen kunt u contact opnemen via onderstaande gegevens.
 
 Met vriendelijke groet,
-AMS Bouwers B.V.`;
+Re-Bouw B.V.`;
 
   return { subject, body };
 }
@@ -315,23 +315,23 @@ Om het project in te plannen vragen wij een vooruitbetaling van 30% (\u20AC ${(p
 {{CTA}}${paymentUrl}|Vooruitbetaling voldoen{{/CTA}}
 
 U kunt ook betalen via bankoverschrijving:
-IBAN: NL91ABNA0417164300
-t.n.v. AMS Bouwers B.V.
+IBAN: 
+t.n.v. Re-Bouw B.V.
 Onder vermelding van: ${offerte.offerteNummer} - Vooruitbetaling
 
 Wij nemen zo spoedig mogelijk contact met u op om de werkzaamheden in te plannen.
 
 Met vriendelijke groet,
-AMS Bouwers B.V.`;
+Re-Bouw B.V.`;
 
   return { subject, body };
 }
 
 // Generate professional HTML email template
 function generateHTMLEmail(textBody: string, subject: string, companyName: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://amsbouwers.nl';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://re-bouw.nl';
   const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-  const logoUrl = `${cleanBaseUrl}/images/amsbouwers.logo.png`;
+  const logoUrl = `${cleanBaseUrl}/images/rebouw-logo.png`;
 
   // Process special template tags into HTML
   let htmlContent = textBody;
@@ -419,17 +419,17 @@ function generateHTMLEmail(textBody: string, subject: string, companyName: strin
                 </tr>
                 <tr>
                   <td style="text-align: center; color: #666666; font-size: 13px; line-height: 1.6;">
-                    <p style="margin: 5px 0;">Sloterweg 1160, 1066 CV Amsterdam</p>
-                    <p style="margin: 5px 0;"><a href="tel:0642959565" style="color: #f59e0b; text-decoration: none;">0642959565</a></p>
-                    <p style="margin: 5px 0;"><a href="mailto:info@amsbouwers.nl" style="color: #f59e0b; text-decoration: none;">info@amsbouwers.nl</a></p>
-                    <p style="margin: 5px 0;"><a href="https://amsbouwers.nl" style="color: #f59e0b; text-decoration: none;">amsbouwers.nl</a></p>
+                    <p style="margin: 5px 0;"></p>
+                    <p style="margin: 5px 0;"><a href="tel:0614601517" style="color: #f59e0b; text-decoration: none;">0614601517</a></p>
+                    <p style="margin: 5px 0;"><a href="mailto:info@re-bouw.nl" style="color: #f59e0b; text-decoration: none;">info@re-bouw.nl</a></p>
+                    <p style="margin: 5px 0;"><a href="https://re-bouw.nl" style="color: #f59e0b; text-decoration: none;">re-bouw.nl</a></p>
                   </td>
                 </tr>
                 <tr>
                   <td style="text-align: center; padding-top: 20px; border-top: 1px solid #e0e0e0; margin-top: 20px;">
-                    <p style="margin: 5px 0; color: #999999; font-size: 12px;">KVK: 80195466 | BTW: NL123456789B01</p>
+                    <p style="margin: 5px 0; color: #999999; font-size: 12px;">KVK: 60443162 | BTW: NL123456789B01</p>
                     <p style="margin: 10px 0 0 0; color: #999999; font-size: 11px;">
-                      &copy; ${new Date().getFullYear()} AMS Bouwers B.V. Alle rechten voorbehouden.
+                      &copy; ${new Date().getFullYear()} Re-Bouw B.V. Alle rechten voorbehouden.
                     </p>
                   </td>
                 </tr>

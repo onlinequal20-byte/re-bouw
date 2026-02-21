@@ -104,8 +104,8 @@ export default async function PublicOffertePaymentPage({
               />
               <div className="text-sm text-muted-foreground mt-4">
                 <p>U kunt ook handmatig overmaken naar:</p>
-                <p><strong>IBAN:</strong> NL91ABNA0417164300</p>
-                <p><strong>T.n.v.:</strong> AMS Bouwers B.V.</p>
+                <p><strong>IBAN:</strong> </p>
+                <p><strong>T.n.v.:</strong> Re-Bouw B.V.</p>
                 <p><strong>Onder vermelding van:</strong> {offerte.offerteNummer} - Vooruitbetaling</p>
               </div>
             </div>

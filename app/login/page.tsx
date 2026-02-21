@@ -76,15 +76,15 @@ function LoginForm() {
         <CardHeader className="space-y-4 flex flex-col items-center">
           <div className="relative w-64 h-24">
             <Image 
-              src="/images/amsbouwers.logo.png" 
-              alt="AMS Bouwers Logo" 
+              src="/images/rebouw-logo.png"
+              alt="Re-Bouw Logo" 
               fill
               className="object-contain"
               priority
             />
           </div>
           <div className="text-center">
-            <CardTitle className="text-2xl font-bold">AMS Bouwers B.V.</CardTitle>
+            <CardTitle className="text-2xl font-bold">Re-Bouw B.V.</CardTitle>
             <CardDescription className="mt-2">
               Log in om toegang te krijgen tot het dashboard
             </CardDescription>
@@ -97,7 +97,7 @@ function LoginForm() {
               <Input
                 id="email"
                 type="email"
-                placeholder="nader@amsbouwers.nl"
+                placeholder="ramin@re-bouw.nl"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

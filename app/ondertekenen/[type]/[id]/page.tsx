@@ -183,7 +183,7 @@ export default function SignaturePage() {
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            AMS Bouwers B.V.
+            Re-Bouw B.V.
           </h1>
           <p className="text-gray-600">
             {type === "offerte" ? "Offerte" : "Factuur"} Ondertekenen

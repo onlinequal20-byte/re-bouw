@@ -77,14 +77,14 @@ export async function POST(
       totaal: offerte.totaal,
       notities: offerte.notities || undefined,
       companyInfo: {
-        naam: settingsMap['bedrijfsnaam'] || 'AMS Bouwers B.V.',
-        adres: settingsMap['adres'] || 'Sloterweg 1160, 1066 CV Amsterdam',
-        telefoon: settingsMap['telefoon'] || '0642959565',
-        email: settingsMap['email'] || 'info@amsbouwers.nl',
-        website: settingsMap['website'] || 'amsbouwers.nl',
-        kvk: settingsMap['kvk_nummer'] || '80195466',
+        naam: settingsMap['bedrijfsnaam'] || 'Re-Bouw B.V.',
+        adres: settingsMap['adres'] || '',
+        telefoon: settingsMap['telefoon'] || '0614601517',
+        email: settingsMap['email'] || 'info@re-bouw.nl',
+        website: settingsMap['website'] || 're-bouw.nl',
+        kvk: settingsMap['kvk_nummer'] || '60443162',
         btw: settingsMap['btw_nummer'] || 'NL123456789B01',
-        iban: settingsMap['iban'] || 'NL91ABNA0417164300',
+        iban: settingsMap['iban'] || '',
       },
       betalingsvoorwaarden: settingsMap['betalingsvoorwaarden'],
     };
@@ -96,7 +96,7 @@ export async function POST(
     const avContent = fs.readFileSync(avPath);
 
     // Get base URL for signature link
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://dashboard.amsbouwers.nl';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://dashboard.re-bouw.nl';
 
     // Generate email content
     const { subject, body } = generateOfferteEmail(offerte, baseUrl);

@@ -47,7 +47,7 @@ export async function GET(
     // Read logo file
     let logoBase64: string | undefined = undefined;
     try {
-      const logoPath = path.join(process.cwd(), 'public/images/amsbouwers.logo.png');
+      const logoPath = path.join(process.cwd(), 'public/images/rebouw-logo.png');
       if (fs.existsSync(logoPath)) {
         const logoBuffer = fs.readFileSync(logoPath);
         logoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`;
@@ -87,14 +87,14 @@ export async function GET(
       totaal: factuur.totaal,
       notities: factuur.notities || undefined,
       companyInfo: {
-        naam: settingsMap['bedrijfsnaam'] || 'AMS Bouwers B.V.',
-        adres: settingsMap['adres'] || 'Sloterweg 1160, 1066 CV Amsterdam',
-        telefoon: settingsMap['telefoon'] || '0642959565',
-        email: settingsMap['email'] || 'info@amsbouwers.nl',
-        website: settingsMap['website'] || 'amsbouwers.nl',
-        kvk: settingsMap['kvk_nummer'] || '80195466',
+        naam: settingsMap['bedrijfsnaam'] || 'Re-Bouw B.V.',
+        adres: settingsMap['adres'] || '',
+        telefoon: settingsMap['telefoon'] || '0614601517',
+        email: settingsMap['email'] || 'info@re-bouw.nl',
+        website: settingsMap['website'] || 're-bouw.nl',
+        kvk: settingsMap['kvk_nummer'] || '60443162',
         btw: settingsMap['btw_nummer'] || 'NL123456789B01',
-        iban: settingsMap['iban'] || 'NL91ABNA0417164300',
+        iban: settingsMap['iban'] || '',
       },
       betalingsvoorwaarden: settingsMap['betalingsvoorwaarden'],
       logoBase64,

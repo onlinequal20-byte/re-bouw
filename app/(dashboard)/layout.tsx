@@ -22,8 +22,8 @@ export default function DashboardLayout({
           <MobileSidebar />
           <div className="relative w-28 h-7">
             <Image
-              src="/images/amsbouwers.logo.png"
-              alt="AMS Bouwers"
+              src="/images/rebouw-logo.png"
+              alt="Re-Bouw"
               fill
               className="object-contain"
               priority
