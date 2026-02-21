@@ -19,10 +19,13 @@ import {
   FolderOpen,
   TrendingUp,
   Calendar,
+  ScrollText,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { BookOpen } from "lucide-react";
+import { useTour } from "./tour-provider";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -36,6 +39,7 @@ const navigation = [
 
   { name: "Financieel", href: "/financieel", icon: TrendingUp },
   { name: "Email", href: "/email", icon: Mail },
+  { name: "Voorwaarden", href: "/voorwaarden", icon: ScrollText },
   { name: "Instellingen", href: "/instellingen", icon: Settings },
 ];
 
@@ -43,6 +47,7 @@ export function MobileSidebar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const { startTour } = useTour();
 
   const handleLogout = async () => {
     await fetch("/api/logout", { method: "POST" });
@@ -115,8 +120,15 @@ export function MobileSidebar() {
           })}
         </nav>
 
-        {/* Logout */}
+        {/* Tour & Logout */}
         <div className="border-t border-white/10 p-4 pb-20">
+          <button
+            onClick={() => { setOpen(false); startTour(); }}
+            className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-400 hover:bg-white/8 hover:text-gray-200 transition-colors w-full"
+          >
+            <BookOpen className="h-5 w-5" />
+            Rondleiding
+          </button>
           <Button
             variant="ghost"
             className="w-full justify-start text-gray-400 hover:bg-white/8 hover:text-gray-200"
