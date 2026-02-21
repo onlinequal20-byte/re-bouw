@@ -34,7 +34,7 @@ const nextConfig: NextConfig = {
 
   // Environment variables that should be available on the client
   env: {
-    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://dashboard.re-bouw.nl',
+    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://re-bouw.vercel.app',
   },
 };
 
