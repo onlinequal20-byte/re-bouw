@@ -374,7 +374,7 @@ function generateHTMLEmail(textBody: string, subject: string, companyName: strin
               <div style="background-color: white; padding: 15px 25px; border-radius: 8px; margin-bottom: 15px; display: inline-block;">
                 <img src="${logoUrl}" alt="${companyName}" style="max-width: 200px; max-height: 80px; display: block;" />
               </div>
-              <p style="margin: 0; color: #ffffff; font-size: 14px; opacity: 0.9;">
+              <p style="margin: 0; color: #f59e0b; font-size: 14px; font-weight: 600;">
                 Vakmanschap in elke verbouwing
               </p>
             </td>
